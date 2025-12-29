@@ -10,7 +10,15 @@ import destination from "@turf/destination";
 // マス情報の型定義
 type Node = {
   id: string;
-  type: "start" | "normal" | "boss" | "supply" | "relay" | "whirlpool" | "port";
+  type:
+    | "start"
+    | "normal"
+    | "boss"
+    | "supply"
+    | "relay"
+    | "whirlpool"
+    | "port"
+    | "aerial";
   lat: number;
   lng: number;
 };
@@ -32,11 +40,42 @@ type SectionData = {
   edges: Edge[];
 };
 
+// 許可するノード種別のホワイトリスト（ランタイム検証用）
+const ALLOWED_NODE_TYPES = new Set<SectionData["nodes"][number]["type"]>([
+  "start",
+  "normal",
+  "boss",
+  "supply",
+  "relay",
+  "whirlpool",
+  "port",
+  "aerial",
+]);
+
 export default function Home() {
   const [sections, setSections] = useState<SectionData[]>([]);
   const mapRef = React.useRef<MapRef>(null);
   // 矢印オフセット距離を固定（5km = 5000m）
   const arrowOffsetKm = 30;
+
+  // MapスタイルURL（環境変数でMapTilerキーを管理）。キー未設定時はデモタイルへフォールバック
+  const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_KEY;
+  const isProd = process.env.NODE_ENV === "production";
+  const mapStyleUrl = useMemo(() => {
+    if (!MAPTILER_KEY) {
+      if (isProd) {
+        console.error(
+          "NEXT_PUBLIC_MAPTILER_KEY が未設定です。Vercel環境変数を設定してください。"
+        );
+      } else {
+        console.warn(
+          "NEXT_PUBLIC_MAPTILER_KEY 未設定。デモスタイルにフォールバックします。"
+        );
+      }
+      return "https://demotiles.maplibre.org/style.json";
+    }
+    return `https://api.maptiler.com/maps/streets/style.json?key=${MAPTILER_KEY}`;
+  }, [MAPTILER_KEY, isProd]);
 
   // 1. 外部JSONファイルを読み込む
   useEffect(() => {
@@ -58,7 +97,13 @@ export default function Home() {
   }, []);
 
   // 全ノード（Marker描画用）
-  const allNodes = useMemo(() => sections.flatMap((s) => s.nodes), [sections]);
+  const allNodes = useMemo(
+    () =>
+      sections.flatMap((s) =>
+        s.nodes.filter((n) => ALLOWED_NODE_TYPES.has(n.type))
+      ),
+    [sections]
+  );
 
   // エッジをGeoJSON(LineStringのFeatureCollection)に変換
   // セクションごとのLineString FeatureCollection
@@ -160,7 +205,7 @@ export default function Home() {
           latitude: 35.25,
           zoom: 11,
         }}
-        mapStyle="https://api.maptiler.com/maps/streets/style.json?key=y1HMGFsCIxAH9qNt8bAL"
+        mapStyle={mapStyleUrl}
         style={{ width: "100%", height: "100%" }}
         onClick={(e) => {
           const { lng, lat } = e.lngLat;
@@ -172,10 +217,11 @@ export default function Home() {
         {/* オフセットは5000m固定 */}
         {/* 2. 読み込んだデータに基づいてマーカーを配置 */}
         {allNodes.map((node) => {
+          const safeType = ALLOWED_NODE_TYPES.has(node.type)
+            ? node.type
+            : "normal";
           const sizePx =
-            node.type === "start" ||
-            node.type === "boss" ||
-            node.type === "port"
+            safeType === "start" || safeType === "boss" || safeType === "port"
               ? 50
               : 30;
           return (
@@ -183,7 +229,7 @@ export default function Home() {
               {/* 画像用マーカー（中心を座標に合わせる）*/}
               <Marker longitude={node.lng} latitude={node.lat} anchor="center">
                 <img
-                  src={`/img/nodes/${node.type}.png`}
+                  src={`/img/nodes/${safeType}.png`}
                   alt={node.id}
                   style={{
                     width: `${sizePx}px`,
