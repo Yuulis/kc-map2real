@@ -171,55 +171,54 @@ export default function Home() {
       >
         {/* オフセットは5000m固定 */}
         {/* 2. 読み込んだデータに基づいてマーカーを配置 */}
-        {allNodes.map((node) => (
-          <Marker
-            key={`${node.id}-${node.lng}-${node.lat}`}
-            longitude={node.lng}
-            latitude={node.lat}
-            anchor="center"
-          >
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-              }}
-            >
-              {/* マスの種類に応じて画像を出し分ける */}
-              <img
-                src={`/img/nodes/${node.type}.png`}
-                alt={node.id}
-                style={{
-                  width:
-                    node.type === "start" ||
-                    node.type === "boss" ||
-                    node.type === "port"
-                      ? "50px"
-                      : "30px",
-                  cursor: "pointer",
-                  filter: "drop-shadow(0px 0px 4px rgba(0,0,0,0.5))",
-                }}
-                onClick={() => alert(`マス: ${node.id} (${node.type})`)}
-              />
-              {/* 近くにIDラベルを表示 */}
-              <span
-                style={{
-                  marginTop: 4,
-                  padding: "0px 4px",
-                  fontSize: 20,
-                  fontWeight: 600,
-                  color: "#ffffff",
-                  textShadow: "0 0 2px #000, 0 0 4px #000",
-                  pointerEvents: "none",
-                  userSelect: "none",
-                }}
-                aria-hidden
+        {allNodes.map((node) => {
+          const sizePx =
+            node.type === "start" ||
+            node.type === "boss" ||
+            node.type === "port"
+              ? 50
+              : 30;
+          return (
+            <React.Fragment key={`${node.id}-${node.lng}-${node.lat}`}>
+              {/* 画像用マーカー（中心を座標に合わせる）*/}
+              <Marker longitude={node.lng} latitude={node.lat} anchor="center">
+                <img
+                  src={`/img/nodes/${node.type}.png`}
+                  alt={node.id}
+                  style={{
+                    width: `${sizePx}px`,
+                    cursor: "pointer",
+                    filter: "drop-shadow(0px 0px 4px rgba(0,0,0,0.5))",
+                  }}
+                  onClick={() => alert(`マス: ${node.id} (${node.type})`)}
+                />
+              </Marker>
+
+              {/* ラベル用マーカー（画像の下にオフセットして表示）*/}
+              <Marker
+                longitude={node.lng}
+                latitude={node.lat}
+                anchor="center"
+                offset={[0, sizePx / 2 + 10] as any}
               >
-                {node.id}
-              </span>
-            </div>
-          </Marker>
-        ))}
+                <span
+                  style={{
+                    padding: "0px 4px",
+                    fontSize: 20,
+                    fontWeight: 600,
+                    color: "#ffffff",
+                    textShadow: "0 0 2px #000, 0 0 4px #000",
+                    pointerEvents: "none",
+                    userSelect: "none",
+                  }}
+                  aria-hidden
+                >
+                  {node.id}
+                </span>
+              </Marker>
+            </React.Fragment>
+          );
+        })}
         {/* 3. セクションごとにレイヤー分離して線と矢印を描画 */}
         {edgeCollections.map(({ key, fc }) => (
           <Source
