@@ -2,39 +2,20 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import Map, { Marker, Source, Layer, MapRef } from "react-map-gl/maplibre";
+import NextImage from "next/image";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { point } from "@turf/helpers";
 import turfBearing from "@turf/bearing";
 import destination from "@turf/destination";
+import type { Feature, FeatureCollection, LineString, Point } from "geojson";
+import type { ExpressionSpecification } from "maplibre-gl";
 
-// マス情報の型定義
-type Node = {
-  id: string;
-  type:
-    | "start"
-    | "normal"
-    | "boss"
-    | "supply"
-    | "relay"
-    | "whirlpool"
-    | "port"
-    | "aerial";
-  lat: number;
-  lng: number;
-  // 任意: 表示名（nodes.json の name フィールド）
-  name?: string;
-};
+import type { MapsData, MapNode, MapEdge } from "@/app/types/maps";
 
-type Edge = {
-  from: string;
-  to: string;
-  arrow?: boolean; // 矢印表示の指定（任意）
-};
+// Internal view-layer types derived from MapsData
+type Node = MapNode;
 
-type MapData = {
-  nodes: Node[];
-  edges: Edge[];
-};
+type Edge = MapEdge;
 
 type SectionData = {
   key: string;
@@ -132,34 +113,25 @@ export default function Home() {
     return `https://api.maptiler.com/maps/streets/style.json?key=${MAPTILER_KEY}`;
   }, [MAPTILER_KEY, isProd]);
 
-  // 1. 外部JSONファイルを読み込む
+  // 1. Load map data from merged maps.json
   useEffect(() => {
-    fetch("/data/nodes.json")
+    fetch("/data/maps.json")
       .then((res) => res.json())
-      .then((data) => {
-        const arr: SectionData[] = Object.entries(data)
-          .filter(
-            ([, v]: any) => Array.isArray(v?.nodes) && Array.isArray(v?.edges)
-          )
-          .map(([key, v]: [string, any]) => ({
-            key,
-            nodes: v.nodes,
-            edges: v.edges,
-          }));
+      .then((data: MapsData) => {
+        const arr: SectionData[] = [];
+        for (const group of data.groups) {
+          for (const sea of group.seas) {
+            arr.push({
+              key: sea.code,
+              nodes: sea.nodes,
+              edges: sea.edges,
+            });
+          }
+        }
         setSections(arr);
       })
-      .catch((err) => console.error("nodes.json の読み込みに失敗", err));
+      .catch((err) => console.error("maps.json loading failed", err));
   }, []);
-
-  // 初期表示は全海域を表示（Headerでも全選択にしているが保険）
-  useEffect(() => {
-    if (
-      sections.length > 0 &&
-      (activeSectionKeys === null || activeSectionKeys.length === 0)
-    ) {
-      setActiveSectionKeys(sections.map((s) => s.key));
-    }
-  }, [sections]);
 
   // ヘッダーの海域選択イベントを受け取る
   useEffect(() => {
@@ -208,26 +180,32 @@ export default function Home() {
     return visibleSections.map((s) => {
       const idx: Record<string, [number, number]> = {};
       for (const n of s.nodes) idx[n.id] = [n.lng, n.lat];
-      const features = s.edges
-        .map((e) => {
-          const from = idx[e.from];
-          const to = idx[e.to];
-          if (!from || !to) return null;
-          return {
-            type: "Feature",
-            properties: {
-              from: e.from,
-              to: e.to,
-              arrow: !!e.arrow,
-              section: s.key,
-            },
-            geometry: { type: "LineString", coordinates: [from, to] },
-          };
-        })
-        .filter(Boolean);
+      const features: Feature<
+        LineString,
+        { from: string; to: string; arrow: boolean; section: string }
+      >[] = [];
+      for (const e of s.edges) {
+        const from = idx[e.from];
+        const to = idx[e.to];
+        if (!from || !to) continue;
+        features.push({
+          type: "Feature",
+          properties: {
+            from: e.from,
+            to: e.to,
+            arrow: !!e.arrow,
+            section: s.key,
+          },
+          geometry: { type: "LineString", coordinates: [from, to] },
+        });
+      }
+      const fc: FeatureCollection<
+        LineString,
+        { from: string; to: string; arrow: boolean; section: string }
+      > = { type: "FeatureCollection", features };
       return {
         key: s.key,
-        fc: { type: "FeatureCollection", features },
+        fc,
       } as const;
     });
   }, [visibleSections]);
@@ -238,40 +216,48 @@ export default function Home() {
     return visibleSections.map((s) => {
       const idx: Record<string, [number, number]> = {};
       for (const n of s.nodes) idx[n.id] = [n.lng, n.lat];
-      const features = s.edges
-        .filter((e) => !!e.arrow)
-        .map((e) => {
-          const from = idx[e.from];
-          const to = idx[e.to];
-          if (!from || !to) return null;
-          const [fromLng, fromLat] = from;
-          const [toLng, toLat] = to;
-          const start = point([fromLng, fromLat]);
-          const end = point([toLng, toLat]);
-          const deg = turfBearing(start, end);
-          // 開始点から前方へオフセット（開始側に矢印を配置）
-          const fwd = destination(start, arrowOffsetKm, deg, {
-            units: "kilometers",
-          });
-          const fwdCoord = fwd?.geometry?.coordinates ?? from;
-          return {
-            type: "Feature",
-            properties: {
-              rotation: deg,
-              from: e.from,
-              to: e.to,
-              section: s.key,
-            },
-            geometry: { type: "Point", coordinates: fwdCoord },
-          };
-        })
-        .filter(Boolean);
+      const features: Feature<
+        Point,
+        { rotation: number; from: string; to: string; section: string }
+      >[] = [];
+      for (const e of s.edges) {
+        if (!e.arrow) continue;
+        const from = idx[e.from];
+        const to = idx[e.to];
+        if (!from || !to) continue;
+        const [fromLng, fromLat] = from;
+        const [toLng, toLat] = to;
+        const start = point([fromLng, fromLat]);
+        const end = point([toLng, toLat]);
+        const deg = turfBearing(start, end);
+        // 開始点から前方へオフセット（開始側に矢印を配置）
+        const fwd = destination(start, arrowOffsetKm, deg, {
+          units: "kilometers",
+        });
+        const fwdCoord = fwd?.geometry?.coordinates ?? from;
+        features.push({
+          type: "Feature",
+          properties: {
+            rotation: deg,
+            from: e.from,
+            to: e.to,
+            section: s.key,
+          },
+          geometry: { type: "Point", coordinates: fwdCoord },
+        });
+      }
+      const fc: FeatureCollection<
+        Point,
+        { rotation: number; from: string; to: string; section: string }
+      > = { type: "FeatureCollection", features };
       return {
         key: s.key,
-        fc: { type: "FeatureCollection", features },
+        fc,
       } as const;
     });
   }, [visibleSections]);
+
+  const rotateExpression: ExpressionSpecification = ["get", "rotation"];
 
   return (
     <main
@@ -286,7 +272,7 @@ export default function Home() {
         onLoad={() => {
           const map = mapRef.current?.getMap();
           if (map && !map.hasImage("arrow-icon")) {
-            const img = new Image();
+            const img = new window.Image();
             img.crossOrigin = "anonymous";
             img.src = "/img/nodes/arrow.png";
             img.onload = () => {
@@ -298,7 +284,7 @@ export default function Home() {
                 console.error("矢印画像の登録に失敗", err);
               }
             };
-            img.onerror = (err) => {
+            img.onerror = (err: Event | string) => {
               console.error("矢印画像の読み込みに失敗", err);
             };
           }
@@ -330,7 +316,7 @@ export default function Home() {
             ]);
           } else {
             console.log(
-              `{ "id": "NEW", "type": "normal", "lat": ${lat}, "lng": ${lng} },`
+              `{ "id": "NEW", "type": "normal", "lat": ${lat}, "lng": ${lng} },`,
             );
           }
         }}
@@ -349,12 +335,14 @@ export default function Home() {
             <React.Fragment key={`${node.id}-${node.lng}-${node.lat}`}>
               {/* 画像用マーカー（中心を座標に合わせる）*/}
               <Marker longitude={node.lng} latitude={node.lat} anchor="center">
-                <img
+                <NextImage
                   src={`/img/nodes/${safeType}.png`}
                   alt={node.name ?? node.id}
                   title={node.name ?? node.id}
+                  width={sizePx}
+                  height={sizePx}
+                  unoptimized
                   style={{
-                    width: `${sizePx}px`,
                     cursor: "pointer",
                     filter: "drop-shadow(0px 0px 4px rgba(0,0,0,0.5))",
                   }}
@@ -367,7 +355,7 @@ export default function Home() {
                 longitude={node.lng}
                 latitude={node.lat}
                 anchor="center"
-                offset={[0, sizePx / 2 + 10] as any}
+                offset={[0, sizePx / 2 + 10] as [number, number]}
               >
                 <span
                   style={{
@@ -393,7 +381,7 @@ export default function Home() {
             key={`edges-${key}`}
             id={`edges-${key}`}
             type="geojson"
-            data={fc as any}
+            data={fc}
           >
             <Layer
               id={`edges-line-${key}`}
@@ -418,7 +406,7 @@ export default function Home() {
             key={`arrows-${key}`}
             id={`arrows-${key}`}
             type="geojson"
-            data={fc as any}
+            data={fc}
           >
             <Layer
               id={`arrows-symbol-${key}`}
@@ -429,7 +417,7 @@ export default function Home() {
                 "icon-image": "arrow-icon",
                 "icon-size": 0.05,
                 "icon-rotation-alignment": "map",
-                "icon-rotate": ["get", "rotation"] as any,
+                "icon-rotate": rotateExpression,
                 "icon-allow-overlap": true,
                 "icon-anchor": "center",
               }}
@@ -498,9 +486,7 @@ export default function Home() {
           right: 12,
           bottom: 12,
           zIndex: 60,
-          background: pinMode
-            ? "rgba(239, 68, 68, 0.7)"
-            : "rgba(0,0,0,0.7)",
+          background: pinMode ? "rgba(239, 68, 68, 0.7)" : "rgba(0,0,0,0.7)",
           border: pinMode
             ? "1px solid rgba(239, 68, 68, 1)"
             : "1px solid transparent",
@@ -529,9 +515,7 @@ export default function Home() {
         >
           <span>{pinMode ? "ピン配置モード: ON" : "ピン配置モード: OFF"}</span>
           {pinMode && pins.length > 0 && (
-            <span style={{ fontSize: 11, opacity: 0.8 }}>
-              {pins.length}件
-            </span>
+            <span style={{ fontSize: 11, opacity: 0.8 }}>{pins.length}件</span>
           )}
         </div>
 
@@ -590,8 +574,8 @@ export default function Home() {
                     .map(
                       (p) =>
                         `{ "lat": ${p.lat.toFixed(6)}, "lng": ${p.lng.toFixed(
-                          6
-                        )} },`
+                          6,
+                        )} },`,
                     )
                     .join("\n");
                   navigator.clipboard?.writeText(text).catch(() => {});

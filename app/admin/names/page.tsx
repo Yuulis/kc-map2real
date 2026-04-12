@@ -1,10 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { NamesData, SeaGroup, Sea } from "@/app/types/names";
+import type { NamesData, SeaGroup, Sea } from "@/app/types/maps";
 
 function deepClone<T>(obj: T): T {
   return JSON.parse(JSON.stringify(obj));
+}
+
+function getErrorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error ? error.message : fallback;
 }
 
 export default function NamesAdminPage() {
@@ -22,8 +26,8 @@ export default function NamesAdminPage() {
         if (!res.ok) throw new Error(`GET /api/names failed: ${res.status}`);
         const json: NamesData = await res.json();
         setData(json);
-      } catch (e: any) {
-        setError(e?.message ?? "Failed to load names");
+      } catch (e: unknown) {
+        setError(getErrorMessage(e, "Failed to load names"));
       }
     })();
   }, []);
@@ -113,8 +117,8 @@ export default function NamesAdminPage() {
           ? "保存 + nodes.jsonへ反映しました"
           : "保存しました（nodes.jsonは反映済み）"
       );
-    } catch (e: any) {
-      setError(e?.message ?? "保存に失敗しました");
+    } catch (e: unknown) {
+      setError(getErrorMessage(e, "保存に失敗しました"));
     } finally {
       setSaving(false);
     }
@@ -299,17 +303,17 @@ export default function NamesAdminPage() {
                   });
                   if (!res.ok)
                     throw new Error(
-                      `POST /api/names/sync failed: ${res.status}`
+                      `POST /api/names/sync failed: ${res.status}`,
                     );
                   const json = await res.json();
                   setSuccess(
                     json.updated
                       ? "ノードIDを補完しました"
-                      : "補完対象はありませんでした"
+                      : "補完対象はありませんでした",
                   );
                   if (json?.data) setData(json.data as NamesData);
-                } catch (e: any) {
-                  setError(e?.message ?? "補完に失敗しました");
+                } catch (e: unknown) {
+                  setError(getErrorMessage(e, "補完に失敗しました"));
                 }
               }}
             >
@@ -325,16 +329,18 @@ export default function NamesAdminPage() {
                   });
                   if (!res.ok)
                     throw new Error(
-                      `POST /api/nodes/sync-names failed: ${res.status}`
+                      `POST /api/nodes/sync-names failed: ${res.status}`,
                     );
                   const json = await res.json();
                   setSuccess(
                     json.updated
                       ? "nodes.json に名前を反映しました"
-                      : "反映済みでした"
+                      : "反映済みでした",
                   );
-                } catch (e: any) {
-                  setError(e?.message ?? "nodes.json への反映に失敗しました");
+                } catch (e: unknown) {
+                  setError(
+                    getErrorMessage(e, "nodes.json への反映に失敗しました"),
+                  );
                 }
               }}
             >

@@ -15,12 +15,21 @@ export default function Header() {
   const [selected, setSelected] = useState<SectionKey[]>([]); // 選択された海域のみ表示
   const [pinMode, setPinMode] = useState(false); // ピン配置モード
 
-  // セクションキー一覧を読み取り（初期は全選択）
+  // Load section keys from merged maps.json (initially all selected)
   useEffect(() => {
-    fetch("/data/nodes.json")
+    fetch("/data/maps.json")
       .then((res) => res.json())
       .then((data) => {
-        const keys = Object.keys(data || {});
+        const keys: string[] = [];
+        if (data && Array.isArray(data.groups)) {
+          for (const group of data.groups) {
+            if (Array.isArray(group.seas)) {
+              for (const sea of group.seas) {
+                keys.push(sea.code);
+              }
+            }
+          }
+        }
         setSectionKeys(keys);
         setSelected(keys);
       })
@@ -32,7 +41,7 @@ export default function Header() {
   const applySelection = () => {
     const evt = new CustomEvent<SectionKey[]>("kc:set-active-sections", {
       detail: selected,
-    } as any);
+    });
     window.dispatchEvent(evt);
     setLeftOpen(false);
     toast.success("海域表示を更新しました");
@@ -160,7 +169,7 @@ export default function Header() {
                       setPinMode(next);
                       const evt = new CustomEvent<boolean>("kc:set-pin-mode", {
                         detail: next,
-                      } as any);
+                      });
                       window.dispatchEvent(evt);
                       toast[next ? "success" : "info"](
                         next

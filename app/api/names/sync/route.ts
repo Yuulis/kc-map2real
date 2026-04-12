@@ -2,40 +2,24 @@ import { NextResponse } from "next/server";
 import path from "path";
 import { promises as fs } from "fs";
 
-const namesPath = path.join(process.cwd(), "public", "data", "names.json");
-const nodesPath = path.join(process.cwd(), "public", "data", "nodes.json");
+const mapsPath = path.join(process.cwd(), "public", "data", "maps.json");
 
 export async function POST() {
   try {
-    const [namesRaw, nodesRaw] = await Promise.all([
-      fs.readFile(namesPath, "utf-8"),
-      fs.readFile(nodesPath, "utf-8"),
-    ]);
+    const mapsRaw = await fs.readFile(mapsPath, "utf-8");
+    const mapsJson = JSON.parse(mapsRaw);
 
-    const namesJson = JSON.parse(namesRaw);
-    const nodesJson = JSON.parse(nodesRaw);
-
-    // nodes.json は { "1-1": { nodes: [{id: ...}, ...] }, ... } の形
-    const seaToNodeIds: Record<string, string[]> = {};
-    for (const [code, sea] of Object.entries(nodesJson)) {
-      const list = Array.isArray((sea as any).nodes) ? (sea as any).nodes : [];
-      seaToNodeIds[code] = list.map((n: any) => String(n.id));
-    }
-
-    // names.json の各 sea に対応する nodeId を補完（既存は維持、欠けを追加）
+    // In the merged schema, node names are already in maps.json.
+    // This endpoint now ensures all node IDs have a name (default to ID).
     let changed = false;
-    if (Array.isArray(namesJson.groups)) {
-      for (const group of namesJson.groups) {
+    if (Array.isArray(mapsJson.groups)) {
+      for (const group of mapsJson.groups) {
         if (!Array.isArray(group.seas)) continue;
         for (const sea of group.seas) {
-          const code: string = sea.code;
-          const ids = seaToNodeIds[code] ?? [];
-          if (!sea.nodes || typeof sea.nodes !== "object") {
-            sea.nodes = {};
-          }
-          for (const id of ids) {
-            if (!(id in sea.nodes)) {
-              sea.nodes[id] = id; // 初期名はIDと同じ
+          if (!Array.isArray(sea.nodes)) continue;
+          for (const node of sea.nodes) {
+            if (!node.name || node.name.length === 0) {
+              node.name = node.id;
               changed = true;
             }
           }
@@ -44,15 +28,27 @@ export async function POST() {
     }
 
     if (changed) {
-      await fs.writeFile(
-        namesPath,
-        JSON.stringify(namesJson, null, 2),
-        "utf-8"
-      );
+      await fs.writeFile(mapsPath, JSON.stringify(mapsJson, null, 2), "utf-8");
     }
 
-    return NextResponse.json({ updated: changed, data: namesJson });
-  } catch (error) {
+    // Return backward-compatible NamesData shape
+    const namesData = {
+      version: mapsJson.version ?? 2,
+      groups: (mapsJson.groups ?? []).map((g: any) => ({
+        id: g.id,
+        name: g.name,
+        seas: (g.seas ?? []).map((s: any) => ({
+          code: s.code,
+          name: s.name,
+          nodes: Object.fromEntries(
+            (s.nodes ?? []).map((n: any) => [n.id, n.name])
+          ),
+        })),
+      })),
+    };
+
+    return NextResponse.json({ updated: changed, data: namesData });
+  } catch {
     return NextResponse.json({ error: "Sync failed" }, { status: 500 });
   }
 }
