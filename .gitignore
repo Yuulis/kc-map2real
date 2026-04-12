@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# AI generated code
+.claude/docs/research/
+.codex/
+.gemini/
