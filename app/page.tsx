@@ -21,6 +21,8 @@ type Node = {
     | "aerial";
   lat: number;
   lng: number;
+  // 任意: 表示名（nodes.json の name フィールド）
+  name?: string;
 };
 
 type Edge = {
@@ -54,9 +56,62 @@ const ALLOWED_NODE_TYPES = new Set<SectionData["nodes"][number]["type"]>([
 
 export default function Home() {
   const [sections, setSections] = useState<SectionData[]>([]);
+  const [activeSectionKeys, setActiveSectionKeys] = useState<string[] | null>(
+    null
+  );
   const mapRef = React.useRef<MapRef>(null);
   // 矢印オフセット距離を固定（5km = 5000m）
   const arrowOffsetKm = 30;
+  // ピン配置モード・ピン配列
+  const [pinMode, setPinMode] = useState(false);
+  const [pins, setPins] = useState<
+    Array<{ id: string; lat: number; lng: number; num: number }>
+  >([]);
+  // Feature 1: Persisted map view state (read once before mount)
+  const initialViewState = useMemo(() => {
+    if (typeof window === "undefined") {
+      return { longitude: 139.7, latitude: 35.25, zoom: 11 };
+    }
+    try {
+      const raw = localStorage.getItem("kc-map-view");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (
+          typeof parsed.longitude === "number" &&
+          typeof parsed.latitude === "number" &&
+          typeof parsed.zoom === "number"
+        ) {
+          return parsed;
+        }
+      }
+    } catch {
+      // Ignore parse errors
+    }
+    return { longitude: 139.7, latitude: 35.25, zoom: 11 };
+  }, []);
+  // Feature 3: Cursor coordinate tooltip
+  const [cursorCoord, setCursorCoord] = useState<{
+    lat: number;
+    lng: number;
+    x: number;
+    y: number;
+  } | null>(null);
+
+  // Feature 1: Callback to persist view state on map move end
+  const handleMoveEnd = useCallback(
+    (e: { viewState: { longitude: number; latitude: number; zoom: number } }) => {
+      const { longitude, latitude, zoom } = e.viewState;
+      try {
+        localStorage.setItem(
+          "kc-map-view",
+          JSON.stringify({ longitude, latitude, zoom })
+        );
+      } catch {
+        // Ignore storage errors
+      }
+    },
+    []
+  );
 
   // MapスタイルURL（環境変数でMapTilerキーを管理）。キー未設定時はデモタイルへフォールバック
   const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_KEY;
@@ -96,19 +151,61 @@ export default function Home() {
       .catch((err) => console.error("nodes.json の読み込みに失敗", err));
   }, []);
 
+  // 初期表示は全海域を表示（Headerでも全選択にしているが保険）
+  useEffect(() => {
+    if (
+      sections.length > 0 &&
+      (activeSectionKeys === null || activeSectionKeys.length === 0)
+    ) {
+      setActiveSectionKeys(sections.map((s) => s.key));
+    }
+  }, [sections]);
+
+  // ヘッダーの海域選択イベントを受け取る
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const ce = e as CustomEvent<string[]>;
+      // 配列が空なら非表示（何も表示しない）
+      setActiveSectionKeys(ce.detail ?? []);
+    };
+    window.addEventListener("kc:set-active-sections", handler as EventListener);
+    return () =>
+      window.removeEventListener(
+        "kc:set-active-sections",
+        handler as EventListener
+      );
+  }, []);
+
+  // ヘッダーのピンモード切替イベントを受け取る
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const ce = e as CustomEvent<boolean>;
+      setPinMode(!!ce.detail);
+    };
+    window.addEventListener("kc:set-pin-mode", handler as EventListener);
+    return () =>
+      window.removeEventListener("kc:set-pin-mode", handler as EventListener);
+  }, []);
+
+  const visibleSections = useMemo(() => {
+    if (!activeSectionKeys) return sections; // 初期は全部
+    if (activeSectionKeys.length === 0) return [];
+    return sections.filter((s) => activeSectionKeys.includes(s.key));
+  }, [sections, activeSectionKeys]);
+
   // 全ノード（Marker描画用）
   const allNodes = useMemo(
     () =>
-      sections.flatMap((s) =>
+      visibleSections.flatMap((s) =>
         s.nodes.filter((n) => ALLOWED_NODE_TYPES.has(n.type))
       ),
-    [sections]
+    [visibleSections]
   );
 
   // エッジをGeoJSON(LineStringのFeatureCollection)に変換
   // セクションごとのLineString FeatureCollection
   const edgeCollections = useMemo(() => {
-    return sections.map((s) => {
+    return visibleSections.map((s) => {
       const idx: Record<string, [number, number]> = {};
       for (const n of s.nodes) idx[n.id] = [n.lng, n.lat];
       const features = s.edges
@@ -133,12 +230,12 @@ export default function Home() {
         fc: { type: "FeatureCollection", features },
       } as const;
     });
-  }, [sections]);
+  }, [visibleSections]);
 
   // 矢印用のGeoJSON（ラインの末端=to座標に1つだけ矢印を置く）
   // セクションごとの矢印Point FeatureCollection
   const arrowCollections = useMemo(() => {
-    return sections.map((s) => {
+    return visibleSections.map((s) => {
       const idx: Record<string, [number, number]> = {};
       for (const n of s.nodes) idx[n.id] = [n.lng, n.lat];
       const features = s.edges
@@ -174,10 +271,16 @@ export default function Home() {
         fc: { type: "FeatureCollection", features },
       } as const;
     });
-  }, [sections]);
+  }, [visibleSections]);
 
   return (
-    <main style={{ width: "100vw", height: "100vh" }}>
+    <main
+      style={{
+        width: "100vw",
+        height: "calc(100vh - 3rem)",
+        marginTop: "3rem",
+      }}
+    >
       <Map
         ref={mapRef}
         onLoad={() => {
@@ -200,18 +303,36 @@ export default function Home() {
             };
           }
         }}
-        initialViewState={{
-          longitude: 139.7,
-          latitude: 35.25,
-          zoom: 11,
+        initialViewState={initialViewState}
+        onMoveEnd={handleMoveEnd}
+        onMouseMove={(e) => {
+          if (pinMode) {
+            setCursorCoord({
+              lat: e.lngLat.lat,
+              lng: e.lngLat.lng,
+              x: e.point.x,
+              y: e.point.y,
+            });
+          }
+        }}
+        onMouseLeave={() => {
+          setCursorCoord(null);
         }}
         mapStyle={mapStyleUrl}
         style={{ width: "100%", height: "100%" }}
         onClick={(e) => {
           const { lng, lat } = e.lngLat;
-          console.log(
-            `{ "id": "NEW", "type": "normal", "lat": ${lat}, "lng": ${lng} },`
-          );
+          if (pinMode) {
+            const id = `pin-${Date.now()}`;
+            setPins((prev) => [
+              ...prev,
+              { id, lat, lng, num: prev.length + 1 },
+            ]);
+          } else {
+            console.log(
+              `{ "id": "NEW", "type": "normal", "lat": ${lat}, "lng": ${lng} },`
+            );
+          }
         }}
       >
         {/* オフセットは5000m固定 */}
@@ -230,7 +351,8 @@ export default function Home() {
               <Marker longitude={node.lng} latitude={node.lat} anchor="center">
                 <img
                   src={`/img/nodes/${safeType}.png`}
-                  alt={node.id}
+                  alt={node.name ?? node.id}
+                  title={node.name ?? node.id}
                   style={{
                     width: `${sizePx}px`,
                     cursor: "pointer",
@@ -314,7 +436,203 @@ export default function Home() {
             />
           </Source>
         ))}
+
+        {/* クリックで配置されたピンの描画 */}
+        {pins.map((p) => (
+          <Marker key={p.id} longitude={p.lng} latitude={p.lat} anchor="center">
+            <div
+              title={`#${p.num} lat: ${p.lat.toFixed(6)}, lng: ${p.lng.toFixed(6)}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                setPins((prev) => prev.filter((pin) => pin.id !== p.id));
+              }}
+              style={{
+                width: 24,
+                height: 24,
+                background: "#ef4444",
+                borderRadius: "50%",
+                border: "2px solid white",
+                boxShadow: "0 0 6px rgba(0,0,0,0.5)",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 11,
+                fontWeight: 700,
+                color: "#fff",
+                lineHeight: 1,
+                userSelect: "none",
+              }}
+            >
+              {p.num}
+            </div>
+          </Marker>
+        ))}
       </Map>
+
+      {/* Feature 3: Cursor coordinate tooltip when pin mode is ON */}
+      {pinMode && cursorCoord !== null && (
+        <div
+          style={{
+            position: "fixed",
+            left: cursorCoord.x + 12,
+            top: cursorCoord.y + 48 + 12,
+            zIndex: 70,
+            background: "rgba(0,0,0,0.75)",
+            color: "#fff",
+            padding: "4px 8px",
+            borderRadius: 4,
+            fontSize: 12,
+            pointerEvents: "none",
+            whiteSpace: "nowrap",
+          }}
+        >
+          lat: {cursorCoord.lat.toFixed(6)}, lng: {cursorCoord.lng.toFixed(6)}
+        </div>
+      )}
+
+      {/* 座標情報のフローティングパネル */}
+      <div
+        style={{
+          position: "fixed",
+          right: 12,
+          bottom: 12,
+          zIndex: 60,
+          background: pinMode
+            ? "rgba(239, 68, 68, 0.7)"
+            : "rgba(0,0,0,0.7)",
+          border: pinMode
+            ? "1px solid rgba(239, 68, 68, 1)"
+            : "1px solid transparent",
+          color: "#fff",
+          borderRadius: 8,
+          fontSize: 13,
+          userSelect: "none",
+          minWidth: 220,
+        }}
+      >
+        {/* Header: toggle pin mode */}
+        <div
+          onClick={() => setPinMode((prev) => !prev)}
+          style={{
+            padding: "8px 10px",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 8,
+            borderBottom:
+              pinMode && pins.length > 0
+                ? "1px solid rgba(255,255,255,0.2)"
+                : "none",
+          }}
+        >
+          <span>{pinMode ? "ピン配置モード: ON" : "ピン配置モード: OFF"}</span>
+          {pinMode && pins.length > 0 && (
+            <span style={{ fontSize: 11, opacity: 0.8 }}>
+              {pins.length}件
+            </span>
+          )}
+        </div>
+
+        {/* Pin list + action buttons */}
+        {pinMode && pins.length > 0 && (
+          <div style={{ padding: "4px 10px 8px" }}>
+            {/* Scrollable pin list */}
+            <div
+              style={{
+                maxHeight: 180,
+                overflowY: "auto",
+                marginBottom: 6,
+              }}
+            >
+              {pins.map((p) => (
+                <div
+                  key={p.id}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    fontSize: 12,
+                    padding: "2px 0",
+                    fontFamily: "monospace",
+                  }}
+                >
+                  <span
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: 18,
+                      height: 18,
+                      background: "#ef4444",
+                      borderRadius: "50%",
+                      fontSize: 10,
+                      fontWeight: 700,
+                      flexShrink: 0,
+                    }}
+                  >
+                    {p.num}
+                  </span>
+                  <span>
+                    {p.lat.toFixed(6)}, {p.lng.toFixed(6)}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* Action buttons */}
+            <div style={{ display: "flex", gap: 6 }}>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const text = pins
+                    .map(
+                      (p) =>
+                        `{ "lat": ${p.lat.toFixed(6)}, "lng": ${p.lng.toFixed(
+                          6
+                        )} },`
+                    )
+                    .join("\n");
+                  navigator.clipboard?.writeText(text).catch(() => {});
+                }}
+                style={{
+                  background: "#22c55e",
+                  color: "#000",
+                  borderRadius: 6,
+                  padding: "4px 8px",
+                  fontWeight: 600,
+                  fontSize: 12,
+                  border: "none",
+                  cursor: "pointer",
+                  flex: 1,
+                }}
+              >
+                全コピー
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setPins([]);
+                }}
+                style={{
+                  background: "#6b7280",
+                  color: "#fff",
+                  borderRadius: 6,
+                  padding: "4px 8px",
+                  fontWeight: 600,
+                  fontSize: 12,
+                  border: "none",
+                  cursor: "pointer",
+                  flex: 1,
+                }}
+              >
+                クリア
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </main>
   );
 }
