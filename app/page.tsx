@@ -10,7 +10,11 @@ import destination from "@turf/destination";
 import type { Feature, FeatureCollection, LineString, Point } from "geojson";
 import type { ExpressionSpecification } from "maplibre-gl";
 
+import { toast } from "sonner";
+import { Pencil, MapIcon } from "lucide-react";
 import type { MapsData, MapNode, MapEdge } from "@/app/types/maps";
+import NodeEditDialog from "@/app/components/NodeEditDialog";
+import SeaManagerDialog from "@/app/components/SeaManagerDialog";
 
 // Internal view-layer types derived from MapsData
 type Node = MapNode;
@@ -23,7 +27,7 @@ type SectionData = {
   edges: Edge[];
 };
 
-// 許可するノード種別のホワイトリスト（ランタイム検証用）
+// Whitelist of allowed node types (runtime validation)
 const ALLOWED_NODE_TYPES = new Set<SectionData["nodes"][number]["type"]>([
   "start",
   "normal",
@@ -41,13 +45,28 @@ export default function Home() {
     null
   );
   const mapRef = React.useRef<MapRef>(null);
-  // 矢印オフセット距離を固定（5km = 5000m）
+  // Arrow offset distance fixed at 30km
   const arrowOffsetKm = 30;
-  // ピン配置モード・ピン配列
+  // Pin placement mode and pins array
   const [pinMode, setPinMode] = useState(false);
   const [pins, setPins] = useState<
     Array<{ id: string; lat: number; lng: number; num: number }>
   >([]);
+  // Edit mode (independent of pin mode)
+  const [editMode, setEditMode] = useState(false);
+  // Sea manager dialog state
+  const [seaManagerOpen, setSeaManagerOpen] = useState(false);
+  const [fullMapsData, setFullMapsData] = useState<MapsData | null>(null);
+  // Node edit dialog state
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editDialogMode, setEditDialogMode] = useState<"add" | "edit">("add");
+  const [pendingCoord, setPendingCoord] = useState<{ lat: number; lng: number } | null>(null);
+  const [editingNode, setEditingNode] = useState<{ node: MapNode; seaCode: string } | null>(null);
+  const [allSeas, setAllSeas] = useState<Array<{ code: string; name: string }>>([]);
+  // Edge editing state
+  const [edgeFrom, setEdgeFrom] = useState("");
+  const [edgeTo, setEdgeTo] = useState("");
+  const [edgeArrow, setEdgeArrow] = useState(false);
   // Feature 1: Persisted map view state (read once before mount)
   const initialViewState = useMemo(() => {
     if (typeof window === "undefined") {
@@ -94,18 +113,18 @@ export default function Home() {
     []
   );
 
-  // MapスタイルURL（環境変数でMapTilerキーを管理）。キー未設定時はデモタイルへフォールバック
+  // Map style URL (MapTiler key managed via env variable). Falls back to demo tiles when key is not set.
   const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_KEY;
   const isProd = process.env.NODE_ENV === "production";
   const mapStyleUrl = useMemo(() => {
     if (!MAPTILER_KEY) {
       if (isProd) {
         console.error(
-          "NEXT_PUBLIC_MAPTILER_KEY が未設定です。Vercel環境変数を設定してください。"
+          "NEXT_PUBLIC_MAPTILER_KEY is not set. Please configure it in Vercel environment variables."
         );
       } else {
         console.warn(
-          "NEXT_PUBLIC_MAPTILER_KEY 未設定。デモスタイルにフォールバックします。"
+          "NEXT_PUBLIC_MAPTILER_KEY not set. Falling back to demo style."
         );
       }
       return "https://demotiles.maplibre.org/style.json";
@@ -113,12 +132,13 @@ export default function Home() {
     return `https://api.maptiler.com/maps/streets/style.json?key=${MAPTILER_KEY}`;
   }, [MAPTILER_KEY, isProd]);
 
-  // 1. Load map data from merged maps.json
-  useEffect(() => {
-    fetch("/data/maps.json")
+  // Helper to load/reload map data from maps.json
+  const loadMapData = useCallback(() => {
+    fetch(`/data/maps.json?t=${Date.now()}`)
       .then((res) => res.json())
       .then((data: MapsData) => {
         const arr: SectionData[] = [];
+        const seas: Array<{ code: string; name: string }> = [];
         for (const group of data.groups) {
           for (const sea of group.seas) {
             arr.push({
@@ -126,18 +146,25 @@ export default function Home() {
               nodes: sea.nodes,
               edges: sea.edges,
             });
+            seas.push({ code: sea.code, name: sea.name });
           }
         }
         setSections(arr);
+        setAllSeas(seas);
+        setFullMapsData(data);
       })
       .catch((err) => console.error("maps.json loading failed", err));
   }, []);
 
-  // ヘッダーの海域選択イベントを受け取る
+  // 1. Load map data from merged maps.json
+  useEffect(() => {
+    loadMapData();
+  }, [loadMapData]);
+
+  // Listen for sea selection events from the header
   useEffect(() => {
     const handler = (e: Event) => {
       const ce = e as CustomEvent<string[]>;
-      // 配列が空なら非表示（何も表示しない）
       setActiveSectionKeys(ce.detail ?? []);
     };
     window.addEventListener("kc:set-active-sections", handler as EventListener);
@@ -148,7 +175,7 @@ export default function Home() {
       );
   }, []);
 
-  // ヘッダーのピンモード切替イベントを受け取る
+  // Listen for pin mode toggle events from the header
   useEffect(() => {
     const handler = (e: Event) => {
       const ce = e as CustomEvent<boolean>;
@@ -160,12 +187,12 @@ export default function Home() {
   }, []);
 
   const visibleSections = useMemo(() => {
-    if (!activeSectionKeys) return sections; // 初期は全部
+    if (!activeSectionKeys) return sections; // Initially show all
     if (activeSectionKeys.length === 0) return [];
     return sections.filter((s) => activeSectionKeys.includes(s.key));
   }, [sections, activeSectionKeys]);
 
-  // 全ノード（Marker描画用）
+  // All nodes (for Marker rendering)
   const allNodes = useMemo(
     () =>
       visibleSections.flatMap((s) =>
@@ -174,8 +201,7 @@ export default function Home() {
     [visibleSections]
   );
 
-  // エッジをGeoJSON(LineStringのFeatureCollection)に変換
-  // セクションごとのLineString FeatureCollection
+  // Convert edges to GeoJSON (LineString FeatureCollection per section)
   const edgeCollections = useMemo(() => {
     return visibleSections.map((s) => {
       const idx: Record<string, [number, number]> = {};
@@ -210,8 +236,7 @@ export default function Home() {
     });
   }, [visibleSections]);
 
-  // 矢印用のGeoJSON（ラインの末端=to座標に1つだけ矢印を置く）
-  // セクションごとの矢印Point FeatureCollection
+  // Arrow GeoJSON (point at start of line for directional arrows)
   const arrowCollections = useMemo(() => {
     return visibleSections.map((s) => {
       const idx: Record<string, [number, number]> = {};
@@ -230,8 +255,9 @@ export default function Home() {
         const start = point([fromLng, fromLat]);
         const end = point([toLng, toLat]);
         const deg = turfBearing(start, end);
-        // 開始点から前方へオフセット（開始側に矢印を配置）
-        const fwd = destination(start, arrowOffsetKm, deg, {
+        // Offset backward from end point (place arrow near destination)
+        const reverseDeg = (deg + 180) % 360;
+        const fwd = destination(end, arrowOffsetKm, reverseDeg, {
           units: "kilometers",
         });
         const fwdCoord = fwd?.geometry?.coordinates ?? from;
@@ -259,6 +285,179 @@ export default function Home() {
 
   const rotateExpression: ExpressionSpecification = ["get", "rotation"];
 
+  // Find which sea a node belongs to
+  const findSeaForNode = useCallback(
+    (nodeId: string, lat: number, lng: number): string | undefined => {
+      for (const s of visibleSections) {
+        const found = s.nodes.find(
+          (n) => n.id === nodeId && n.lat === lat && n.lng === lng,
+        );
+        if (found) return s.key;
+      }
+      return undefined;
+    },
+    [visibleSections],
+  );
+
+  // Determine the current active sea (for edge editing, only when exactly one sea is active)
+  const singleActiveSea = useMemo(() => {
+    if (visibleSections.length === 1) return visibleSections[0];
+    return null;
+  }, [visibleSections]);
+
+  // Open dialog to add a node at clicked coordinates
+  const openAddNodeDialog = useCallback(
+    (lat: number, lng: number) => {
+      setPendingCoord({ lat, lng });
+      setEditingNode(null);
+      setEditDialogMode("add");
+      setEditDialogOpen(true);
+    },
+    [],
+  );
+
+  // Open dialog to edit an existing node
+  const openEditNodeDialog = useCallback(
+    (node: MapNode, seaCode: string) => {
+      setEditingNode({ node, seaCode });
+      setPendingCoord(null);
+      setEditDialogMode("edit");
+      setEditDialogOpen(true);
+    },
+    [],
+  );
+
+  // Handle node add/update from dialog
+  const handleNodeConfirm = useCallback(
+    async (seaCode: string, node: MapNode) => {
+      try {
+        if (editDialogMode === "add") {
+          const res = await fetch("/api/maps", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ target: "nodes", seaCode, node }),
+          });
+          if (!res.ok) {
+            const err = await res.json();
+            toast.error(err.error ?? "Failed to add node");
+            return;
+          }
+          toast.success(`Node "${node.id}" added to ${seaCode}`);
+        } else {
+          const originalId = editingNode?.node.id ?? node.id;
+          const res = await fetch("/api/maps", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              seaCode,
+              nodeId: originalId,
+              updates: {
+                id: node.id,
+                type: node.type,
+                name: node.name,
+                lat: node.lat,
+                lng: node.lng,
+                meta: node.meta,
+              },
+            }),
+          });
+          if (!res.ok) {
+            const err = await res.json();
+            toast.error(err.error ?? "Failed to update node");
+            return;
+          }
+          toast.success(`Node "${node.id}" updated`);
+        }
+        setEditDialogOpen(false);
+        loadMapData();
+      } catch {
+        toast.error("Network error");
+      }
+    },
+    [editDialogMode, editingNode, loadMapData],
+  );
+
+  // Handle node delete from dialog
+  const handleNodeDelete = useCallback(
+    async (seaCode: string, nodeId: string) => {
+      try {
+        const res = await fetch("/api/maps", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ target: "nodes", seaCode, nodeId }),
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          toast.error(err.error ?? "Failed to delete node");
+          return;
+        }
+        toast.success(`Node "${nodeId}" deleted from ${seaCode}`);
+        setEditDialogOpen(false);
+        loadMapData();
+      } catch {
+        toast.error("Network error");
+      }
+    },
+    [loadMapData],
+  );
+
+  // Handle edge add
+  const handleAddEdge = useCallback(async () => {
+    if (!singleActiveSea || !edgeFrom || !edgeTo || edgeFrom === edgeTo) return;
+    try {
+      const res = await fetch("/api/maps", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          target: "edges",
+          seaCode: singleActiveSea.key,
+          edge: { from: edgeFrom, to: edgeTo, arrow: edgeArrow },
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        toast.error(err.error ?? "Failed to add edge");
+        return;
+      }
+      toast.success(`Edge ${edgeFrom} -> ${edgeTo} added`);
+      setEdgeFrom("");
+      setEdgeTo("");
+      setEdgeArrow(false);
+      loadMapData();
+    } catch {
+      toast.error("Network error");
+    }
+  }, [singleActiveSea, edgeFrom, edgeTo, edgeArrow, loadMapData]);
+
+  // Handle edge delete
+  const handleDeleteEdge = useCallback(
+    async (from: string, to: string) => {
+      if (!singleActiveSea) return;
+      try {
+        const res = await fetch("/api/maps", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            target: "edges",
+            seaCode: singleActiveSea.key,
+            from,
+            to,
+          }),
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          toast.error(err.error ?? "Failed to delete edge");
+          return;
+        }
+        toast.success(`Edge ${from} -> ${to} deleted`);
+        loadMapData();
+      } catch {
+        toast.error("Network error");
+      }
+    },
+    [singleActiveSea, loadMapData],
+  );
+
   return (
     <main
       style={{
@@ -281,11 +480,11 @@ export default function Home() {
                   map.addImage("arrow-icon", img);
                 }
               } catch (err) {
-                console.error("矢印画像の登録に失敗", err);
+                console.error("Failed to register arrow image", err);
               }
             };
             img.onerror = (err: Event | string) => {
-              console.error("矢印画像の読み込みに失敗", err);
+              console.error("Failed to load arrow image", err);
             };
           }
         }}
@@ -314,6 +513,8 @@ export default function Home() {
               ...prev,
               { id, lat, lng, num: prev.length + 1 },
             ]);
+            // Also open the node add dialog
+            openAddNodeDialog(lat, lng);
           } else {
             console.log(
               `{ "id": "NEW", "type": "normal", "lat": ${lat}, "lng": ${lng} },`,
@@ -321,8 +522,7 @@ export default function Home() {
           }
         }}
       >
-        {/* オフセットは5000m固定 */}
-        {/* 2. 読み込んだデータに基づいてマーカーを配置 */}
+        {/* 2. Render markers based on loaded data */}
         {allNodes.map((node) => {
           const safeType = ALLOWED_NODE_TYPES.has(node.type)
             ? node.type
@@ -333,7 +533,7 @@ export default function Home() {
               : 30;
           return (
             <React.Fragment key={`${node.id}-${node.lng}-${node.lat}`}>
-              {/* 画像用マーカー（中心を座標に合わせる）*/}
+              {/* Image marker (centered on coordinates) */}
               <Marker longitude={node.lng} latitude={node.lat} anchor="center">
                 <NextImage
                   src={`/img/nodes/${safeType}.png`}
@@ -346,11 +546,17 @@ export default function Home() {
                     cursor: "pointer",
                     filter: "drop-shadow(0px 0px 4px rgba(0,0,0,0.5))",
                   }}
-                  onClick={() => alert(`マス: ${node.id} (${node.type})`)}
+                  onClick={(ev) => {
+                    ev.stopPropagation();
+                    const seaCode = findSeaForNode(node.id, node.lat, node.lng);
+                    if (seaCode) {
+                      openEditNodeDialog(node, seaCode);
+                    }
+                  }}
                 />
               </Marker>
 
-              {/* ラベル用マーカー（画像の下にオフセットして表示）*/}
+              {/* Label marker (offset below the image) */}
               <Marker
                 longitude={node.lng}
                 latitude={node.lat}
@@ -375,7 +581,7 @@ export default function Home() {
             </React.Fragment>
           );
         })}
-        {/* 3. セクションごとにレイヤー分離して線と矢印を描画 */}
+        {/* 3. Draw lines and arrows per section */}
         {edgeCollections.map(({ key, fc }) => (
           <Source
             key={`edges-${key}`}
@@ -425,7 +631,7 @@ export default function Home() {
           </Source>
         ))}
 
-        {/* クリックで配置されたピンの描画 */}
+        {/* Render pins placed by clicks */}
         {pins.map((p) => (
           <Marker key={p.id} longitude={p.lng} latitude={p.lat} anchor="center">
             <div
@@ -458,7 +664,7 @@ export default function Home() {
         ))}
       </Map>
 
-      {/* Feature 3: Cursor coordinate tooltip when pin mode is ON */}
+      {/* Cursor coordinate tooltip when pin mode is ON */}
       {pinMode && cursorCoord !== null && (
         <div
           style={{
@@ -479,7 +685,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* 座標情報のフローティングパネル */}
+      {/* Floating panel (bottom-right) */}
       <div
         style={{
           position: "fixed",
@@ -497,26 +703,75 @@ export default function Home() {
           minWidth: 220,
         }}
       >
-        {/* Header: toggle pin mode */}
+        {/* Header: mode toggles */}
         <div
-          onClick={() => setPinMode((prev) => !prev)}
           style={{
             padding: "8px 10px",
-            cursor: "pointer",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
             gap: 8,
             borderBottom:
-              pinMode && pins.length > 0
+              (pinMode && pins.length > 0) || (editMode && singleActiveSea)
                 ? "1px solid rgba(255,255,255,0.2)"
                 : "none",
           }}
         >
-          <span>{pinMode ? "ピン配置モード: ON" : "ピン配置モード: OFF"}</span>
-          {pinMode && pins.length > 0 && (
-            <span style={{ fontSize: 11, opacity: 0.8 }}>{pins.length}件</span>
-          )}
+          {/* Pin mode toggle */}
+          <span
+            onClick={() => setPinMode((prev) => !prev)}
+            style={{ cursor: "pointer", flex: 1 }}
+          >
+            {pinMode ? "Pin: ON" : "Pin: OFF"}
+            {pinMode && pins.length > 0 && (
+              <span style={{ fontSize: 11, opacity: 0.8, marginLeft: 4 }}>
+                {pins.length}
+              </span>
+            )}
+          </span>
+
+          {/* Edit mode toggle */}
+          <button
+            onClick={() => setEditMode((prev) => !prev)}
+            title={editMode ? "Edit mode: ON" : "Edit mode: OFF"}
+            style={{
+              background: editMode ? "#3b82f6" : "#4b5563",
+              color: "#fff",
+              border: "none",
+              borderRadius: 4,
+              padding: "4px 6px",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 3,
+              fontSize: 11,
+              fontWeight: 600,
+            }}
+          >
+            <Pencil size={12} />
+            {editMode ? "ON" : "OFF"}
+          </button>
+
+          {/* Sea manager button */}
+          <button
+            onClick={() => setSeaManagerOpen(true)}
+            title="Sea area management"
+            style={{
+              background: "#4b5563",
+              color: "#fff",
+              border: "none",
+              borderRadius: 4,
+              padding: "4px 6px",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 3,
+              fontSize: 11,
+              fontWeight: 600,
+            }}
+          >
+            <MapIcon size={12} />
+          </button>
         </div>
 
         {/* Pin list + action buttons */}
@@ -592,7 +847,7 @@ export default function Home() {
                   flex: 1,
                 }}
               >
-                全コピー
+                Copy All
               </button>
               <button
                 onClick={(e) => {
@@ -611,12 +866,178 @@ export default function Home() {
                   flex: 1,
                 }}
               >
-                クリア
+                Clear
               </button>
             </div>
           </div>
         )}
+
+        {/* Edge editing section (visible when editMode is ON and exactly one sea is active) */}
+        {editMode && singleActiveSea && (
+          <div
+            style={{
+              padding: "8px 10px",
+              borderTop: "1px solid rgba(255,255,255,0.2)",
+            }}
+          >
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                marginBottom: 6,
+                opacity: 0.8,
+              }}
+            >
+              Edges ({singleActiveSea.key})
+            </div>
+
+            {/* Add edge form */}
+            <div style={{ display: "flex", gap: 4, marginBottom: 6, flexWrap: "wrap" }}>
+              <select
+                value={edgeFrom}
+                onChange={(e) => setEdgeFrom(e.target.value)}
+                style={{
+                  flex: 1,
+                  minWidth: 60,
+                  background: "#374151",
+                  color: "#fff",
+                  border: "1px solid #6b7280",
+                  borderRadius: 4,
+                  padding: "2px 4px",
+                  fontSize: 11,
+                }}
+              >
+                <option value="">From</option>
+                {singleActiveSea.nodes.map((n) => (
+                  <option key={n.id} value={n.id}>
+                    {n.id}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={edgeTo}
+                onChange={(e) => setEdgeTo(e.target.value)}
+                style={{
+                  flex: 1,
+                  minWidth: 60,
+                  background: "#374151",
+                  color: "#fff",
+                  border: "1px solid #6b7280",
+                  borderRadius: 4,
+                  padding: "2px 4px",
+                  fontSize: 11,
+                }}
+              >
+                <option value="">To</option>
+                {singleActiveSea.nodes.map((n) => (
+                  <option key={n.id} value={n.id}>
+                    {n.id}
+                  </option>
+                ))}
+              </select>
+              <label
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2,
+                  fontSize: 11,
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={edgeArrow}
+                  onChange={(e) => setEdgeArrow(e.target.checked)}
+                  style={{ width: 12, height: 12 }}
+                />
+                Arrow
+              </label>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleAddEdge();
+                }}
+                disabled={!edgeFrom || !edgeTo || edgeFrom === edgeTo}
+                style={{
+                  background: !edgeFrom || !edgeTo || edgeFrom === edgeTo ? "#4b5563" : "#3b82f6",
+                  color: "#fff",
+                  borderRadius: 4,
+                  padding: "2px 8px",
+                  fontWeight: 600,
+                  fontSize: 11,
+                  border: "none",
+                  cursor: !edgeFrom || !edgeTo || edgeFrom === edgeTo ? "not-allowed" : "pointer",
+                }}
+              >
+                Add
+              </button>
+            </div>
+
+            {/* Current edges list */}
+            <div style={{ maxHeight: 120, overflowY: "auto" }}>
+              {singleActiveSea.edges.map((edge) => (
+                <div
+                  key={`${edge.from}-${edge.to}`}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    fontSize: 11,
+                    padding: "1px 0",
+                    fontFamily: "monospace",
+                  }}
+                >
+                  <span>
+                    {edge.from} {edge.arrow ? "->" : "--"} {edge.to}
+                  </span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteEdge(edge.from, edge.to);
+                    }}
+                    style={{
+                      background: "transparent",
+                      color: "#ef4444",
+                      border: "none",
+                      cursor: "pointer",
+                      fontSize: 11,
+                      padding: "0 4px",
+                      fontWeight: 700,
+                    }}
+                    title={`Delete edge ${edge.from} -> ${edge.to}`}
+                  >
+                    x
+                  </button>
+                </div>
+              ))}
+              {singleActiveSea.edges.length === 0 && (
+                <div style={{ fontSize: 11, opacity: 0.5 }}>No edges</div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Node edit dialog */}
+      <NodeEditDialog
+        open={editDialogOpen}
+        mode={editDialogMode}
+        lat={pendingCoord?.lat}
+        lng={pendingCoord?.lng}
+        node={editingNode?.node}
+        seaCode={editingNode?.seaCode ?? (singleActiveSea?.key)}
+        availableSeas={allSeas}
+        onConfirm={handleNodeConfirm}
+        onDelete={handleNodeDelete}
+        onClose={() => setEditDialogOpen(false)}
+      />
+
+      {/* Sea manager dialog */}
+      <SeaManagerDialog
+        open={seaManagerOpen}
+        onClose={() => setSeaManagerOpen(false)}
+        mapsData={fullMapsData}
+        onDataChanged={loadMapData}
+      />
     </main>
   );
 }

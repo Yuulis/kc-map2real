@@ -62,6 +62,23 @@ export default function Header() {
 
   const isSelected = (key: SectionKey) => selected.includes(key);
 
+  const selectAll = () => setSelected([...sectionKeys]);
+  const deselectAll = () => setSelected([]);
+
+  const toggleGroup = (keys: string[], allChecked: boolean) => {
+    if (allChecked) {
+      setSelected((prev) => prev.filter((k) => !keys.includes(k)));
+    } else {
+      setSelected((prev) => {
+        const next = [...prev];
+        for (const k of keys) {
+          if (!next.includes(k)) next.push(k);
+        }
+        return next;
+      });
+    }
+  };
+
   return (
     <>
       <Toaster richColors position="top-center" />
@@ -90,6 +107,23 @@ export default function Header() {
                     海域データを読み込み中…
                   </div>
                 )}
+                {/* 全選択 / 全解除 */}
+                {sectionKeys.length > 0 && (
+                  <div className="flex gap-2">
+                    <button
+                      className="flex-1 text-xs bg-gray-700 hover:bg-gray-600 text-white px-2 py-1 rounded"
+                      onClick={selectAll}
+                    >
+                      全選択
+                    </button>
+                    <button
+                      className="flex-1 text-xs bg-gray-700 hover:bg-gray-600 text-white px-2 py-1 rounded"
+                      onClick={deselectAll}
+                    >
+                      全解除
+                    </button>
+                  </div>
+                )}
                 {/* Group by world (prefix before "-") */}
                 {Array.from(
                   sectionKeys.reduce((acc, key) => {
@@ -98,34 +132,50 @@ export default function Header() {
                     acc.get(world)!.push(key);
                     return acc;
                   }, new Map<string, string[]>())
-                ).map(([world, keys]) => (
-                  <div key={world}>
-                    <div className="text-xs font-bold text-gray-400 uppercase tracking-wide px-2 pb-1 border-b border-gray-700 mb-1">
-                      第{world}海域
-                    </div>
-                    {keys.map((key) => {
-                      const checked = isSelected(key);
-                      return (
-                        <label
-                          key={key}
-                          className="flex items-center gap-2 px-2 py-1 rounded hover:bg-gray-800 cursor-pointer"
+                ).map(([world, keys]) => {
+                  const allChecked = keys.every((k) => isSelected(k));
+                  const someChecked = keys.some((k) => isSelected(k));
+                  return (
+                    <div key={world}>
+                      <label className="flex items-center gap-2 px-2 pb-1 border-b border-gray-700 mb-1 cursor-pointer hover:bg-gray-800 rounded">
+                        <Checkbox.Root
+                          checked={allChecked ? true : someChecked ? "indeterminate" : false}
+                          onCheckedChange={() => toggleGroup(keys, allChecked)}
+                          className="inline-flex items-center justify-center size-4 rounded border border-gray-500 data-[state=checked]:bg-white data-[state=checked]:border-white data-[state=indeterminate]:bg-gray-500 data-[state=indeterminate]:border-gray-400"
+                          aria-label={`第${world}海域を一斉選択`}
                         >
-                          <Checkbox.Root
-                            checked={checked}
-                            onCheckedChange={(v) => toggleOne(key, !!v)}
-                            className="inline-flex items-center justify-center size-4 rounded border border-gray-500 data-[state=checked]:bg-white data-[state=checked]:border-white"
-                            aria-label={`${key} を表示`}
+                          <Checkbox.Indicator>
+                            <Check className="size-3 text-black" />
+                          </Checkbox.Indicator>
+                        </Checkbox.Root>
+                        <span className="text-xs font-bold text-gray-400 uppercase tracking-wide">
+                          第{world}海域
+                        </span>
+                      </label>
+                      {keys.map((key) => {
+                        const checked = isSelected(key);
+                        return (
+                          <label
+                            key={key}
+                            className="flex items-center gap-2 px-2 py-1 rounded hover:bg-gray-800 cursor-pointer"
                           >
-                            <Checkbox.Indicator>
-                              <Check className="size-3 text-black" />
-                            </Checkbox.Indicator>
-                          </Checkbox.Root>
-                          <span className="text-sm">{key}</span>
-                        </label>
-                      );
-                    })}
-                  </div>
-                ))}
+                            <Checkbox.Root
+                              checked={checked}
+                              onCheckedChange={(v) => toggleOne(key, !!v)}
+                              className="inline-flex items-center justify-center size-4 rounded border border-gray-500 data-[state=checked]:bg-white data-[state=checked]:border-white"
+                              aria-label={`${key} を表示`}
+                            >
+                              <Checkbox.Indicator>
+                                <Check className="size-3 text-black" />
+                              </Checkbox.Indicator>
+                            </Checkbox.Root>
+                            <span className="text-sm">{key}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
                 <div className="pt-2">
                   <button
                     className="w-full bg-white text-black px-2 py-1 rounded hover:opacity-90 font-semibold"
