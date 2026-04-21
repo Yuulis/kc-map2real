@@ -21,6 +21,9 @@ type RenameTarget =
 // Inline add-sea form state
 type AddSeaTarget = { groupId: string };
 
+// Inline add-submap form state
+type AddSubmapTarget = { seaCode: string };
+
 export default function SeaManagerDialog({
   open,
   onClose,
@@ -41,6 +44,11 @@ export default function SeaManagerDialog({
   const [newGroupId, setNewGroupId] = useState("");
   const [newGroupName, setNewGroupName] = useState("");
 
+  // Add submap form
+  const [addingSubmap, setAddingSubmap] = useState<AddSubmapTarget | null>(null);
+  const [newSubmapId, setNewSubmapId] = useState("");
+  const [newSubmapName, setNewSubmapName] = useState("");
+
   const resetAllForms = useCallback(() => {
     setRenaming(null);
     setRenameValue("");
@@ -50,6 +58,9 @@ export default function SeaManagerDialog({
     setAddingGroup(false);
     setNewGroupId("");
     setNewGroupName("");
+    setAddingSubmap(null);
+    setNewSubmapId("");
+    setNewSubmapName("");
   }, []);
 
   // --- Rename group ---
@@ -252,6 +263,73 @@ export default function SeaManagerDialog({
     }
   }, [newGroupId, newGroupName, onDataChanged]);
 
+  // --- Add submap ---
+  const startAddSubmap = useCallback((seaCode: string) => {
+    setAddingSubmap({ seaCode });
+    setNewSubmapId("");
+    setNewSubmapName("");
+    setRenaming(null);
+    setAddingSea(null);
+    setAddingGroup(false);
+  }, []);
+
+  const confirmAddSubmap = useCallback(async () => {
+    if (!addingSubmap || !newSubmapId.trim() || !newSubmapName.trim()) return;
+    try {
+      const res = await fetch("/api/maps", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          target: "submaps",
+          seaCode: addingSubmap.seaCode,
+          submap: { id: newSubmapId.trim(), name: newSubmapName.trim() },
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        toast.error(err.error ?? "Failed to add submap");
+        return;
+      }
+      toast.success(`Submap "${newSubmapName.trim()}" added`);
+      setAddingSubmap(null);
+      setNewSubmapId("");
+      setNewSubmapName("");
+      onDataChanged();
+    } catch {
+      toast.error("Network error");
+    }
+  }, [addingSubmap, newSubmapId, newSubmapName, onDataChanged]);
+
+  // --- Delete submap ---
+  const handleDeleteSubmap = useCallback(
+    async (seaCode: string, submapId: string, submapName: string) => {
+      if (
+        !window.confirm(
+          `Delete submap "${submapName}" from ${seaCode}? All edges in this submap will be removed.`,
+        )
+      ) {
+        return;
+      }
+      try {
+        const res = await fetch("/api/maps", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ target: "submaps", seaCode, submapId }),
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          toast.error(err.error ?? "Failed to delete submap");
+          return;
+        }
+        toast.success(`Submap "${submapName}" deleted`);
+        onDataChanged();
+      } catch {
+        toast.error("Network error");
+      }
+    },
+    [onDataChanged],
+  );
+
   const btnBase =
     "inline-flex items-center justify-center rounded px-2 py-1 text-xs font-medium transition-colors focus:outline-none";
 
@@ -369,72 +447,152 @@ export default function SeaManagerDialog({
                   {/* Sea list */}
                   <div className="divide-y divide-gray-700/50">
                     {group.seas.map((sea) => (
-                      <div
-                        key={sea.code}
-                        className="flex items-center gap-2 px-3 py-1.5 pl-6 bg-gray-900 hover:bg-gray-800/60"
-                      >
-                        {renaming?.kind === "sea" &&
-                        renaming.seaCode === sea.code ? (
-                          <div className="flex items-center gap-1 flex-1 min-w-0">
-                            <span className="text-xs text-gray-400 shrink-0">
-                              {sea.code}
-                            </span>
+                      <div key={sea.code}>
+                        <div
+                          className="flex items-center gap-2 px-3 py-1.5 pl-6 bg-gray-900 hover:bg-gray-800/60"
+                        >
+                          {renaming?.kind === "sea" &&
+                          renaming.seaCode === sea.code ? (
+                            <div className="flex items-center gap-1 flex-1 min-w-0">
+                              <span className="text-xs text-gray-400 shrink-0">
+                                {sea.code}
+                              </span>
+                              <input
+                                type="text"
+                                value={renameValue}
+                                onChange={(e) => setRenameValue(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") confirmRenameSea();
+                                  if (e.key === "Escape") setRenaming(null);
+                                }}
+                                autoFocus
+                                className="flex-1 min-w-0 bg-gray-700 border border-gray-500 rounded px-2 py-0.5 text-xs focus:outline-none focus:border-blue-500"
+                              />
+                              <button
+                                onClick={confirmRenameSea}
+                                className={`${btnBase} bg-green-700 hover:bg-green-600 text-white`}
+                                title="Confirm"
+                              >
+                                <Check className="size-3" />
+                              </button>
+                              <button
+                                onClick={() => setRenaming(null)}
+                                className={`${btnBase} bg-gray-600 hover:bg-gray-500 text-white`}
+                                title="Cancel"
+                              >
+                                <X className="size-3" />
+                              </button>
+                            </div>
+                          ) : (
+                            <>
+                              <span className="text-xs truncate flex-1 min-w-0">
+                                <span className="text-gray-400">
+                                  {sea.code}
+                                </span>{" "}
+                                {sea.name}
+                                <span className="text-gray-500 ml-1">
+                                  ({sea.nodes.length}N, {sea.edges.length}E
+                                  {sea.submaps && sea.submaps.length > 0 && `, ${sea.submaps.length}S`})
+                                </span>
+                              </span>
+                              <button
+                                onClick={() => startAddSubmap(sea.code)}
+                                className={`${btnBase} bg-indigo-700 hover:bg-indigo-600 text-white`}
+                                title="Add submap"
+                              >
+                                <Plus className="size-3" />
+                                <span className="ml-0.5">Sub</span>
+                              </button>
+                              <button
+                                onClick={() =>
+                                  startRenameSea(sea.code, sea.name)
+                                }
+                                className={`${btnBase} bg-gray-600 hover:bg-gray-500 text-white`}
+                                title="Rename sea"
+                              >
+                                <Pencil className="size-3" />
+                              </button>
+                              <button
+                                onClick={() =>
+                                  handleDeleteSea(sea.code, sea.name)
+                                }
+                                className={`${btnBase} bg-red-800 hover:bg-red-700 text-white`}
+                                title="Delete sea"
+                              >
+                                <Trash2 className="size-3" />
+                              </button>
+                            </>
+                          )}
+                        </div>
+
+                        {/* Submap list */}
+                        {sea.submaps && sea.submaps.length > 0 && (
+                          <div className="divide-y divide-gray-700/30">
+                            {sea.submaps.map((sm) => (
+                              <div
+                                key={sm.id}
+                                className="flex items-center gap-2 px-3 py-1 pl-10 bg-gray-950 hover:bg-gray-800/40"
+                              >
+                                <span className="text-[11px] truncate flex-1 min-w-0">
+                                  <span className="text-indigo-400">
+                                    {sm.name}
+                                  </span>
+                                  <span className="text-gray-500 ml-1">
+                                    ({(sm.nodes ?? []).length}N, {sm.edges.length}E)
+                                  </span>
+                                </span>
+                                <button
+                                  onClick={() =>
+                                    handleDeleteSubmap(sea.code, sm.id, sm.name)
+                                  }
+                                  className={`${btnBase} bg-red-800 hover:bg-red-700 text-white`}
+                                  title={`Delete submap ${sm.name}`}
+                                >
+                                  <Trash2 className="size-3" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Inline add submap form */}
+                        {addingSubmap?.seaCode === sea.code && (
+                          <div className="flex items-center gap-1 px-3 py-1.5 pl-10 bg-gray-800/40">
                             <input
                               type="text"
-                              value={renameValue}
-                              onChange={(e) => setRenameValue(e.target.value)}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") confirmRenameSea();
-                                if (e.key === "Escape") setRenaming(null);
-                              }}
+                              value={newSubmapId}
+                              onChange={(e) => setNewSubmapId(e.target.value)}
+                              placeholder="ID (e.g. 1)"
                               autoFocus
+                              className="w-16 bg-gray-700 border border-gray-500 rounded px-2 py-0.5 text-xs focus:outline-none focus:border-blue-500"
+                            />
+                            <input
+                              type="text"
+                              value={newSubmapName}
+                              onChange={(e) => setNewSubmapName(e.target.value)}
+                              placeholder={`Name (e.g. ${sea.code}-1)`}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") confirmAddSubmap();
+                                if (e.key === "Escape") setAddingSubmap(null);
+                              }}
                               className="flex-1 min-w-0 bg-gray-700 border border-gray-500 rounded px-2 py-0.5 text-xs focus:outline-none focus:border-blue-500"
                             />
                             <button
-                              onClick={confirmRenameSea}
-                              className={`${btnBase} bg-green-700 hover:bg-green-600 text-white`}
-                              title="Confirm"
+                              onClick={confirmAddSubmap}
+                              disabled={!newSubmapId.trim() || !newSubmapName.trim()}
+                              className={`${btnBase} bg-green-700 hover:bg-green-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white`}
+                              title="Add"
                             >
                               <Check className="size-3" />
                             </button>
                             <button
-                              onClick={() => setRenaming(null)}
+                              onClick={() => setAddingSubmap(null)}
                               className={`${btnBase} bg-gray-600 hover:bg-gray-500 text-white`}
                               title="Cancel"
                             >
                               <X className="size-3" />
                             </button>
                           </div>
-                        ) : (
-                          <>
-                            <span className="text-xs truncate flex-1 min-w-0">
-                              <span className="text-gray-400">
-                                {sea.code}
-                              </span>{" "}
-                              {sea.name}
-                              <span className="text-gray-500 ml-1">
-                                ({sea.nodes.length}N, {sea.edges.length}E)
-                              </span>
-                            </span>
-                            <button
-                              onClick={() =>
-                                startRenameSea(sea.code, sea.name)
-                              }
-                              className={`${btnBase} bg-gray-600 hover:bg-gray-500 text-white`}
-                              title="Rename sea"
-                            >
-                              <Pencil className="size-3" />
-                            </button>
-                            <button
-                              onClick={() =>
-                                handleDeleteSea(sea.code, sea.name)
-                              }
-                              className={`${btnBase} bg-red-800 hover:bg-red-700 text-white`}
-                              title="Delete sea"
-                            >
-                              <Trash2 className="size-3" />
-                            </button>
-                          </>
                         )}
                       </div>
                     ))}

@@ -7,7 +7,9 @@ export type NodeType =
   | "relay"
   | "whirlpool"
   | "port"
-  | "aerial";
+  | "aerial"
+  | "air-rade"
+  | "night-battle";
 
 /** Extensible metadata object for future fields */
 export type Meta = Record<string, unknown>;
@@ -38,6 +40,18 @@ export interface MapEdge {
   arrow?: boolean;
 }
 
+/** A sub-map within a sea area (e.g. "7-2-1", "7-2-2") sharing the same nodes but with different edges */
+export interface MapSubSea {
+  /** Sub-map identifier (e.g. "1", "2") */
+  id: string;
+  /** Display name (e.g. "7-2-1") */
+  name: string;
+  /** Nodes specific to this sub-map (optional; base nodes live in the parent sea) */
+  nodes?: MapNode[];
+  /** Edges for this sub-map */
+  edges: MapEdge[];
+}
+
 /** A single sea area (e.g. "1-1") */
 export interface MapSea {
   /** Sea area code (e.g. "1-1") */
@@ -48,8 +62,10 @@ export interface MapSea {
   meta: Meta;
   /** Nodes in this sea area */
   nodes: MapNode[];
-  /** Edges connecting nodes */
+  /** Edges connecting nodes (used when submaps is absent for backward compatibility) */
   edges: MapEdge[];
+  /** Optional sub-maps with different edge sets sharing the same nodes */
+  submaps?: MapSubSea[];
 }
 
 /** A group of sea areas (e.g. world 1) */

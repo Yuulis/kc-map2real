@@ -14,7 +14,14 @@ const NODE_TYPES: readonly NodeType[] = [
   "whirlpool",
   "port",
   "aerial",
+  "air-rade",
+  "night-battle",
 ] as const;
+
+interface SubMapOption {
+  id: string;
+  name: string;
+}
 
 interface NodeEditDialogProps {
   open: boolean;
@@ -23,9 +30,11 @@ interface NodeEditDialogProps {
   lng?: number;
   node?: MapNode;
   seaCode?: string;
+  submapIds?: string[];
   availableSeas: ReadonlyArray<{ code: string; name: string }>;
-  onConfirm: (seaCode: string, node: MapNode) => void;
-  onDelete?: (seaCode: string, nodeId: string) => void;
+  availableSubmaps?: ReadonlyArray<SubMapOption>;
+  onConfirm: (seaCode: string, node: MapNode, submapIds: string[]) => void;
+  onDelete?: (seaCode: string, nodeId: string, submapIds: string[]) => void;
   onClose: () => void;
 }
 
@@ -36,12 +45,15 @@ export default function NodeEditDialog({
   lng,
   node,
   seaCode,
+  submapIds,
   availableSeas,
+  availableSubmaps,
   onConfirm,
   onDelete,
   onClose,
 }: NodeEditDialogProps) {
   const [selectedSea, setSelectedSea] = useState(seaCode ?? "");
+  const [selectedSubmaps, setSelectedSubmaps] = useState<Set<string>>(new Set());
   const [nodeId, setNodeId] = useState("");
   const [nodeName, setNodeName] = useState("");
   const [nodeType, setNodeType] = useState<NodeType>("normal");
@@ -59,6 +71,7 @@ export default function NodeEditDialog({
       setNodeLat(node.lat);
       setNodeLng(node.lng);
       setSelectedSea(seaCode ?? "");
+      setSelectedSubmaps(new Set(submapIds ?? []));
     } else {
       // Add mode
       setNodeId("");
@@ -67,8 +80,21 @@ export default function NodeEditDialog({
       setNodeLat(lat ?? 0);
       setNodeLng(lng ?? 0);
       setSelectedSea(seaCode ?? availableSeas[0]?.code ?? "");
+      setSelectedSubmaps(new Set(submapIds ?? []));
     }
-  }, [open, mode, node, lat, lng, seaCode, availableSeas]);
+  }, [open, mode, node, lat, lng, seaCode, submapIds, availableSeas]);
+
+  const handleSubmapToggle = useCallback((smId: string) => {
+    setSelectedSubmaps((prev) => {
+      const next = new Set(prev);
+      if (next.has(smId)) {
+        next.delete(smId);
+      } else {
+        next.add(smId);
+      }
+      return next;
+    });
+  }, []);
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
@@ -84,9 +110,9 @@ export default function NodeEditDialog({
         meta: node?.meta ?? {},
       };
 
-      onConfirm(selectedSea, result);
+      onConfirm(selectedSea, result, [...selectedSubmaps]);
     },
-    [selectedSea, nodeId, nodeType, nodeLat, nodeLng, nodeName, node, onConfirm],
+    [selectedSea, selectedSubmaps, nodeId, nodeType, nodeLat, nodeLng, nodeName, node, onConfirm],
   );
 
   const handleDelete = useCallback(() => {
@@ -94,8 +120,8 @@ export default function NodeEditDialog({
     if (!window.confirm(`Delete node "${nodeId}"? This will also remove all connected edges.`)) {
       return;
     }
-    onDelete(selectedSea, nodeId.trim());
-  }, [onDelete, selectedSea, nodeId]);
+    onDelete(selectedSea, nodeId.trim(), [...selectedSubmaps]);
+  }, [onDelete, selectedSea, selectedSubmaps, nodeId]);
 
   return (
     <Dialog.Root open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
@@ -145,6 +171,34 @@ export default function NodeEditDialog({
                 ))}
               </select>
             </div>
+
+            {/* Submap membership checkboxes (only shown when submaps are available) */}
+            {availableSubmaps && availableSubmaps.length > 0 && (
+              <div className="space-y-1">
+                <span className="block text-xs font-medium text-gray-400">
+                  Sub-map membership (optional)
+                </span>
+                <div className="space-y-1 max-h-32 overflow-y-auto bg-gray-800 border border-gray-600 rounded px-3 py-2">
+                  {availableSubmaps.map((sm) => (
+                    <label
+                      key={sm.id}
+                      className="flex items-center gap-2 cursor-pointer text-sm"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedSubmaps.has(sm.id)}
+                        onChange={() => handleSubmapToggle(sm.id)}
+                        className="w-3.5 h-3.5 rounded border-gray-500"
+                      />
+                      {sm.name}
+                    </label>
+                  ))}
+                </div>
+                <p className="text-xs text-gray-500">
+                  Unchecked = base only
+                </p>
+              </div>
+            )}
 
             {/* Node ID */}
             <div className="space-y-1">
