@@ -9,17 +9,20 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/material": "^9.0.0",
+    "@radix-ui/react-checkbox": "^1.0.5",
+    "@radix-ui/react-dialog": "^1.0.5",
     "@turf/bearing": "^7.3.1",
     "@turf/destination": "^7.3.1",
     "@turf/helpers": "^7.3.1",
+    "lucide-react": "^0.469.0",
     "maplibre-gl": "^5.15.0",
     "next": "16.1.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-map-gl": "^8.1.0",
-    "@radix-ui/react-dialog": "^1.0.5",
-    "@radix-ui/react-checkbox": "^1.0.5",
-    "lucide-react": "^0.469.0",
     "sonner": "^1.5.0"
   },
   "devDependencies": {

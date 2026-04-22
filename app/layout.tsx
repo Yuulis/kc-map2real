@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "./components/Header";
+import ThemeRegistry from "./components/ThemeRegistry";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,8 +15,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "KC Map2real",
+  title: "鎮守府水路図誌 - KanColle Map2Real",
   description: "KC Map2real",
+  icons: {
+    icon: "/img/nodes/start.png",
+  },
 };
 
 export default function RootLayout({
@@ -29,13 +33,15 @@ export default function RootLayout({
         suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* グローバルヘッダー（クライアントコンポーネント） */}
-        <div id="app-header-root">
-          <Header />
-        </div>
+        <ThemeRegistry>
+          {/* Global header (client component) */}
+          <div id="app-header-root">
+            <Header />
+          </div>
 
-        {/* コンテンツ */}
-        {children}
+          {/* Content */}
+          {children}
+        </ThemeRegistry>
       </body>
     </html>
   );

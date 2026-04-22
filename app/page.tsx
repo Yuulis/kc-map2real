@@ -12,6 +12,16 @@ import type { ExpressionSpecification, MapLayerMouseEvent } from "maplibre-gl";
 
 import { toast } from "sonner";
 import { Pencil, MapIcon } from "lucide-react";
+import Paper from "@mui/material/Paper";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import MuiCheckbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Typography from "@mui/material/Typography";
+import Divider from "@mui/material/Divider";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import IconButton from "@mui/material/IconButton";
 import type { MapsData, MapNode, MapEdge } from "@/app/types/maps";
 import NodeEditDialog from "@/app/components/NodeEditDialog";
 import SeaManagerDialog from "@/app/components/SeaManagerDialog";
@@ -137,6 +147,8 @@ export default function Home() {
   const mapRef = React.useRef<MapRef>(null);
   // Arrow offset distance fixed at 30km
   const arrowOffsetKm = 30;
+  // Developer tools mode
+  const [devToolsEnabled, setDevToolsEnabled] = useState(false);
   // Pin placement mode and pins array
   const [pinMode, setPinMode] = useState(false);
   const [pins, setPins] = useState<
@@ -285,6 +297,56 @@ export default function Home() {
     window.addEventListener("kc:set-pin-mode", handler as EventListener);
     return () =>
       window.removeEventListener("kc:set-pin-mode", handler as EventListener);
+  }, []);
+
+  // Initialize devToolsEnabled from localStorage on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("kc-dev-tools");
+      if (stored === "1") {
+        setDevToolsEnabled(true);
+      }
+    } catch {
+      // Ignore storage errors
+    }
+  }, []);
+
+  // Listen for dev tools toggle events from the header
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const ce = e as CustomEvent<boolean>;
+      const enabled = !!ce.detail;
+      setDevToolsEnabled(enabled);
+      if (!enabled) {
+        setEditMode(false);
+        setPinMode(false);
+      }
+    };
+    window.addEventListener("kc:set-dev-tools", handler as EventListener);
+    return () =>
+      window.removeEventListener("kc:set-dev-tools", handler as EventListener);
+  }, []);
+
+  // Listen for submap visibility events from the header sea selector
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const { seaCode, visibleSubmapIds } = (
+        e as CustomEvent<{ seaCode: string; visibleSubmapIds: string[] }>
+      ).detail;
+      setVisibleSubmapNodes((prev) => ({
+        ...prev,
+        [seaCode]: new Set(visibleSubmapIds),
+      }));
+    };
+    window.addEventListener(
+      "kc:set-submap-visibility",
+      handler as EventListener
+    );
+    return () =>
+      window.removeEventListener(
+        "kc:set-submap-visibility",
+        handler as EventListener
+      );
   }, []);
 
   const filteredSections = useMemo(() => {
@@ -1036,145 +1098,143 @@ export default function Home() {
 
       {/* Cursor coordinate tooltip when pin mode is ON */}
       {pinMode && cursorCoord !== null && (
-        <div
-          style={{
+        <Paper
+          elevation={0}
+          sx={{
             position: "fixed",
             left: cursorCoord.x + 12,
             top: cursorCoord.y + 48 + 12,
             zIndex: 70,
-            background: "rgba(0,0,0,0.75)",
+            backgroundColor: "rgba(0,0,0,0.75)",
             color: "#fff",
-            padding: "4px 8px",
-            borderRadius: 4,
+            px: 1,
+            py: 0.5,
+            borderRadius: 1,
             fontSize: 12,
             pointerEvents: "none",
             whiteSpace: "nowrap",
           }}
         >
           lat: {cursorCoord.lat.toFixed(6)}, lng: {cursorCoord.lng.toFixed(6)}
-        </div>
+        </Paper>
       )}
 
-      {/* Floating panel (bottom-right) */}
-      <div
-        style={{
+      {/* Floating panel (bottom-right): visible when devTools enabled OR submaps available */}
+      {(devToolsEnabled || (singleActiveSea && singleActiveSea.submaps && singleActiveSea.submaps.length > 0)) && (
+      <Paper
+        elevation={4}
+        sx={{
           position: "fixed",
           right: 12,
           bottom: 12,
           zIndex: 60,
-          background: pinMode ? "rgba(239, 68, 68, 0.7)" : "rgba(0,0,0,0.7)",
+          backgroundColor: pinMode ? "rgba(239, 68, 68, 0.7)" : "rgba(0,0,0,0.85)",
           border: pinMode
             ? "1px solid rgba(239, 68, 68, 1)"
             : "1px solid transparent",
           color: "#fff",
-          borderRadius: 8,
+          borderRadius: 2,
           fontSize: 13,
           userSelect: "none",
           minWidth: 220,
         }}
       >
-        {/* Header: mode toggles */}
-        <div
-          style={{
-            padding: "8px 10px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 8,
-            borderBottom:
-              (pinMode && pins.length > 0) || (editMode && singleActiveSea)
-                ? "1px solid rgba(255,255,255,0.2)"
-                : "none",
-          }}
-        >
-          {/* Pin mode toggle */}
-          <span
-            onClick={() => setPinMode((prev) => !prev)}
-            style={{ cursor: "pointer", flex: 1 }}
-          >
-            {pinMode ? "Pin: ON" : "Pin: OFF"}
-            {pinMode && pins.length > 0 && (
-              <span style={{ fontSize: 11, opacity: 0.8, marginLeft: 4 }}>
-                {pins.length}
-              </span>
-            )}
-          </span>
-
-          {/* Edit mode toggle */}
-          <button
-            onClick={() => setEditMode((prev) => !prev)}
-            title={editMode ? "Edit mode: ON" : "Edit mode: OFF"}
-            style={{
-              background: editMode ? "#3b82f6" : "#4b5563",
-              color: "#fff",
-              border: "none",
-              borderRadius: 4,
-              padding: "4px 6px",
-              cursor: "pointer",
+        {/* Header: mode toggles (only visible when developer tools are enabled) */}
+        {devToolsEnabled && (
+          <Box
+            sx={{
+              px: 1.25,
+              py: 1,
               display: "flex",
               alignItems: "center",
-              gap: 3,
-              fontSize: 11,
-              fontWeight: 600,
+              justifyContent: "space-between",
+              gap: 1,
+              borderBottom:
+                (pinMode && pins.length > 0) || (editMode && singleActiveSea)
+                  ? "1px solid rgba(255,255,255,0.2)"
+                  : "none",
             }}
           >
-            <Pencil size={12} />
-            {editMode ? "ON" : "OFF"}
-          </button>
+            {/* Pin mode toggle */}
+            <Typography
+              component="span"
+              variant="body2"
+              onClick={() => setPinMode((prev) => !prev)}
+              sx={{ cursor: "pointer", flex: 1, fontSize: 13 }}
+            >
+              {pinMode ? "Pin: ON" : "Pin: OFF"}
+              {pinMode && pins.length > 0 && (
+                <Typography component="span" sx={{ fontSize: 11, opacity: 0.8, ml: 0.5 }}>
+                  {pins.length}
+                </Typography>
+              )}
+            </Typography>
 
-          {/* Sea manager button */}
-          <button
-            onClick={() => setSeaManagerOpen(true)}
-            title="Sea area management"
-            style={{
-              background: "#4b5563",
-              color: "#fff",
-              border: "none",
-              borderRadius: 4,
-              padding: "4px 6px",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: 3,
-              fontSize: 11,
-              fontWeight: 600,
-            }}
-          >
-            <MapIcon size={12} />
-          </button>
-        </div>
+            {/* Edit mode toggle */}
+            <Button
+              size="small"
+              variant="contained"
+              onClick={() => setEditMode((prev) => !prev)}
+              title={editMode ? "Edit mode: ON" : "Edit mode: OFF"}
+              startIcon={<Pencil size={12} />}
+              sx={{
+                backgroundColor: editMode ? "#3b82f6" : "#4b5563",
+                "&:hover": { backgroundColor: editMode ? "#2563eb" : "#6b7280" },
+                fontSize: 11,
+                fontWeight: 600,
+                minWidth: 0,
+                px: 0.75,
+                py: 0.5,
+                textTransform: "none",
+              }}
+            >
+              {editMode ? "ON" : "OFF"}
+            </Button>
+
+            {/* Sea manager button */}
+            <IconButton
+              size="small"
+              onClick={() => setSeaManagerOpen(true)}
+              title="Sea area management"
+              sx={{
+                backgroundColor: "#4b5563",
+                color: "#fff",
+                borderRadius: 1,
+                "&:hover": { backgroundColor: "#6b7280" },
+                p: 0.75,
+              }}
+            >
+              <MapIcon size={12} />
+            </IconButton>
+          </Box>
+        )}
 
         {/* Pin list + action buttons */}
         {pinMode && pins.length > 0 && (
-          <div style={{ padding: "4px 10px 8px" }}>
+          <Box sx={{ px: 1.25, pt: 0.5, pb: 1 }}>
             {/* Scrollable pin list */}
-            <div
-              style={{
-                maxHeight: 180,
-                overflowY: "auto",
-                marginBottom: 6,
-              }}
-            >
+            <Box sx={{ maxHeight: 180, overflowY: "auto", mb: 0.75 }}>
               {pins.map((p) => (
-                <div
+                <Box
                   key={p.id}
-                  style={{
+                  sx={{
                     display: "flex",
                     alignItems: "center",
-                    gap: 6,
+                    gap: 0.75,
                     fontSize: 12,
-                    padding: "2px 0",
+                    py: 0.25,
                     fontFamily: "monospace",
                   }}
                 >
-                  <span
-                    style={{
+                  <Box
+                    component="span"
+                    sx={{
                       display: "inline-flex",
                       alignItems: "center",
                       justifyContent: "center",
                       width: 18,
                       height: 18,
-                      background: "#ef4444",
+                      backgroundColor: "#ef4444",
                       borderRadius: "50%",
                       fontSize: 10,
                       fontWeight: 700,
@@ -1182,17 +1242,19 @@ export default function Home() {
                     }}
                   >
                     {p.num}
-                  </span>
-                  <span>
+                  </Box>
+                  <Typography component="span" sx={{ fontSize: 12, fontFamily: "monospace" }}>
                     {p.lat.toFixed(6)}, {p.lng.toFixed(6)}
-                  </span>
-                </div>
+                  </Typography>
+                </Box>
               ))}
-            </div>
+            </Box>
 
             {/* Action buttons */}
-            <div style={{ display: "flex", gap: 6 }}>
-              <button
+            <Box sx={{ display: "flex", gap: 0.75 }}>
+              <Button
+                variant="contained"
+                size="small"
                 onClick={(e) => {
                   e.stopPropagation();
                   const text = pins
@@ -1205,277 +1267,273 @@ export default function Home() {
                     .join("\n");
                   navigator.clipboard?.writeText(text).catch(() => {});
                 }}
-                style={{
-                  background: "#22c55e",
+                sx={{
+                  backgroundColor: "#22c55e",
                   color: "#000",
-                  borderRadius: 6,
-                  padding: "4px 8px",
                   fontWeight: 600,
                   fontSize: 12,
-                  border: "none",
-                  cursor: "pointer",
                   flex: 1,
+                  textTransform: "none",
+                  "&:hover": { backgroundColor: "#16a34a" },
                 }}
               >
                 Copy All
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="contained"
+                size="small"
                 onClick={(e) => {
                   e.stopPropagation();
                   setPins([]);
                 }}
-                style={{
-                  background: "#6b7280",
+                sx={{
+                  backgroundColor: "#6b7280",
                   color: "#fff",
-                  borderRadius: 6,
-                  padding: "4px 8px",
                   fontWeight: 600,
                   fontSize: 12,
-                  border: "none",
-                  cursor: "pointer",
                   flex: 1,
+                  textTransform: "none",
+                  "&:hover": { backgroundColor: "#9ca3af" },
                 }}
               >
                 Clear
-              </button>
-            </div>
-          </div>
+              </Button>
+            </Box>
+          </Box>
         )}
 
         {/* Sub-map selector (visible when a single sea with submaps is active) */}
         {singleActiveSea && singleActiveSea.submaps && singleActiveSea.submaps.length > 0 && (
-          <div
-            style={{
-              padding: "6px 10px",
-              borderTop: "1px solid rgba(255,255,255,0.2)",
-            }}
-          >
-            <div
-              style={{
-                fontSize: 11,
-                fontWeight: 700,
-                marginBottom: 4,
-                opacity: 0.8,
-              }}
-            >
+          <Box sx={{ px: 1.25, py: 0.75, borderTop: "1px solid rgba(255,255,255,0.2)" }}>
+            <Typography sx={{ fontSize: 11, fontWeight: 700, mb: 0.5, opacity: 0.8 }}>
               Sub-map ({singleActiveSea.key})
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            </Typography>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
               {/* Default (base edges) button */}
-              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                <button
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                <Button
+                  size="small"
+                  variant={!selectedSubmaps[singleActiveSea.key] ? "contained" : "outlined"}
                   onClick={() =>
                     setSelectedSubmaps((prev) => ({ ...prev, [singleActiveSea.key]: null }))
                   }
-                  style={{
-                    background:
-                      !selectedSubmaps[singleActiveSea.key]
-                        ? "#3b82f6"
-                        : "#374151",
+                  sx={{
+                    backgroundColor: !selectedSubmaps[singleActiveSea.key] ? "#3b82f6" : "#374151",
                     color: "#fff",
-                    border: "1px solid",
-                    borderColor:
-                      !selectedSubmaps[singleActiveSea.key]
-                        ? "#3b82f6"
-                        : "#6b7280",
-                    borderRadius: 4,
-                    padding: "2px 8px",
+                    borderColor: !selectedSubmaps[singleActiveSea.key] ? "#3b82f6" : "#6b7280",
                     fontSize: 11,
                     fontWeight: 600,
-                    cursor: "pointer",
+                    px: 1,
+                    py: 0.25,
+                    minWidth: 0,
+                    textTransform: "none",
+                    "&:hover": {
+                      backgroundColor: !selectedSubmaps[singleActiveSea.key] ? "#2563eb" : "#4b5563",
+                      borderColor: !selectedSubmaps[singleActiveSea.key] ? "#3b82f6" : "#6b7280",
+                    },
                   }}
                 >
                   Base
-                </button>
-              </div>
+                </Button>
+              </Box>
               {singleActiveSea.submaps.map((sm) => {
                 const nodeVisibility = visibleSubmapNodes[singleActiveSea.key];
                 const isNodeVisible = !nodeVisibility || nodeVisibility.has(sm.id);
                 return (
-                  <div key={sm.id} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                    <input
-                      type="checkbox"
+                  <Box key={sm.id} sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <MuiCheckbox
                       checked={isNodeVisible}
                       onChange={() => toggleSubmapNodeVisibility(singleActiveSea.key, sm.id)}
-                      style={{ width: 14, height: 14, cursor: "pointer" }}
+                      size="small"
                       title={`${sm.name} ノード表示`}
+                      sx={{
+                        p: 0,
+                        color: "#6b7280",
+                        "&.Mui-checked": { color: "#90caf9" },
+                        "& .MuiSvgIcon-root": { fontSize: 18 },
+                      }}
                     />
-                    <button
+                    <Button
+                      size="small"
+                      variant={selectedSubmaps[singleActiveSea.key] === sm.id ? "contained" : "outlined"}
                       onClick={() =>
                         setSelectedSubmaps((prev) => ({
                           ...prev,
                           [singleActiveSea.key]: sm.id,
                         }))
                       }
-                      style={{
-                        background:
+                      sx={{
+                        backgroundColor:
                           selectedSubmaps[singleActiveSea.key] === sm.id
                             ? "#3b82f6"
                             : "#374151",
                         color: "#fff",
-                        border: "1px solid",
                         borderColor:
                           selectedSubmaps[singleActiveSea.key] === sm.id
                             ? "#3b82f6"
                             : "#6b7280",
-                        borderRadius: 4,
-                        padding: "2px 8px",
                         fontSize: 11,
                         fontWeight: 600,
-                        cursor: "pointer",
+                        px: 1,
+                        py: 0.25,
+                        minWidth: 0,
+                        textTransform: "none",
+                        "&:hover": {
+                          backgroundColor:
+                            selectedSubmaps[singleActiveSea.key] === sm.id ? "#2563eb" : "#4b5563",
+                          borderColor:
+                            selectedSubmaps[singleActiveSea.key] === sm.id ? "#3b82f6" : "#6b7280",
+                        },
                       }}
                     >
                       {sm.name}
-                    </button>
-                  </div>
+                    </Button>
+                  </Box>
                 );
               })}
-            </div>
-          </div>
+            </Box>
+          </Box>
         )}
 
         {/* Edge editing section (visible when editMode is ON and exactly one sea is active) */}
         {editMode && singleActiveSea && (
-          <div
-            style={{
-              padding: "8px 10px",
-              borderTop: "1px solid rgba(255,255,255,0.2)",
-            }}
-          >
-            <div
-              style={{
-                fontSize: 11,
-                fontWeight: 700,
-                marginBottom: 6,
-                opacity: 0.8,
-              }}
-            >
+          <Box sx={{ px: 1.25, py: 1, borderTop: "1px solid rgba(255,255,255,0.2)" }}>
+            <Typography sx={{ fontSize: 11, fontWeight: 700, mb: 0.75, opacity: 0.8 }}>
               Edges ({singleActiveSea.key} - all)
-            </div>
+            </Typography>
 
             {/* Add edge form */}
-            <div
-              style={{
-                display: "flex",
-                gap: 4,
-                marginBottom: 6,
-                flexWrap: "wrap",
-              }}
-            >
-              <select
+            <Box sx={{ display: "flex", gap: 0.5, mb: 0.75, flexWrap: "wrap" }}>
+              <Select
                 value={edgeFrom}
-                onChange={(e) => setEdgeFrom(e.target.value)}
-                style={{
+                onChange={(e) => setEdgeFrom(e.target.value as string)}
+                displayEmpty
+                size="small"
+                sx={{
                   flex: 1,
                   minWidth: 60,
-                  background: "#374151",
+                  backgroundColor: "#374151",
                   color: "#fff",
-                  border: "1px solid #6b7280",
-                  borderRadius: 4,
-                  padding: "2px 4px",
                   fontSize: 11,
+                  "& .MuiSelect-select": { py: 0.25, px: 0.5 },
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "#6b7280" },
+                  "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#9ca3af" },
+                  "& .MuiSvgIcon-root": { color: "#fff", fontSize: 16 },
                 }}
+                MenuProps={{ slotProps: { paper: { sx: { backgroundColor: "#374151", color: "#fff" } } } }}
               >
-                <option value="">From</option>
+                <MenuItem value="" sx={{ fontSize: 11 }}>From</MenuItem>
                 {sortedSeaNodes.map((n) => (
-                    <option key={n.id} value={n.id}>
-                      {n.id}
-                    </option>
-                  ))}
-              </select>
-              <select
+                  <MenuItem key={n.id} value={n.id} sx={{ fontSize: 11 }}>
+                    {n.id}
+                  </MenuItem>
+                ))}
+              </Select>
+              <Select
                 value={edgeTo}
-                onChange={(e) => setEdgeTo(e.target.value)}
-                style={{
+                onChange={(e) => setEdgeTo(e.target.value as string)}
+                displayEmpty
+                size="small"
+                sx={{
                   flex: 1,
                   minWidth: 60,
-                  background: "#374151",
+                  backgroundColor: "#374151",
                   color: "#fff",
-                  border: "1px solid #6b7280",
-                  borderRadius: 4,
-                  padding: "2px 4px",
                   fontSize: 11,
+                  "& .MuiSelect-select": { py: 0.25, px: 0.5 },
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "#6b7280" },
+                  "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#9ca3af" },
+                  "& .MuiSvgIcon-root": { color: "#fff", fontSize: 16 },
                 }}
+                MenuProps={{ slotProps: { paper: { sx: { backgroundColor: "#374151", color: "#fff" } } } }}
               >
-                <option value="">To</option>
+                <MenuItem value="" sx={{ fontSize: 11 }}>To</MenuItem>
                 {sortedSeaNodes.map((n) => (
-                    <option key={n.id} value={n.id}>
-                      {n.id}
-                    </option>
-                  ))}
-              </select>
-              <label
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 2,
-                  fontSize: 11,
-                }}
-              >
-                <input
-                  type="checkbox"
-                  checked={edgeArrow}
-                  onChange={(e) => setEdgeArrow(e.target.checked)}
-                  style={{ width: 12, height: 12 }}
-                />
-                Arrow
-              </label>
-              <button
+                  <MenuItem key={n.id} value={n.id} sx={{ fontSize: 11 }}>
+                    {n.id}
+                  </MenuItem>
+                ))}
+              </Select>
+              <FormControlLabel
+                control={
+                  <MuiCheckbox
+                    checked={edgeArrow}
+                    onChange={(e) => setEdgeArrow(e.target.checked)}
+                    size="small"
+                    sx={{
+                      p: 0,
+                      color: "#6b7280",
+                      "&.Mui-checked": { color: "#90caf9" },
+                      "& .MuiSvgIcon-root": { fontSize: 16 },
+                    }}
+                  />
+                }
+                label={<Typography sx={{ fontSize: 11 }}>Arrow</Typography>}
+                sx={{ mx: 0, gap: 0.25 }}
+              />
+              <Button
+                variant="contained"
+                size="small"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleAddEdge();
                 }}
                 disabled={!edgeFrom || !edgeTo || edgeFrom === edgeTo}
-                style={{
-                  background:
+                sx={{
+                  backgroundColor:
                     !edgeFrom || !edgeTo || edgeFrom === edgeTo
                       ? "#4b5563"
                       : "#3b82f6",
                   color: "#fff",
-                  borderRadius: 4,
-                  padding: "2px 8px",
                   fontWeight: 600,
                   fontSize: 11,
-                  border: "none",
-                  cursor:
-                    !edgeFrom || !edgeTo || edgeFrom === edgeTo
-                      ? "not-allowed"
-                      : "pointer",
+                  px: 1,
+                  py: 0.25,
+                  minWidth: 0,
+                  textTransform: "none",
+                  "&:hover": {
+                    backgroundColor:
+                      !edgeFrom || !edgeTo || edgeFrom === edgeTo
+                        ? "#4b5563"
+                        : "#2563eb",
+                  },
                 }}
               >
                 Add
-              </button>
-            </div>
+              </Button>
+            </Box>
 
             {/* Current edges list (grouped by identity, with inline submap checkboxes) */}
-            <div style={{ maxHeight: 200, overflowY: "auto" }}>
+            <Box sx={{ maxHeight: 200, overflowY: "auto" }}>
               {activeSeaEdgesWithSubmap.map(({ edge, submapIds: edgeSubmapIds }) => (
-                <div
+                <Box
                   key={`${edge.from}-${edge.to}`}
-                  style={{
+                  sx={{
                     display: "flex",
                     alignItems: "center",
-                    gap: 4,
+                    gap: 0.5,
                     fontSize: 11,
-                    padding: "3px 0",
+                    py: 0.375,
                     fontFamily: "monospace",
                     borderBottom: "1px solid rgba(255,255,255,0.05)",
                   }}
                 >
-                  <span style={{ flex: "0 0 auto", minWidth: 60 }}>
+                  <Typography component="span" sx={{ flex: "0 0 auto", minWidth: 60, fontSize: 11, fontFamily: "monospace" }}>
                     {edge.from} {edge.arrow ? "->" : "--"} {edge.to}
-                  </span>
-                  <span style={{ display: "flex", gap: 2, flexWrap: "wrap", flex: "1 1 auto" }}>
-                    <label
-                      style={{
+                  </Typography>
+                  <Box component="span" sx={{ display: "flex", gap: 0.25, flexWrap: "wrap", flex: "1 1 auto" }}>
+                    <Box
+                      component="label"
+                      sx={{
                         display: "inline-flex",
                         alignItems: "center",
-                        gap: 1,
+                        gap: 0.125,
                         fontSize: 9,
                         cursor: "pointer",
-                        background: edgeSubmapIds.has(undefined) ? "#1d4ed8" : "#374151",
-                        borderRadius: 3,
-                        padding: "1px 4px",
+                        backgroundColor: edgeSubmapIds.has(undefined) ? "#1d4ed8" : "#374151",
+                        borderRadius: 0.75,
+                        px: 0.5,
+                        py: 0.125,
                       }}
                     >
                       <input
@@ -1488,19 +1546,21 @@ export default function Home() {
                         style={{ width: 10, height: 10 }}
                       />
                       B
-                    </label>
+                    </Box>
                     {(singleActiveSea?.submaps ?? []).map((sm) => (
-                      <label
+                      <Box
+                        component="label"
                         key={sm.id}
-                        style={{
+                        sx={{
                           display: "inline-flex",
                           alignItems: "center",
-                          gap: 1,
+                          gap: 0.125,
                           fontSize: 9,
                           cursor: "pointer",
-                          background: edgeSubmapIds.has(sm.id) ? "#1d4ed8" : "#374151",
-                          borderRadius: 3,
-                          padding: "1px 4px",
+                          backgroundColor: edgeSubmapIds.has(sm.id) ? "#1d4ed8" : "#374151",
+                          borderRadius: 0.75,
+                          px: 0.5,
+                          py: 0.125,
                         }}
                       >
                         <input
@@ -1513,10 +1573,11 @@ export default function Home() {
                           style={{ width: 10, height: 10 }}
                         />
                         {sm.name.length > 6 ? sm.name.slice(0, 6) : sm.name}
-                      </label>
+                      </Box>
                     ))}
-                  </span>
-                  <button
+                  </Box>
+                  <IconButton
+                    size="small"
                     onClick={(e) => {
                       e.stopPropagation();
                       // Delete from all locations
@@ -1524,31 +1585,33 @@ export default function Home() {
                         handleDeleteEdge(edge.from, edge.to, smId === undefined ? undefined : smId);
                       }
                     }}
-                    style={{
-                      background: "rgba(239,68,68,0.85)",
+                    title={`Delete edge ${edge.from} -> ${edge.to} from all locations`}
+                    sx={{
+                      backgroundColor: "rgba(239,68,68,0.85)",
                       color: "#fff",
-                      border: "none",
-                      cursor: "pointer",
                       fontSize: 10,
-                      padding: "1px 5px",
                       fontWeight: 700,
-                      borderRadius: 3,
+                      borderRadius: 0.75,
+                      p: 0.25,
                       lineHeight: 1.4,
                       flex: "0 0 auto",
+                      "&:hover": { backgroundColor: "rgba(239,68,68,1)" },
+                      width: 20,
+                      height: 20,
                     }}
-                    title={`Delete edge ${edge.from} -> ${edge.to} from all locations`}
                   >
                     ×
-                  </button>
-                </div>
+                  </IconButton>
+                </Box>
               ))}
               {activeSeaEdgesWithSubmap.length === 0 && (
-                <div style={{ fontSize: 11, opacity: 0.5 }}>No edges</div>
+                <Typography sx={{ fontSize: 11, opacity: 0.5 }}>No edges</Typography>
               )}
-            </div>
-          </div>
+            </Box>
+          </Box>
         )}
-      </div>
+      </Paper>
+      )}
 
       {/* Node edit dialog */}
       <NodeEditDialog

@@ -1,240 +1,673 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import * as Dialog from "@radix-ui/react-dialog";
-import * as Checkbox from "@radix-ui/react-checkbox";
-import { Menu, Settings, Check } from "lucide-react";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import Drawer from "@mui/material/Drawer";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import { Settings, X, Map } from "lucide-react";
 import { Toaster, toast } from "sonner";
 
-type SectionKey = string;
+type SeaInfo = {
+  code: string;
+  name: string;
+  submaps: { id: string; name: string }[];
+};
+
+type GroupInfo = {
+  id: string;
+  name: string;
+  seas: SeaInfo[];
+  isEvent: boolean;
+};
 
 export default function Header() {
-  const [leftOpen, setLeftOpen] = useState(false);
   const [rightOpen, setRightOpen] = useState(false);
-  const [sectionKeys, setSectionKeys] = useState<SectionKey[]>([]);
-  const [selected, setSelected] = useState<SectionKey[]>([]); // 選択された海域のみ表示
-  const [pinMode, setPinMode] = useState(false); // ピン配置モード
+  const [pinMode, setPinMode] = useState(false);
+  const [devToolsEnabled, setDevToolsEnabled] = useState(false);
+  const [appVersion, setAppVersion] = useState<string>("");
+  const [headerLinks, setHeaderLinks] = useState<
+    { label: string; href: string }[]
+  >([]);
 
-  // Load section keys from merged maps.json (initially all selected)
+  // Map selector dialog state
+  const [mapSelectorOpen, setMapSelectorOpen] = useState(false);
+
+  // Full group data including submaps (loaded from maps.json)
+  const [groupData, setGroupData] = useState<GroupInfo[]>([]);
+
+  // Which sea codes are active (visible on map) — initially all
+  const [activeSectionKeys, setActiveSectionKeys] = useState<string[]>([]);
+
+  // Which submap IDs are visible per sea code — empty set = all visible (default)
+  const [visibleSubmapIds, setVisibleSubmapIds] = useState<
+    Record<string, Set<string>>
+  >({});
+
+  // Load app-info.json on mount
+  useEffect(() => {
+    fetch("/data/app-info.json")
+      .then((res) => res.json())
+      .then((data) => {
+        setAppVersion(
+          `(${data.version.label})第${data.version.number}号`
+        );
+        setHeaderLinks(data.headerLinks);
+      })
+      .catch(() => {
+        // Ignore fetch errors
+      });
+  }, []);
+
+  // Load devToolsEnabled from localStorage on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("kc-dev-tools");
+      if (stored === "1") {
+        setDevToolsEnabled(true);
+      }
+    } catch {
+      // Ignore storage errors
+    }
+  }, []);
+
+  // When devToolsEnabled changes to false, also reset pinMode
+  useEffect(() => {
+    if (!devToolsEnabled) {
+      setPinMode(false);
+      window.dispatchEvent(
+        new CustomEvent<boolean>("kc:set-pin-mode", { detail: false })
+      );
+    }
+  }, [devToolsEnabled]);
+
+  // Load maps.json and capture group/submap info
   useEffect(() => {
     fetch("/data/maps.json")
       .then((res) => res.json())
       .then((data) => {
-        const keys: string[] = [];
+        const groups: GroupInfo[] = [];
+        const allCodes: string[] = [];
         if (data && Array.isArray(data.groups)) {
           for (const group of data.groups) {
-            if (Array.isArray(group.seas)) {
-              for (const sea of group.seas) {
-                keys.push(sea.code);
-              }
-            }
+            const isEvent = group.meta?.type === "event";
+            const seas: SeaInfo[] = (group.seas ?? []).map(
+              (sea: { code: string; name: string; submaps?: { id: string; name: string }[] }) => ({
+                code: sea.code,
+                name: sea.name,
+                submaps: (sea.submaps ?? []).map(
+                  (sm: { id: string; name: string }) => ({
+                    id: sm.id,
+                    name: sm.name,
+                  })
+                ),
+              })
+            );
+            seas.forEach((s) => allCodes.push(s.code));
+            groups.push({
+              id: group.id,
+              name: group.name,
+              seas,
+              isEvent,
+            });
           }
         }
-        setSectionKeys(keys);
-        setSelected(keys);
+        setGroupData(groups);
+        setActiveSectionKeys(allCodes);
       })
-      .catch(() => {
-        setSectionKeys([]);
-      });
+      .catch(() => setGroupData([]));
   }, []);
 
-  const applySelection = () => {
-    const evt = new CustomEvent<SectionKey[]>("kc:set-active-sections", {
-      detail: selected,
-    });
-    window.dispatchEvent(evt);
-    setLeftOpen(false);
-    toast.success("海域表示を更新しました");
-  };
+  // Dispatch kc:set-active-sections whenever activeSectionKeys changes
+  useEffect(() => {
+    window.dispatchEvent(
+      new CustomEvent<string[]>("kc:set-active-sections", {
+        detail: activeSectionKeys,
+      })
+    );
+  }, [activeSectionKeys]);
 
-  const toggleOne = (key: SectionKey, checked: boolean) => {
-    setSelected((prev) => {
-      if (checked) {
-        // 追加
-        if (prev.includes(key)) return prev;
-        return [...prev, key];
-      } else {
-        // 除外
-        return prev.filter((k) => k !== key);
-      }
-    });
-  };
-
-  const isSelected = (key: SectionKey) => selected.includes(key);
-
-  const selectAll = () => setSelected([...sectionKeys]);
-  const deselectAll = () => setSelected([]);
-
-  const toggleGroup = (keys: string[], allChecked: boolean) => {
-    if (allChecked) {
-      setSelected((prev) => prev.filter((k) => !keys.includes(k)));
-    } else {
-      setSelected((prev) => {
-        const next = [...prev];
-        for (const k of keys) {
-          if (!next.includes(k)) next.push(k);
-        }
-        return next;
-      });
+  // Dispatch kc:set-submap-visibility whenever visibleSubmapIds changes
+  useEffect(() => {
+    for (const [seaCode, submapSet] of Object.entries(visibleSubmapIds)) {
+      window.dispatchEvent(
+        new CustomEvent("kc:set-submap-visibility", {
+          detail: {
+            seaCode,
+            visibleSubmapIds: Array.from(submapSet),
+          },
+        })
+      );
     }
-  };
+  }, [visibleSubmapIds]);
 
   return (
     <>
       <Toaster richColors position="top-center" />
 
-      {/* ヘッダー */}
-      <div className="fixed top-0 left-0 right-0 h-12 bg-black text-white z-50 flex items-center justify-between px-3">
-        {/* 左: ハンバーガー */}
-        <Dialog.Root open={leftOpen} onOpenChange={setLeftOpen}>
-          <Dialog.Trigger asChild>
-            <button
-              aria-label="海域メニューを開く"
-              className="p-2 hover:opacity-80"
+      {/* Header AppBar */}
+      <AppBar
+        position="fixed"
+        sx={{
+          backgroundColor: "#000000",
+          height: 48,
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+        }}
+      >
+        <Toolbar
+          variant="dense"
+          sx={{
+            minHeight: 48,
+            justifyContent: "space-between",
+            px: 1.5,
+          }}
+        >
+          {/* Left: Sea selector button */}
+          <Button
+            size="small"
+            color="inherit"
+            onClick={() => setMapSelectorOpen(true)}
+            startIcon={<Map size={16} />}
+            sx={{
+              fontSize: "0.75rem",
+              textTransform: "none",
+              fontWeight: 600,
+              border: "1px solid rgba(255,255,255,0.2)",
+              px: 1.25,
+              py: 0.5,
+              borderRadius: 1,
+              "&:hover": { backgroundColor: "rgba(255,255,255,0.08)" },
+            }}
+          >
+            海域選択
+          </Button>
+
+          {/* Center: Title */}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "baseline",
+              gap: 0.75,
+              userSelect: "none",
+            }}
+          >
+            <Typography
+              variant="subtitle2"
+              component="div"
+              sx={{ fontWeight: 700 }}
             >
-              <Menu className="size-5" />
-            </button>
-          </Dialog.Trigger>
-          <Dialog.Portal>
-            <Dialog.Overlay className="fixed inset-0 bg-black/60 z-40" />
-            <Dialog.Content aria-describedby={undefined} className="fixed top-0 left-0 h-full w-72 bg-gray-950 text-white z-50 shadow-xl border-r border-gray-700">
-              <Dialog.Title className="p-3 border-b border-gray-700 font-semibold text-white">
-                海域選択
-              </Dialog.Title>
-              <div className="p-3 space-y-3 overflow-y-auto h-[calc(100%-3rem)]">
-                {sectionKeys.length === 0 && (
-                  <div className="text-sm text-gray-400">
-                    海域データを読み込み中…
-                  </div>
-                )}
-                {/* 全選択 / 全解除 */}
-                {sectionKeys.length > 0 && (
-                  <div className="flex gap-2">
-                    <button
-                      className="flex-1 text-xs bg-gray-700 hover:bg-gray-600 text-white px-2 py-1 rounded"
-                      onClick={selectAll}
+              鎮守府水路図誌
+            </Typography>
+            {appVersion && (
+              <Typography
+                variant="caption"
+                component="div"
+                sx={{ color: "#9ca3af", fontWeight: 400 }}
+              >
+                {appVersion}
+              </Typography>
+            )}
+          </Box>
+
+          {/* Right: Links + Settings */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+            {headerLinks.map((link) => (
+              <Button
+                key={link.label}
+                component="a"
+                href={link.href}
+                size="small"
+                sx={{
+                  color: "#9ca3af",
+                  fontSize: "0.7rem",
+                  textTransform: "none",
+                  minWidth: "auto",
+                  px: 0.75,
+                  "&:hover": { color: "#fff" },
+                }}
+              >
+                {link.label}
+              </Button>
+            ))}
+            <IconButton
+              edge="end"
+              color="inherit"
+              aria-label="設定を開く"
+              onClick={() => setRightOpen(true)}
+            >
+              <Settings size={20} />
+            </IconButton>
+          </Box>
+        </Toolbar>
+      </AppBar>
+
+      {/* Right Drawer: Settings */}
+      <Drawer
+        anchor="right"
+        open={rightOpen}
+        onClose={() => setRightOpen(false)}
+        slotProps={{
+          paper: {
+            sx: {
+              width: 320,
+              backgroundColor: "#111111",
+              color: "#fff",
+            },
+          },
+        }}
+      >
+        <Box sx={{ p: 1.5, borderBottom: "1px solid #333" }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+            設定
+          </Typography>
+        </Box>
+
+        <Box sx={{ p: 1.5 }}>
+          <Typography variant="body2" sx={{ color: "#9ca3af", mb: 2 }}>
+            ここに設定項目を追加できます。
+          </Typography>
+
+          {/* Pin mode checkbox */}
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={pinMode}
+                onChange={(e) => {
+                  const next = e.target.checked;
+                  setPinMode(next);
+                  const evt = new CustomEvent<boolean>("kc:set-pin-mode", {
+                    detail: next,
+                  });
+                  window.dispatchEvent(evt);
+                  toast[next ? "success" : "info"](
+                    next
+                      ? "ピン配置モードをONにしました"
+                      : "ピン配置モードをOFFにしました"
+                  );
+                }}
+                size="small"
+                sx={{
+                  color: "#6b7280",
+                  "&.Mui-checked": { color: "#90caf9" },
+                }}
+              />
+            }
+            label={
+              <Typography variant="body2">ピン配置モード</Typography>
+            }
+            sx={{ ml: 0 }}
+          />
+
+          {/* Developer tools checkbox */}
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={devToolsEnabled}
+                onChange={(e) => {
+                  const next = e.target.checked;
+                  setDevToolsEnabled(next);
+                  try {
+                    if (next) {
+                      localStorage.setItem("kc-dev-tools", "1");
+                    } else {
+                      localStorage.removeItem("kc-dev-tools");
+                    }
+                  } catch {
+                    // Ignore storage errors
+                  }
+                  window.dispatchEvent(
+                    new CustomEvent<boolean>("kc:set-dev-tools", {
+                      detail: next,
+                    })
+                  );
+                  toast[next ? "success" : "info"](
+                    next
+                      ? "デベロッパーツールを有効にしました"
+                      : "デベロッパーツールを無効にしました"
+                  );
+                }}
+                size="small"
+                sx={{
+                  color: "#6b7280",
+                  "&.Mui-checked": { color: "#90caf9" },
+                }}
+              />
+            }
+            label={
+              <Typography variant="body2">デベロッパーツール</Typography>
+            }
+            sx={{ ml: 0, display: "flex" }}
+          />
+        </Box>
+      </Drawer>
+
+      {/* Map selector Dialog */}
+      <Dialog
+        open={mapSelectorOpen}
+        onClose={() => setMapSelectorOpen(false)}
+        maxWidth="lg"
+        fullWidth
+        slotProps={{
+          paper: {
+            sx: {
+              backgroundColor: "#111111",
+              color: "#fff",
+              maxHeight: "95vh",
+            },
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            borderBottom: "1px solid #333",
+            py: 1.25,
+            px: 2,
+          }}
+        >
+          <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+            海域選択
+          </Typography>
+          <IconButton
+            size="small"
+            onClick={() => setMapSelectorOpen(false)}
+            sx={{ color: "#9ca3af" }}
+          >
+            <X size={18} />
+          </IconButton>
+        </DialogTitle>
+
+        <DialogContent sx={{ p: 0, display: "flex", overflow: "hidden" }}>
+          {/* Left column: regular seas */}
+          <Box
+            sx={{
+              flex: 1,
+              p: 2,
+              borderRight: "1px solid #222",
+              columnCount: 2,
+              columnGap: "24px",
+            }}
+          >
+            {/* Select all / Deselect all */}
+            <Box sx={{ display: "flex", gap: 1, mb: 2, breakInside: "avoid" }}>
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={() => {
+                  const allCodes = groupData.flatMap((g) =>
+                    g.seas.map((s) => s.code)
+                  );
+                  setActiveSectionKeys(allCodes);
+                }}
+                sx={{
+                  fontSize: "0.7rem",
+                  textTransform: "none",
+                  color: "#9ca3af",
+                  borderColor: "#4b5563",
+                  "&:hover": { borderColor: "#9ca3af" },
+                }}
+              >
+                全選択
+              </Button>
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={() => setActiveSectionKeys([])}
+                sx={{
+                  fontSize: "0.7rem",
+                  textTransform: "none",
+                  color: "#9ca3af",
+                  borderColor: "#4b5563",
+                  "&:hover": { borderColor: "#9ca3af" },
+                }}
+              >
+                全解除
+              </Button>
+            </Box>
+
+            {/* Regular sea groups */}
+            {groupData
+              .filter((g) => !g.isEvent)
+              .map((group) => {
+                const groupCodes = group.seas.map((s) => s.code);
+                const selectedCount = groupCodes.filter((c) =>
+                  activeSectionKeys.includes(c)
+                ).length;
+                const allSelected = selectedCount === groupCodes.length;
+                const noneSelected = selectedCount === 0;
+                return (
+                <Box key={group.id} sx={{ mb: 2.5, breakInside: "avoid" }}>
+                  {/* Group header with checkbox */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      mb: 1,
+                      borderBottom: "1px solid #222",
+                      pb: 0.5,
+                    }}
+                  >
+                    <Checkbox
+                      checked={allSelected}
+                      indeterminate={!allSelected && !noneSelected}
+                      onChange={() => {
+                        setActiveSectionKeys((prev) => {
+                          if (allSelected) {
+                            return prev.filter(
+                              (k) => !groupCodes.includes(k)
+                            );
+                          }
+                          const next = new Set(prev);
+                          groupCodes.forEach((c) => next.add(c));
+                          return Array.from(next);
+                        });
+                      }}
+                      size="small"
+                      sx={{
+                        p: 0,
+                        mr: 0.75,
+                        color: "#6b7280",
+                        "&.Mui-checked": { color: "#90caf9" },
+                        "&.MuiCheckbox-indeterminate": { color: "#90caf9" },
+                        "& .MuiSvgIcon-root": { fontSize: 18 },
+                      }}
+                    />
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: "#6b7280",
+                        fontWeight: 700,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.06em",
+                      }}
                     >
-                      全選択
-                    </button>
-                    <button
-                      className="flex-1 text-xs bg-gray-700 hover:bg-gray-600 text-white px-2 py-1 rounded"
-                      onClick={deselectAll}
-                    >
-                      全解除
-                    </button>
-                  </div>
-                )}
-                {/* Group by world (prefix before "-") */}
-                {Array.from(
-                  sectionKeys.reduce((acc, key) => {
-                    const world = key.split("-")[0];
-                    if (!acc.has(world)) acc.set(world, []);
-                    acc.get(world)!.push(key);
-                    return acc;
-                  }, new Map<string, string[]>())
-                ).map(([world, keys]) => {
-                  const allChecked = keys.every((k) => isSelected(k));
-                  const someChecked = keys.some((k) => isSelected(k));
-                  return (
-                    <div key={world}>
-                      <label className="flex items-center gap-2 px-2 pb-1 border-b border-gray-700 mb-1 cursor-pointer hover:bg-gray-800 rounded">
-                        <Checkbox.Root
-                          checked={allChecked ? true : someChecked ? "indeterminate" : false}
-                          onCheckedChange={() => toggleGroup(keys, allChecked)}
-                          className="inline-flex items-center justify-center size-4 rounded border border-gray-500 data-[state=checked]:bg-white data-[state=checked]:border-white data-[state=indeterminate]:bg-gray-500 data-[state=indeterminate]:border-gray-400"
-                          aria-label={`第${world}海域を一斉選択`}
-                        >
-                          <Checkbox.Indicator>
-                            <Check className="size-3 text-black" />
-                          </Checkbox.Indicator>
-                        </Checkbox.Root>
-                        <span className="text-xs font-bold text-gray-400 uppercase tracking-wide">
-                          第{world}海域
-                        </span>
-                      </label>
-                      {keys.map((key) => {
-                        const checked = isSelected(key);
-                        return (
-                          <label
-                            key={key}
-                            className="flex items-center gap-2 px-2 py-1 rounded hover:bg-gray-800 cursor-pointer"
+                      {group.name}
+                    </Typography>
+                  </Box>
+
+                  {/* Sea chips row */}
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.75 }}>
+                    {group.seas.map((sea) => {
+                      const active = activeSectionKeys.includes(sea.code);
+                      return (
+                        <Box key={sea.code} sx={{ width: 56 }}>
+                          {/* Sea toggle button */}
+                          <Button
+                            size="small"
+                            variant={active ? "contained" : "outlined"}
+                            title={`${sea.code} ${sea.name}`}
+                            onClick={() => {
+                              setActiveSectionKeys((prev) =>
+                                active
+                                  ? prev.filter((k) => k !== sea.code)
+                                  : [...prev, sea.code]
+                              );
+                            }}
+                            sx={{
+                              fontSize: "0.75rem",
+                              fontWeight: 700,
+                              textTransform: "none",
+                              width: "100%",
+                              minWidth: 0,
+                              px: 1.25,
+                              py: 0.375,
+                              backgroundColor: active
+                                ? "#fff"
+                                : "transparent",
+                              color: active ? "#000" : "#9ca3af",
+                              borderColor: active ? "#fff" : "#4b5563",
+                              "&:hover": {
+                                backgroundColor: active
+                                  ? "#e5e7eb"
+                                  : "rgba(255,255,255,0.08)",
+                                borderColor: active
+                                  ? "#e5e7eb"
+                                  : "#9ca3af",
+                              },
+                            }}
                           >
-                            <Checkbox.Root
-                              checked={checked}
-                              onCheckedChange={(v) => toggleOne(key, !!v)}
-                              className="inline-flex items-center justify-center size-4 rounded border border-gray-500 data-[state=checked]:bg-white data-[state=checked]:border-white"
-                              aria-label={`${key} を表示`}
-                            >
-                              <Checkbox.Indicator>
-                                <Check className="size-3 text-black" />
-                              </Checkbox.Indicator>
-                            </Checkbox.Root>
-                            <span className="text-sm">{key}</span>
-                          </label>
+                            {sea.code}
+                          </Button>
+
+                        </Box>
+                      );
+                    })}
+                  </Box>
+                </Box>
+                );
+              })}
+          </Box>
+
+          {/* Right column: event seas (only shown if event groups exist) */}
+          {groupData.some((g) => g.isEvent) && (
+            <Box
+              sx={{
+                width: 320,
+                p: 2,
+                flexShrink: 0,
+              }}
+            >
+              {groupData
+                .filter((g) => g.isEvent)
+                .map((group) => {
+                  const groupCodes = group.seas.map((s) => s.code);
+                  const selectedCount = groupCodes.filter((c) =>
+                    activeSectionKeys.includes(c)
+                  ).length;
+                  const allSelected = selectedCount === groupCodes.length;
+                  const noneSelected = selectedCount === 0;
+                  return (
+                  <Box key={group.id} sx={{ mb: 2.5 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        mb: 1,
+                        borderBottom: "1px solid #222",
+                        pb: 0.5,
+                      }}
+                    >
+                      <Checkbox
+                        checked={allSelected}
+                        indeterminate={!allSelected && !noneSelected}
+                        onChange={() => {
+                          setActiveSectionKeys((prev) => {
+                            if (allSelected) {
+                              return prev.filter(
+                                (k) => !groupCodes.includes(k)
+                              );
+                            }
+                            const next = new Set(prev);
+                            groupCodes.forEach((c) => next.add(c));
+                            return Array.from(next);
+                          });
+                        }}
+                        size="small"
+                        sx={{
+                          p: 0,
+                          mr: 0.75,
+                          color: "#6b7280",
+                          "&.Mui-checked": { color: "#90caf9" },
+                          "&.MuiCheckbox-indeterminate": { color: "#90caf9" },
+                          "& .MuiSvgIcon-root": { fontSize: 18 },
+                        }}
+                      />
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: "#6b7280",
+                          fontWeight: 700,
+                        }}
+                      >
+                        {group.name}
+                      </Typography>
+                    </Box>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: 0.75,
+                      }}
+                    >
+                      {group.seas.map((sea) => {
+                        const active = activeSectionKeys.includes(
+                          sea.code
+                        );
+                        return (
+                          <Button
+                            key={sea.code}
+                            size="small"
+                            variant={active ? "contained" : "outlined"}
+                            title={`${sea.code} ${sea.name}`}
+                            onClick={() => {
+                              setActiveSectionKeys((prev) =>
+                                active
+                                  ? prev.filter((k) => k !== sea.code)
+                                  : [...prev, sea.code]
+                              );
+                            }}
+                            sx={{
+                              fontSize: "0.75rem",
+                              fontWeight: 700,
+                              textTransform: "none",
+                              width: 56,
+                              minWidth: 0,
+                              px: 1.25,
+                              py: 0.375,
+                              backgroundColor: active
+                                ? "#fff"
+                                : "transparent",
+                              color: active ? "#000" : "#9ca3af",
+                              borderColor: active ? "#fff" : "#4b5563",
+                              "&:hover": {
+                                backgroundColor: active
+                                  ? "#e5e7eb"
+                                  : "rgba(255,255,255,0.08)",
+                              },
+                            }}
+                          >
+                            {sea.code}
+                          </Button>
                         );
                       })}
-                    </div>
+                    </Box>
+                  </Box>
                   );
                 })}
-                <div className="pt-2">
-                  <button
-                    className="w-full bg-white text-black px-2 py-1 rounded hover:opacity-90 font-semibold"
-                    onClick={applySelection}
-                  >
-                    適用
-                  </button>
-                </div>
-              </div>
-            </Dialog.Content>
-          </Dialog.Portal>
-        </Dialog.Root>
-
-        {/* 中央: タイトル */}
-        <div className="text-sm font-semibold select-none">KC Map2real</div>
-
-        {/* 右: 歯車 */}
-        <Dialog.Root open={rightOpen} onOpenChange={setRightOpen}>
-          <Dialog.Trigger asChild>
-            <button aria-label="設定を開く" className="p-2 hover:opacity-80">
-              <Settings className="size-5" />
-            </button>
-          </Dialog.Trigger>
-          <Dialog.Portal>
-            <Dialog.Overlay className="fixed inset-0 bg-black/40 z-40" />
-            <Dialog.Content aria-describedby={undefined} className="fixed top-0 right-0 h-full w-80 bg-white text-black z-50 shadow-xl border-l border-gray-200">
-              <Dialog.Title className="p-3 border-b border-gray-200 font-semibold">
-                設定
-              </Dialog.Title>
-              <div className="p-3 space-y-3 text-sm">
-                <div className="text-gray-600">
-                  ここに設定項目を追加できます。
-                </div>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    className="size-4"
-                    checked={pinMode}
-                    onChange={(e) => {
-                      const next = e.target.checked;
-                      setPinMode(next);
-                      const evt = new CustomEvent<boolean>("kc:set-pin-mode", {
-                        detail: next,
-                      });
-                      window.dispatchEvent(evt);
-                      toast[next ? "success" : "info"](
-                        next
-                          ? "ピン配置モードをONにしました"
-                          : "ピン配置モードをOFFにしました"
-                      );
-                    }}
-                  />
-                  ピン配置モード
-                </label>
-              </div>
-            </Dialog.Content>
-          </Dialog.Portal>
-        </Dialog.Root>
-      </div>
+            </Box>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
