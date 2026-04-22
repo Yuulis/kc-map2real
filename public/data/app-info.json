@@ -4,8 +4,20 @@
     "number": 1
   },
   "headerLinks": [
-    { "label": "更新履歴", "href": "#changelog" },
-    { "label": "ライセンス", "href": "#license" },
-    { "label": "リンク集", "href": "#links" }
+    {
+      "label": "更新履歴",
+      "type": "external",
+      "href": "https://github.com/Yuulis/kc-map2real/releases"
+    },
+    {
+      "label": "ライセンス",
+      "type": "dialog",
+      "file": "/data/license.md"
+    },
+    {
+      "label": "リンク集",
+      "type": "dialog",
+      "file": "/data/links.md"
+    }
   ]
 }

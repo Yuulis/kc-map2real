@@ -15,6 +15,7 @@ import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import { Settings, X, Map } from "lucide-react";
 import { Toaster, toast } from "sonner";
+import ReactMarkdown from "react-markdown";
 
 type SeaInfo = {
   code: string;
@@ -29,14 +30,22 @@ type GroupInfo = {
   isEvent: boolean;
 };
 
+type HeaderLink =
+  | { label: string; type: "external"; href: string }
+  | { label: string; type: "dialog"; file: string };
+
 export default function Header() {
   const [rightOpen, setRightOpen] = useState(false);
   const [pinMode, setPinMode] = useState(false);
   const [devToolsEnabled, setDevToolsEnabled] = useState(false);
   const [appVersion, setAppVersion] = useState<string>("");
-  const [headerLinks, setHeaderLinks] = useState<
-    { label: string; href: string }[]
-  >([]);
+  const [headerLinks, setHeaderLinks] = useState<HeaderLink[]>([]);
+
+  // Markdown dialog state
+  const [activeDialog, setActiveDialog] = useState<{
+    label: string;
+    content: string;
+  } | null>(null);
 
   // Map selector dialog state
   const [mapSelectorOpen, setMapSelectorOpen] = useState(false);
@@ -219,24 +228,56 @@ export default function Header() {
 
           {/* Right: Links + Settings */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            {headerLinks.map((link) => (
-              <Button
-                key={link.label}
-                component="a"
-                href={link.href}
-                size="small"
-                sx={{
-                  color: "#9ca3af",
-                  fontSize: "0.7rem",
-                  textTransform: "none",
-                  minWidth: "auto",
-                  px: 0.75,
-                  "&:hover": { color: "#fff" },
-                }}
-              >
-                {link.label}
-              </Button>
-            ))}
+            {headerLinks.map((link) =>
+              link.type === "external" ? (
+                <Button
+                  key={link.label}
+                  component="a"
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  size="small"
+                  sx={{
+                    color: "#9ca3af",
+                    fontSize: "0.7rem",
+                    textTransform: "none",
+                    minWidth: "auto",
+                    px: 0.75,
+                    "&:hover": { color: "#fff" },
+                  }}
+                >
+                  {link.label}
+                </Button>
+              ) : (
+                <Button
+                  key={link.label}
+                  size="small"
+                  onClick={() => {
+                    fetch(link.file)
+                      .then((res) => res.text())
+                      .then((text) =>
+                        setActiveDialog({ label: link.label, content: text })
+                      )
+                      .catch(() =>
+                        setActiveDialog({
+                          label: link.label,
+                          content: "コンテンツを読み込めませんでした。",
+                        })
+                      );
+                  }}
+                  sx={{
+                    color: "#9ca3af",
+                    fontSize: "0.7rem",
+                    textTransform: "none",
+                    minWidth: "auto",
+                    px: 0.75,
+                    "&:hover": { color: "#fff" },
+                  }}
+                >
+                  {link.label}
+                </Button>
+              )
+            )}
             <IconButton
               edge="end"
               color="inherit"
@@ -348,6 +389,63 @@ export default function Header() {
           />
         </Box>
       </Drawer>
+
+      {/* Markdown content Dialog */}
+      <Dialog
+        open={activeDialog !== null}
+        onClose={() => setActiveDialog(null)}
+        maxWidth="md"
+        fullWidth
+        slotProps={{
+          paper: {
+            sx: {
+              backgroundColor: "#111111",
+              color: "#fff",
+              maxHeight: "80vh",
+            },
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            borderBottom: "1px solid #333",
+            py: 1.25,
+            px: 2,
+          }}
+        >
+          <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+            {activeDialog?.label}
+          </Typography>
+          <IconButton
+            size="small"
+            onClick={() => setActiveDialog(null)}
+            sx={{ color: "#9ca3af" }}
+          >
+            <X size={18} />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ p: 2, overflow: "auto" }}>
+          <Box
+            sx={{
+              "& h1,h2,h3": { color: "#e5e7eb", mt: 2, mb: 1 },
+              "& p": { color: "#9ca3af", mb: 1 },
+              "& a": { color: "#90caf9" },
+              "& ul,ol": { color: "#9ca3af", pl: 3 },
+              "& code": {
+                backgroundColor: "#1a1a1a",
+                px: 0.5,
+                borderRadius: 0.5,
+                fontFamily: "monospace",
+              },
+            }}
+          >
+            <ReactMarkdown>{activeDialog?.content ?? ""}</ReactMarkdown>
+          </Box>
+        </DialogContent>
+      </Dialog>
 
       {/* Map selector Dialog */}
       <Dialog
