@@ -5,7 +5,6 @@ import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
-import Drawer from "@mui/material/Drawer";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
@@ -13,8 +12,10 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import { Settings, X, Map } from "lucide-react";
+import { Settings, X, Map, History, Link2, Info } from "lucide-react";
 import { Toaster, toast } from "sonner";
+import ReactMarkdown from "react-markdown";
+import Tooltip from "@mui/material/Tooltip";
 
 type SeaInfo = {
   code: string;
@@ -29,14 +30,33 @@ type GroupInfo = {
   isEvent: boolean;
 };
 
+type HeaderLink =
+  | { label: string; type: "external"; href: string }
+  | { label: string; type: "dialog"; file: string };
+
+const HEADER_LINK_ICONS: Record<string, React.ReactNode> = {
+  更新履歴: <History size={18} />,
+  リンク集: <Link2 size={18} />,
+  このページについて: <Info size={18} color="#9ca3af" />,
+};
+
+const HEADER_LINK_TOOLTIPS: Record<string, string> = {
+  更新履歴: "更新履歴",
+  リンク集: "リンク集",
+  このページについて: "当サイトについて",
+};
+
 export default function Header() {
   const [rightOpen, setRightOpen] = useState(false);
-  const [pinMode, setPinMode] = useState(false);
   const [devToolsEnabled, setDevToolsEnabled] = useState(false);
   const [appVersion, setAppVersion] = useState<string>("");
-  const [headerLinks, setHeaderLinks] = useState<
-    { label: string; href: string }[]
-  >([]);
+  const [headerLinks, setHeaderLinks] = useState<HeaderLink[]>([]);
+
+  // Markdown dialog state
+  const [activeDialog, setActiveDialog] = useState<{
+    label: string;
+    content: string;
+  } | null>(null);
 
   // Map selector dialog state
   const [mapSelectorOpen, setMapSelectorOpen] = useState(false);
@@ -57,9 +77,14 @@ export default function Header() {
     fetch("/data/app-info.json")
       .then((res) => res.json())
       .then((data) => {
-        setAppVersion(
-          `(${data.version.label})第${data.version.number}号`
-        );
+        let versionStr = `${data.version.label}第${data.version.number}号`;
+        if (data.version.revision != null) {
+          versionStr += ` 改${data.version.revision}版`;
+        }
+        if (data.version.edition != null) {
+          versionStr += ` ${data.version.edition}版`;
+        }
+        setAppVersion(versionStr);
         setHeaderLinks(data.headerLinks);
       })
       .catch(() => {
@@ -78,16 +103,6 @@ export default function Header() {
       // Ignore storage errors
     }
   }, []);
-
-  // When devToolsEnabled changes to false, also reset pinMode
-  useEffect(() => {
-    if (!devToolsEnabled) {
-      setPinMode(false);
-      window.dispatchEvent(
-        new CustomEvent<boolean>("kc:set-pin-mode", { detail: false })
-      );
-    }
-  }, [devToolsEnabled]);
 
   // Load maps.json and capture group/submap info
   useEffect(() => {
@@ -218,94 +233,102 @@ export default function Header() {
           </Box>
 
           {/* Right: Links + Settings */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            {headerLinks.map((link) => (
-              <Button
-                key={link.label}
-                component="a"
-                href={link.href}
-                size="small"
-                sx={{
-                  color: "#9ca3af",
-                  fontSize: "0.7rem",
-                  textTransform: "none",
-                  minWidth: "auto",
-                  px: 0.75,
-                  "&:hover": { color: "#fff" },
-                }}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.25 }}>
+            {headerLinks.map((link) => {
+              const icon = HEADER_LINK_ICONS[link.label];
+              const tooltip = HEADER_LINK_TOOLTIPS[link.label] ?? link.label;
+              return link.type === "external" ? (
+                <Tooltip key={link.label} title={tooltip} placement="bottom">
+                  <IconButton
+                    component="a"
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    size="small"
+                    sx={{ color: "#9ca3af", "&:hover": { color: "#fff" } }}
+                  >
+                    {icon}
+                  </IconButton>
+                </Tooltip>
+              ) : (
+                <Tooltip key={link.label} title={tooltip} placement="bottom">
+                  <IconButton
+                    size="small"
+                    onClick={() => {
+                      fetch(link.file)
+                        .then((res) => res.text())
+                        .then((text) =>
+                          setActiveDialog({ label: link.label, content: text }),
+                        )
+                        .catch(() =>
+                          setActiveDialog({
+                            label: link.label,
+                            content: "コンテンツを読み込めませんでした。",
+                          }),
+                        );
+                    }}
+                    sx={{ color: "#9ca3af", "&:hover": { color: "#fff" } }}
+                  >
+                    {icon}
+                  </IconButton>
+                </Tooltip>
+              );
+            })}
+            <Tooltip title="設定" placement="bottom">
+              <IconButton
+                edge="end"
+                color="inherit"
+                aria-label="設定を開く"
+                onClick={() => setRightOpen(true)}
               >
-                {link.label}
-              </Button>
-            ))}
-            <IconButton
-              edge="end"
-              color="inherit"
-              aria-label="設定を開く"
-              onClick={() => setRightOpen(true)}
-            >
-              <Settings size={20} />
-            </IconButton>
+                <Settings size={20} />
+              </IconButton>
+            </Tooltip>
           </Box>
         </Toolbar>
       </AppBar>
 
-      {/* Right Drawer: Settings */}
-      <Drawer
-        anchor="right"
+      {/* Settings Dialog */}
+      <Dialog
         open={rightOpen}
         onClose={() => setRightOpen(false)}
+        maxWidth="xs"
+        fullWidth
         slotProps={{
           paper: {
             sx: {
-              width: 320,
               backgroundColor: "#111111",
               color: "#fff",
             },
           },
         }}
       >
-        <Box sx={{ p: 1.5, borderBottom: "1px solid #333" }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+        <DialogTitle
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            borderBottom: "1px solid #333",
+            py: 1.25,
+            px: 2,
+          }}
+        >
+          <Typography
+            component="span"
+            variant="subtitle1"
+            sx={{ fontWeight: 700 }}
+          >
             設定
           </Typography>
-        </Box>
-
-        <Box sx={{ p: 1.5 }}>
-          <Typography variant="body2" sx={{ color: "#9ca3af", mb: 2 }}>
-            ここに設定項目を追加できます。
-          </Typography>
-
-          {/* Pin mode checkbox */}
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={pinMode}
-                onChange={(e) => {
-                  const next = e.target.checked;
-                  setPinMode(next);
-                  const evt = new CustomEvent<boolean>("kc:set-pin-mode", {
-                    detail: next,
-                  });
-                  window.dispatchEvent(evt);
-                  toast[next ? "success" : "info"](
-                    next
-                      ? "ピン配置モードをONにしました"
-                      : "ピン配置モードをOFFにしました"
-                  );
-                }}
-                size="small"
-                sx={{
-                  color: "#6b7280",
-                  "&.Mui-checked": { color: "#90caf9" },
-                }}
-              />
-            }
-            label={
-              <Typography variant="body2">ピン配置モード</Typography>
-            }
-            sx={{ ml: 0 }}
-          />
-
+          <IconButton
+            size="small"
+            onClick={() => setRightOpen(false)}
+            sx={{ color: "#9ca3af" }}
+          >
+            <X size={18} />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ p: 2 }}>
           {/* Developer tools checkbox */}
           <FormControlLabel
             control={
@@ -326,12 +349,12 @@ export default function Header() {
                   window.dispatchEvent(
                     new CustomEvent<boolean>("kc:set-dev-tools", {
                       detail: next,
-                    })
+                    }),
                   );
                   toast[next ? "success" : "info"](
                     next
                       ? "デベロッパーツールを有効にしました"
-                      : "デベロッパーツールを無効にしました"
+                      : "デベロッパーツールを無効にしました",
                   );
                 }}
                 size="small"
@@ -341,13 +364,72 @@ export default function Header() {
                 }}
               />
             }
-            label={
-              <Typography variant="body2">デベロッパーツール</Typography>
-            }
+            label={<Typography variant="body2">デベロッパーツール</Typography>}
             sx={{ ml: 0, display: "flex" }}
           />
-        </Box>
-      </Drawer>
+        </DialogContent>
+      </Dialog>
+
+      {/* Markdown content Dialog */}
+      <Dialog
+        open={activeDialog !== null}
+        onClose={() => setActiveDialog(null)}
+        maxWidth="md"
+        fullWidth
+        slotProps={{
+          paper: {
+            sx: {
+              backgroundColor: "#111111",
+              color: "#fff",
+              maxHeight: "80vh",
+            },
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            borderBottom: "1px solid #333",
+            py: 1.25,
+            px: 2,
+          }}
+        >
+          <Typography
+            component="span"
+            variant="subtitle1"
+            sx={{ fontWeight: 700 }}
+          >
+            {activeDialog?.label}
+          </Typography>
+          <IconButton
+            size="small"
+            onClick={() => setActiveDialog(null)}
+            sx={{ color: "#9ca3af" }}
+          >
+            <X size={18} />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ p: 2, overflow: "auto" }}>
+          <Box
+            sx={{
+              "& h1,h2,h3": { color: "#e5e7eb", mt: 2, mb: 1 },
+              "& p": { color: "#9ca3af", mb: 1 },
+              "& a": { color: "#90caf9" },
+              "& ul,ol": { color: "#9ca3af", pl: 3 },
+              "& code": {
+                backgroundColor: "#1a1a1a",
+                px: 0.5,
+                borderRadius: 0.5,
+                fontFamily: "monospace",
+              },
+            }}
+          >
+            <ReactMarkdown>{activeDialog?.content ?? ""}</ReactMarkdown>
+          </Box>
+        </DialogContent>
+      </Dialog>
 
       {/* Map selector Dialog */}
       <Dialog
@@ -375,7 +457,11 @@ export default function Header() {
             px: 2,
           }}
         >
-          <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+          <Typography
+            component="span"
+            variant="subtitle1"
+            sx={{ fontWeight: 700 }}
+          >
             海域選択
           </Typography>
           <IconButton
@@ -405,7 +491,7 @@ export default function Header() {
                 variant="outlined"
                 onClick={() => {
                   const allCodes = groupData.flatMap((g) =>
-                    g.seas.map((s) => s.code)
+                    g.seas.map((s) => s.code),
                   );
                   setActiveSectionKeys(allCodes);
                 }}
@@ -441,133 +527,13 @@ export default function Header() {
               .map((group) => {
                 const groupCodes = group.seas.map((s) => s.code);
                 const selectedCount = groupCodes.filter((c) =>
-                  activeSectionKeys.includes(c)
+                  activeSectionKeys.includes(c),
                 ).length;
                 const allSelected = selectedCount === groupCodes.length;
                 const noneSelected = selectedCount === 0;
                 return (
-                <Box key={group.id} sx={{ mb: 2.5, breakInside: "avoid" }}>
-                  {/* Group header with checkbox */}
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      mb: 1,
-                      borderBottom: "1px solid #222",
-                      pb: 0.5,
-                    }}
-                  >
-                    <Checkbox
-                      checked={allSelected}
-                      indeterminate={!allSelected && !noneSelected}
-                      onChange={() => {
-                        setActiveSectionKeys((prev) => {
-                          if (allSelected) {
-                            return prev.filter(
-                              (k) => !groupCodes.includes(k)
-                            );
-                          }
-                          const next = new Set(prev);
-                          groupCodes.forEach((c) => next.add(c));
-                          return Array.from(next);
-                        });
-                      }}
-                      size="small"
-                      sx={{
-                        p: 0,
-                        mr: 0.75,
-                        color: "#6b7280",
-                        "&.Mui-checked": { color: "#90caf9" },
-                        "&.MuiCheckbox-indeterminate": { color: "#90caf9" },
-                        "& .MuiSvgIcon-root": { fontSize: 18 },
-                      }}
-                    />
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        color: "#6b7280",
-                        fontWeight: 700,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.06em",
-                      }}
-                    >
-                      {group.name}
-                    </Typography>
-                  </Box>
-
-                  {/* Sea chips row */}
-                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.75 }}>
-                    {group.seas.map((sea) => {
-                      const active = activeSectionKeys.includes(sea.code);
-                      return (
-                        <Box key={sea.code} sx={{ width: 56 }}>
-                          {/* Sea toggle button */}
-                          <Button
-                            size="small"
-                            variant={active ? "contained" : "outlined"}
-                            title={`${sea.code} ${sea.name}`}
-                            onClick={() => {
-                              setActiveSectionKeys((prev) =>
-                                active
-                                  ? prev.filter((k) => k !== sea.code)
-                                  : [...prev, sea.code]
-                              );
-                            }}
-                            sx={{
-                              fontSize: "0.75rem",
-                              fontWeight: 700,
-                              textTransform: "none",
-                              width: "100%",
-                              minWidth: 0,
-                              px: 1.25,
-                              py: 0.375,
-                              backgroundColor: active
-                                ? "#fff"
-                                : "transparent",
-                              color: active ? "#000" : "#9ca3af",
-                              borderColor: active ? "#fff" : "#4b5563",
-                              "&:hover": {
-                                backgroundColor: active
-                                  ? "#e5e7eb"
-                                  : "rgba(255,255,255,0.08)",
-                                borderColor: active
-                                  ? "#e5e7eb"
-                                  : "#9ca3af",
-                              },
-                            }}
-                          >
-                            {sea.code}
-                          </Button>
-
-                        </Box>
-                      );
-                    })}
-                  </Box>
-                </Box>
-                );
-              })}
-          </Box>
-
-          {/* Right column: event seas (only shown if event groups exist) */}
-          {groupData.some((g) => g.isEvent) && (
-            <Box
-              sx={{
-                width: 320,
-                p: 2,
-                flexShrink: 0,
-              }}
-            >
-              {groupData
-                .filter((g) => g.isEvent)
-                .map((group) => {
-                  const groupCodes = group.seas.map((s) => s.code);
-                  const selectedCount = groupCodes.filter((c) =>
-                    activeSectionKeys.includes(c)
-                  ).length;
-                  const allSelected = selectedCount === groupCodes.length;
-                  const noneSelected = selectedCount === 0;
-                  return (
-                  <Box key={group.id} sx={{ mb: 2.5 }}>
+                  <Box key={group.id} sx={{ mb: 2.5, breakInside: "avoid" }}>
+                    {/* Group header with checkbox */}
                     <Box
                       sx={{
                         display: "flex",
@@ -584,7 +550,7 @@ export default function Header() {
                           setActiveSectionKeys((prev) => {
                             if (allSelected) {
                               return prev.filter(
-                                (k) => !groupCodes.includes(k)
+                                (k) => !groupCodes.includes(k),
                               );
                             }
                             const next = new Set(prev);
@@ -607,61 +573,176 @@ export default function Header() {
                         sx={{
                           color: "#6b7280",
                           fontWeight: 700,
+                          textTransform: "uppercase",
+                          letterSpacing: "0.06em",
                         }}
                       >
                         {group.name}
                       </Typography>
                     </Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexWrap: "wrap",
-                        gap: 0.75,
-                      }}
-                    >
+
+                    {/* Sea chips row */}
+                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.75 }}>
                       {group.seas.map((sea) => {
-                        const active = activeSectionKeys.includes(
-                          sea.code
-                        );
+                        const active = activeSectionKeys.includes(sea.code);
                         return (
-                          <Button
-                            key={sea.code}
-                            size="small"
-                            variant={active ? "contained" : "outlined"}
-                            title={`${sea.code} ${sea.name}`}
-                            onClick={() => {
-                              setActiveSectionKeys((prev) =>
-                                active
-                                  ? prev.filter((k) => k !== sea.code)
-                                  : [...prev, sea.code]
-                              );
-                            }}
-                            sx={{
-                              fontSize: "0.75rem",
-                              fontWeight: 700,
-                              textTransform: "none",
-                              width: 56,
-                              minWidth: 0,
-                              px: 1.25,
-                              py: 0.375,
-                              backgroundColor: active
-                                ? "#fff"
-                                : "transparent",
-                              color: active ? "#000" : "#9ca3af",
-                              borderColor: active ? "#fff" : "#4b5563",
-                              "&:hover": {
+                          <Box key={sea.code} sx={{ width: 56 }}>
+                            {/* Sea toggle button */}
+                            <Button
+                              size="small"
+                              variant={active ? "contained" : "outlined"}
+                              title={`${sea.code} ${sea.name}`}
+                              onClick={() => {
+                                setActiveSectionKeys((prev) =>
+                                  active
+                                    ? prev.filter((k) => k !== sea.code)
+                                    : [...prev, sea.code],
+                                );
+                              }}
+                              sx={{
+                                fontSize: "0.75rem",
+                                fontWeight: 700,
+                                textTransform: "none",
+                                width: "100%",
+                                minWidth: 0,
+                                px: 1.25,
+                                py: 0.375,
                                 backgroundColor: active
-                                  ? "#e5e7eb"
-                                  : "rgba(255,255,255,0.08)",
-                              },
-                            }}
-                          >
-                            {sea.code}
-                          </Button>
+                                  ? "#fff"
+                                  : "transparent",
+                                color: active ? "#000" : "#9ca3af",
+                                borderColor: active ? "#fff" : "#4b5563",
+                                "&:hover": {
+                                  backgroundColor: active
+                                    ? "#e5e7eb"
+                                    : "rgba(255,255,255,0.08)",
+                                  borderColor: active ? "#e5e7eb" : "#9ca3af",
+                                },
+                              }}
+                            >
+                              {sea.code}
+                            </Button>
+                          </Box>
                         );
                       })}
                     </Box>
                   </Box>
+                );
+              })}
+          </Box>
+
+          {/* Right column: event seas (only shown if event groups exist) */}
+          {groupData.some((g) => g.isEvent) && (
+            <Box
+              sx={{
+                width: 320,
+                p: 2,
+                flexShrink: 0,
+              }}
+            >
+              {groupData
+                .filter((g) => g.isEvent)
+                .map((group) => {
+                  const groupCodes = group.seas.map((s) => s.code);
+                  const selectedCount = groupCodes.filter((c) =>
+                    activeSectionKeys.includes(c),
+                  ).length;
+                  const allSelected = selectedCount === groupCodes.length;
+                  const noneSelected = selectedCount === 0;
+                  return (
+                    <Box key={group.id} sx={{ mb: 2.5 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          mb: 1,
+                          borderBottom: "1px solid #222",
+                          pb: 0.5,
+                        }}
+                      >
+                        <Checkbox
+                          checked={allSelected}
+                          indeterminate={!allSelected && !noneSelected}
+                          onChange={() => {
+                            setActiveSectionKeys((prev) => {
+                              if (allSelected) {
+                                return prev.filter(
+                                  (k) => !groupCodes.includes(k),
+                                );
+                              }
+                              const next = new Set(prev);
+                              groupCodes.forEach((c) => next.add(c));
+                              return Array.from(next);
+                            });
+                          }}
+                          size="small"
+                          sx={{
+                            p: 0,
+                            mr: 0.75,
+                            color: "#6b7280",
+                            "&.Mui-checked": { color: "#90caf9" },
+                            "&.MuiCheckbox-indeterminate": { color: "#90caf9" },
+                            "& .MuiSvgIcon-root": { fontSize: 18 },
+                          }}
+                        />
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            color: "#6b7280",
+                            fontWeight: 700,
+                          }}
+                        >
+                          {group.name}
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          gap: 0.75,
+                        }}
+                      >
+                        {group.seas.map((sea) => {
+                          const active = activeSectionKeys.includes(sea.code);
+                          return (
+                            <Button
+                              key={sea.code}
+                              size="small"
+                              variant={active ? "contained" : "outlined"}
+                              title={`${sea.code} ${sea.name}`}
+                              onClick={() => {
+                                setActiveSectionKeys((prev) =>
+                                  active
+                                    ? prev.filter((k) => k !== sea.code)
+                                    : [...prev, sea.code],
+                                );
+                              }}
+                              sx={{
+                                fontSize: "0.75rem",
+                                fontWeight: 700,
+                                textTransform: "none",
+                                width: 56,
+                                minWidth: 0,
+                                px: 1.25,
+                                py: 0.375,
+                                backgroundColor: active
+                                  ? "#fff"
+                                  : "transparent",
+                                color: active ? "#000" : "#9ca3af",
+                                borderColor: active ? "#fff" : "#4b5563",
+                                "&:hover": {
+                                  backgroundColor: active
+                                    ? "#e5e7eb"
+                                    : "rgba(255,255,255,0.08)",
+                                },
+                              }}
+                            >
+                              {sea.code}
+                            </Button>
+                          );
+                        })}
+                      </Box>
+                    </Box>
                   );
                 })}
             </Box>
