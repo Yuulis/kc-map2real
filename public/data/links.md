@@ -2,6 +2,7 @@
 
 # 関連サイトリンク集
 
+- [「艦隊これくしょん-艦これ-」 DMM GAMES公式ページ](https://www.dmm.com/netgame/feature/kancolle.html)
 - [「艦これ」開発/運営 Twitter(現 X)](https://x.com/KanColle_STAFF)
 - [C2機関 Twitter (現 X)](https://x.com/C2_STAFF)
 - [艦隊これくしょん -艦これ- 攻略 Wiki*](https://wikiwiki.jp/kancolle/)

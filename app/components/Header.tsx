@@ -37,13 +37,13 @@ type HeaderLink =
 const HEADER_LINK_ICONS: Record<string, React.ReactNode> = {
   更新履歴: <History size={18} />,
   リンク集: <Link2 size={18} />,
-  このページについて: <Info size={18} color="#9ca3af" />,
+  当サイトについて: <Info size={18} />,
 };
 
 const HEADER_LINK_TOOLTIPS: Record<string, string> = {
   更新履歴: "更新履歴",
   リンク集: "リンク集",
-  このページについて: "当サイトについて",
+  当サイトについて: "当サイトについて",
 };
 
 export default function Header() {
@@ -417,7 +417,9 @@ export default function Header() {
               "& h1,h2,h3": { color: "#e5e7eb", mt: 2, mb: 1 },
               "& p": { color: "#9ca3af", mb: 1 },
               "& a": { color: "#90caf9" },
-              "& ul,ol": { color: "#9ca3af", pl: 3 },
+              "& ul": { color: "#9ca3af", pl: 3, listStyleType: "disc" },
+              "& ol": { color: "#9ca3af", pl: 3, listStyleType: "decimal" },
+              "& li": { mb: 0.25 },
               "& code": {
                 backgroundColor: "#1a1a1a",
                 px: 0.5,
