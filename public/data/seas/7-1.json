@@ -1,0 +1,180 @@
+{
+  "code": "7-1",
+  "name": "ブルネイ泊地沖",
+  "meta": {},
+  "nodes": [
+    {
+      "id": "Start",
+      "type": "start",
+      "lat": 5.332180324513843,
+      "lng": 114.86841320497052,
+      "name": "Start",
+      "meta": {}
+    },
+    {
+      "id": "G",
+      "type": "normal",
+      "lat": 7.939758458008683,
+      "lng": 116.14009054352368,
+      "name": "敵哨戒部隊",
+      "meta": {}
+    },
+    {
+      "id": "H",
+      "type": "normal",
+      "lat": 7.201029101987288,
+      "lng": 117.82198637838388,
+      "name": "深海潜水艦隊 I群",
+      "meta": {}
+    },
+    {
+      "id": "F",
+      "type": "normal",
+      "lat": 6.69202173628581,
+      "lng": 115.58629557350883,
+      "name": "深海潜水艦隊 III群",
+      "meta": {}
+    },
+    {
+      "id": "E",
+      "type": "supply",
+      "lat": 7.9803850536504655,
+      "lng": 114.82739135534047,
+      "name": "燃料 +10~20",
+      "meta": {}
+    },
+    {
+      "id": "D",
+      "type": "normal",
+      "lat": 6.909265480845221,
+      "lng": 113.66510561580367,
+      "name": "深海潜水艦隊 II群",
+      "meta": {}
+    },
+    {
+      "id": "C",
+      "type": "normal",
+      "lat": 8.507732530089271,
+      "lng": 112.66575381686658,
+      "name": "敵通商破壊侵入 高速機動部隊",
+      "meta": {}
+    },
+    {
+      "id": "B",
+      "type": "normal",
+      "lat": 5.802285854707648,
+      "lng": 111.89449772603672,
+      "name": "敵通商破壊侵入艦隊",
+      "meta": {}
+    },
+    {
+      "id": "A",
+      "type": "whirlpool",
+      "lat": 7.457546503873786,
+      "lng": 110.54479956708724,
+      "name": "司令官！うずしおが発生しました！",
+      "meta": {}
+    },
+    {
+      "id": "K",
+      "type": "boss",
+      "lat": 8.02225008236718,
+      "lng": 119.45149495696211,
+      "name": "深海潜水艦隊集団 旗艦戦隊",
+      "meta": {}
+    },
+    {
+      "id": "J",
+      "type": "relay",
+      "lat": 6.314581500273249,
+      "lng": 120.17420339839146,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "I",
+      "type": "supply",
+      "lat": 5.4500562340000585,
+      "lng": 118.95339355460811,
+      "name": "燃料 +30~50",
+      "meta": {}
+    }
+  ],
+  "edges": [
+    {
+      "from": "Start",
+      "to": "B",
+      "arrow": false
+    },
+    {
+      "from": "Start",
+      "to": "D",
+      "arrow": false
+    },
+    {
+      "from": "Start",
+      "to": "F",
+      "arrow": false
+    },
+    {
+      "from": "A",
+      "to": "B",
+      "arrow": false
+    },
+    {
+      "from": "A",
+      "to": "C",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "C",
+      "arrow": false
+    },
+    {
+      "from": "C",
+      "to": "D",
+      "arrow": false
+    },
+    {
+      "from": "C",
+      "to": "E",
+      "arrow": false
+    },
+    {
+      "from": "D",
+      "to": "E",
+      "arrow": false
+    },
+    {
+      "from": "E",
+      "to": "G",
+      "arrow": false
+    },
+    {
+      "from": "F",
+      "to": "G",
+      "arrow": false
+    },
+    {
+      "from": "G",
+      "to": "H",
+      "arrow": false
+    },
+    {
+      "from": "H",
+      "to": "K",
+      "arrow": true
+    },
+    {
+      "from": "H",
+      "to": "I",
+      "arrow": true
+    },
+    {
+      "from": "H",
+      "to": "J",
+      "arrow": true
+    }
+  ]
+}

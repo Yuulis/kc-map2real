@@ -1,0 +1,162 @@
+{
+  "code": "5-1",
+  "name": "南方海域前面",
+  "meta": {},
+  "nodes": [
+    {
+      "id": "H",
+      "type": "supply",
+      "lat": -7.893066310673291,
+      "lng": 158.69648538468715,
+      "name": "弾薬 +45~70",
+      "meta": {}
+    },
+    {
+      "id": "C",
+      "type": "supply",
+      "lat": -7.0171580177638475,
+      "lng": 155.9906855374283,
+      "name": "鋼材 +25~50",
+      "meta": {}
+    },
+    {
+      "id": "G",
+      "type": "normal",
+      "lat": -8.787745105297418,
+      "lng": 158.39738668691763,
+      "name": "敵南方任務部隊 A群",
+      "meta": {}
+    },
+    {
+      "id": "J",
+      "type": "boss",
+      "lat": -8.87709799036331,
+      "lng": 159.76072028605188,
+      "name": "敵南方前線司令艦隊",
+      "meta": {}
+    },
+    {
+      "id": "F",
+      "type": "normal",
+      "lat": -8.01706554123703,
+      "lng": 158.0843764218115,
+      "name": "敵南方任務部隊 B群",
+      "meta": {}
+    },
+    {
+      "id": "I",
+      "type": "relay",
+      "lat": -9.371575739559717,
+      "lng": 158.95384938044316,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "E",
+      "type": "normal",
+      "lat": -9.172493666538998,
+      "lng": 157.19403611217388,
+      "name": "敵潜水艦南方哨戒線",
+      "meta": {}
+    },
+    {
+      "id": "D",
+      "type": "normal",
+      "lat": -9.172493666538998,
+      "lng": 156.36629785555573,
+      "name": "敵南方空母機動部隊",
+      "meta": {}
+    },
+    {
+      "id": "B",
+      "type": "normal",
+      "lat": -7.989513402028564,
+      "lng": 155.4759575459181,
+      "name": "敵南方前衛哨戒艦隊",
+      "meta": {}
+    },
+    {
+      "id": "A",
+      "type": "whirlpool",
+      "lat": -8.622729482629097,
+      "lng": 154.75951182800577,
+      "name": "司令官！うずしおが発生しました！",
+      "meta": {}
+    },
+    {
+      "id": "Start",
+      "type": "start",
+      "lat": -6.955020743639523,
+      "lng": 153.61180752261225,
+      "name": "Start",
+      "meta": {}
+    }
+  ],
+  "edges": [
+    {
+      "from": "Start",
+      "to": "A",
+      "arrow": false
+    },
+    {
+      "from": "Start",
+      "to": "B",
+      "arrow": false
+    },
+    {
+      "from": "A",
+      "to": "D",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "C",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "E",
+      "arrow": false
+    },
+    {
+      "from": "C",
+      "to": "F",
+      "arrow": false
+    },
+    {
+      "from": "D",
+      "to": "E",
+      "arrow": false
+    },
+    {
+      "from": "E",
+      "to": "G",
+      "arrow": false
+    },
+    {
+      "from": "F",
+      "to": "G",
+      "arrow": false
+    },
+    {
+      "from": "F",
+      "to": "H",
+      "arrow": true
+    },
+    {
+      "from": "F",
+      "to": "J",
+      "arrow": true
+    },
+    {
+      "from": "G",
+      "to": "I",
+      "arrow": true
+    },
+    {
+      "from": "G",
+      "to": "J",
+      "arrow": true
+    }
+  ]
+}

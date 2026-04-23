@@ -2,32 +2,48 @@ import { NextResponse } from "next/server";
 import path from "path";
 import { promises as fs } from "fs";
 
-const dataPath = path.join(process.cwd(), "public", "data", "maps.json");
+import {
+  readIndex,
+  writeIndex,
+  readSea,
+  writeSea,
+} from "@/app/lib/maps-io";
 
 export async function GET() {
   try {
-    const content = await fs.readFile(dataPath, "utf-8");
-    const json = JSON.parse(content);
-    // Return backward-compatible NamesData shape from maps.json
+    const index = await readIndex();
+    // Build backward-compatible NamesData shape
+    const groups = await Promise.all(
+      index.groups.map(async (g) => {
+        const seas = await Promise.all(
+          g.seas.map(async (seaRef) => {
+            const sea = await readSea(seaRef.code);
+            return {
+              code: sea.code,
+              name: sea.name,
+              nodes: Object.fromEntries(
+                (sea.nodes ?? []).map((n) => [n.id, n.name]),
+              ),
+            };
+          }),
+        );
+        return {
+          id: g.id,
+          name: g.name,
+          seas,
+        };
+      }),
+    );
+
     const namesData = {
-      version: json.version ?? 2,
-      groups: (json.groups ?? []).map((g: any) => ({
-        id: g.id,
-        name: g.name,
-        seas: (g.seas ?? []).map((s: any) => ({
-          code: s.code,
-          name: s.name,
-          nodes: Object.fromEntries(
-            (s.nodes ?? []).map((n: any) => [n.id, n.name])
-          ),
-        })),
-      })),
+      version: index.version,
+      groups,
     };
     return NextResponse.json(namesData);
   } catch {
     return NextResponse.json(
-      { error: "maps.json not found or invalid" },
-      { status: 404 }
+      { error: "maps data not found or invalid" },
+      { status: 404 },
     );
   }
 }
@@ -43,18 +59,15 @@ export async function PUT(req: Request) {
     if (typeof body.version !== "number") {
       return NextResponse.json(
         { error: "Missing or invalid version" },
-        { status: 400 }
+        { status: 400 },
       );
     }
     if (!Array.isArray(body.groups)) {
       return NextResponse.json(
         { error: "Missing or invalid groups[]" },
-        { status: 400 }
+        { status: 400 },
       );
     }
-
-    // Read existing maps.json to merge name updates into it
-    const existing = JSON.parse(await fs.readFile(dataPath, "utf-8"));
 
     // Build lookup: code -> { seaName, nodeNames }
     const namesMap: Record<string, { name: string; nodes: Record<string, string> }> = {};
@@ -65,17 +78,23 @@ export async function PUT(req: Request) {
       }
     }
 
-    // Update group and sea names, and node names in existing maps.json
-    for (const group of existing.groups) {
-      // Update group name from first matching sea's group
-      const matchingGroup = body.groups.find((g: any) => g.id === group.id);
+    // Read current data and apply name updates
+    const index = await readIndex();
+
+    // Update group names in index
+    for (const group of index.groups) {
+      const matchingGroup = body.groups.find((g: { id: string }) => g.id === group.id);
       if (matchingGroup) {
         group.name = matchingGroup.name;
       }
 
-      for (const sea of group.seas) {
-        const nameInfo = namesMap[sea.code];
+      for (const seaRef of group.seas) {
+        const nameInfo = namesMap[seaRef.code];
         if (!nameInfo) continue;
+        // Update sea name in index
+        seaRef.name = nameInfo.name;
+        // Update node names in sea file
+        const sea = await readSea(seaRef.code);
         sea.name = nameInfo.name;
         for (const node of sea.nodes) {
           const newName = nameInfo.nodes[node.id];
@@ -83,14 +102,12 @@ export async function PUT(req: Request) {
             node.name = newName;
           }
         }
+        await writeSea(sea);
       }
     }
 
-    existing.version = body.version;
-
-    // Persist
-    const serialized = JSON.stringify(existing, null, 2);
-    await fs.writeFile(dataPath, serialized, "utf-8");
+    index.version = body.version;
+    await writeIndex(index);
 
     // Also write to legacy names.json for backward compatibility
     const legacyPath = path.join(process.cwd(), "public", "data", "names.json");
@@ -99,8 +116,8 @@ export async function PUT(req: Request) {
     return NextResponse.json(body);
   } catch {
     return NextResponse.json(
-      { error: "Failed to save maps.json" },
-      { status: 500 }
+      { error: "Failed to save maps data" },
+      { status: 500 },
     );
   }
 }

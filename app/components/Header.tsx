@@ -106,7 +106,7 @@ export default function Header() {
 
   // Load maps.json and capture group/submap info
   useEffect(() => {
-    fetch("/data/maps.json")
+    fetch("/api/maps")
       .then((res) => res.json())
       .then((data) => {
         const groups: GroupInfo[] = [];

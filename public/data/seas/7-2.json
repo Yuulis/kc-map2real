@@ -1,0 +1,343 @@
+{
+  "code": "7-2",
+  "name": "タウイタウイ泊地沖",
+  "meta": {},
+  "nodes": [
+    {
+      "id": "Start",
+      "type": "start",
+      "lat": 4.946378590407164,
+      "lng": 120.04803761134093,
+      "name": "Start",
+      "meta": {}
+    },
+    {
+      "id": "G",
+      "type": "boss",
+      "lat": 5.834733832086201,
+      "lng": 122.20169631937733,
+      "name": "セレベス海方面 旗艦哨戒潜水艦",
+      "meta": {}
+    },
+    {
+      "id": "A",
+      "type": "whirlpool",
+      "lat": 3.549808890636072,
+      "lng": 119.14785746053622,
+      "name": "司令官！うずしおが発生しました！",
+      "meta": {}
+    },
+    {
+      "id": "C",
+      "type": "normal",
+      "lat": 3.549808890636072,
+      "lng": 121.96334760247879,
+      "name": "セレベス海方面哨戒潜水艦 I群",
+      "meta": {}
+    },
+    {
+      "id": "D",
+      "type": "relay",
+      "lat": 2.6082351748327426,
+      "lng": 123.39342398584472,
+      "name": "気のせいだった。",
+      "meta": {}
+    },
+    {
+      "id": "E",
+      "type": "normal",
+      "lat": 4.333946535222637,
+      "lng": 123.35376919511418,
+      "name": "セレベス海方面哨戒潜水艦 II群",
+      "meta": {}
+    },
+    {
+      "id": "F",
+      "type": "relay",
+      "lat": 4.958430207001541,
+      "lng": 124.54341291706129,
+      "name": "気のせいだった。",
+      "meta": {}
+    },
+    {
+      "id": "B",
+      "type": "normal",
+      "lat": 2.647848257789647,
+      "lng": 120.65724342536737,
+      "name": "深海任務部隊 前方侵入水雷戦隊",
+      "meta": {}
+    }
+  ],
+  "edges": [
+    {
+      "from": "Start",
+      "to": "A",
+      "arrow": false
+    },
+    {
+      "from": "Start",
+      "to": "C",
+      "arrow": false
+    },
+    {
+      "from": "Start",
+      "to": "B",
+      "arrow": false
+    },
+    {
+      "from": "A",
+      "to": "B",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "C",
+      "arrow": false
+    },
+    {
+      "from": "C",
+      "to": "D",
+      "arrow": true
+    },
+    {
+      "from": "C",
+      "to": "E",
+      "arrow": false
+    },
+    {
+      "from": "E",
+      "to": "F",
+      "arrow": true
+    },
+    {
+      "from": "E",
+      "to": "G",
+      "arrow": true
+    },
+    {
+      "from": "D",
+      "to": "I",
+      "arrow": false
+    },
+    {
+      "from": "H",
+      "to": "I",
+      "arrow": false
+    },
+    {
+      "from": "I",
+      "to": "M",
+      "arrow": true
+    },
+    {
+      "from": "I",
+      "to": "L",
+      "arrow": true
+    },
+    {
+      "from": "D",
+      "to": "H",
+      "arrow": false
+    },
+    {
+      "from": "I",
+      "to": "J",
+      "arrow": false
+    },
+    {
+      "from": "J",
+      "to": "K",
+      "arrow": false
+    }
+  ],
+  "submaps": [
+    {
+      "id": "1",
+      "name": "戦力ゲージ1",
+      "nodes": [],
+      "edges": [
+        {
+          "from": "Start",
+          "to": "A",
+          "arrow": false
+        },
+        {
+          "from": "Start",
+          "to": "C",
+          "arrow": false
+        },
+        {
+          "from": "Start",
+          "to": "B",
+          "arrow": false
+        },
+        {
+          "from": "A",
+          "to": "B",
+          "arrow": false
+        },
+        {
+          "from": "B",
+          "to": "C",
+          "arrow": false
+        },
+        {
+          "from": "C",
+          "to": "D",
+          "arrow": true
+        },
+        {
+          "from": "C",
+          "to": "E",
+          "arrow": false
+        },
+        {
+          "from": "E",
+          "to": "F",
+          "arrow": true
+        },
+        {
+          "from": "E",
+          "to": "G",
+          "arrow": true
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "name": "戦力ゲージ2",
+      "nodes": [
+        {
+          "id": "H",
+          "type": "air-rade",
+          "lat": 2.900503852182325,
+          "lng": 124.92952594920109,
+          "name": "深海任務部隊 主力機動部隊群",
+          "meta": {}
+        },
+        {
+          "id": "I",
+          "type": "normal",
+          "lat": 4.420096655624917,
+          "lng": 125.42124535427297,
+          "name": "深海任務部隊 前衛哨戒群",
+          "meta": {}
+        },
+        {
+          "id": "L",
+          "type": "relay",
+          "lat": 5.068203629540008,
+          "lng": 126.49192470402642,
+          "name": "敵影を見ず。",
+          "meta": {}
+        },
+        {
+          "id": "J",
+          "type": "normal",
+          "lat": 5.976021393518707,
+          "lng": 125.9843433826615,
+          "name": "深海任務部隊 強襲揚陸部隊群",
+          "meta": {}
+        },
+        {
+          "id": "K",
+          "type": "supply",
+          "lat": 7.212918998028172,
+          "lng": 125.7781384708581,
+          "name": "燃料 +25~40",
+          "meta": {}
+        },
+        {
+          "id": "M",
+          "type": "boss",
+          "lat": 3.4231484469997184,
+          "lng": 126.3491674573931,
+          "name": "深海任務部隊 主力機動部隊群",
+          "meta": {}
+        }
+      ],
+      "edges": [
+        {
+          "from": "D",
+          "to": "I",
+          "arrow": false
+        },
+        {
+          "from": "H",
+          "to": "I",
+          "arrow": false
+        },
+        {
+          "from": "I",
+          "to": "M",
+          "arrow": true
+        },
+        {
+          "from": "I",
+          "to": "L",
+          "arrow": true
+        },
+        {
+          "from": "I",
+          "to": "J",
+          "arrow": false
+        },
+        {
+          "from": "J",
+          "to": "K",
+          "arrow": false
+        },
+        {
+          "from": "D",
+          "to": "H",
+          "arrow": false
+        },
+        {
+          "from": "Start",
+          "to": "A",
+          "arrow": false
+        },
+        {
+          "from": "Start",
+          "to": "B",
+          "arrow": false
+        },
+        {
+          "from": "Start",
+          "to": "C",
+          "arrow": false
+        },
+        {
+          "from": "B",
+          "to": "C",
+          "arrow": false
+        },
+        {
+          "from": "A",
+          "to": "B",
+          "arrow": false
+        },
+        {
+          "from": "C",
+          "to": "D",
+          "arrow": true
+        },
+        {
+          "from": "C",
+          "to": "E",
+          "arrow": false
+        },
+        {
+          "from": "E",
+          "to": "F",
+          "arrow": true
+        },
+        {
+          "from": "E",
+          "to": "G",
+          "arrow": true
+        }
+      ]
+    }
+  ]
+}

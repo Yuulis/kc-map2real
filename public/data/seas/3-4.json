@@ -1,0 +1,265 @@
+{
+  "code": "3-4",
+  "name": "北方海域全域",
+  "meta": {},
+  "nodes": [
+    {
+      "id": "E",
+      "type": "supply",
+      "lat": 51.34785790983895,
+      "lng": 177.99355605055933,
+      "name": "ボーキサイト +25~150",
+      "meta": {}
+    },
+    {
+      "id": "K",
+      "type": "supply",
+      "lat": 52.56946550491048,
+      "lng": 186.54346619667933,
+      "name": "家具箱(大) +1",
+      "meta": {}
+    },
+    {
+      "id": "C",
+      "type": "normal",
+      "lat": 54.154616132432466,
+      "lng": 172.00377633506093,
+      "name": "敵北方艦隊　前衛部隊",
+      "meta": {}
+    },
+    {
+      "id": "J",
+      "type": "relay",
+      "lat": 50.525483764043685,
+      "lng": 186.10408484752776,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "B",
+      "type": "normal",
+      "lat": 50.85825809804058,
+      "lng": 170.73198380256542,
+      "name": "敵北方艦隊 哨戒部隊",
+      "meta": {}
+    },
+    {
+      "id": "Start",
+      "type": "start",
+      "lat": 50.36702924289233,
+      "lng": 159.6176229750909,
+      "name": "Start",
+      "meta": {}
+    },
+    {
+      "id": "P",
+      "type": "boss",
+      "lat": 50.11837484543554,
+      "lng": -161.135696278777,
+      "name": "深海棲艦 北方艦隊中枢",
+      "meta": {}
+    },
+    {
+      "id": "M",
+      "type": "normal",
+      "lat": 54.676994470612186,
+      "lng": -168.61530682754454,
+      "name": "敵北方艦隊 泊地防衛部隊",
+      "meta": {}
+    },
+    {
+      "id": "I",
+      "type": "relay",
+      "lat": 53.37611103585934,
+      "lng": -175.4776679620934,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "A",
+      "type": "normal",
+      "lat": 53.09359463019999,
+      "lng": 164.84296836105466,
+      "name": "敵北方艦隊 哨戒部隊",
+      "meta": {}
+    },
+    {
+      "id": "F",
+      "type": "whirlpool",
+      "lat": 55.21915732085037,
+      "lng": 180.12896856023468,
+      "name": "司令官！うずしおが発生しました！",
+      "meta": {}
+    },
+    {
+      "id": "G",
+      "type": "normal",
+      "lat": 48.12265157494835,
+      "lng": 180.81883555260197,
+      "name": "敵北方艦隊 機動部隊",
+      "meta": {}
+    },
+    {
+      "id": "H",
+      "type": "normal",
+      "lat": 45.13157355404107,
+      "lng": 182.77951016247198,
+      "name": "敵北方艦隊 重水雷戦隊",
+      "meta": {}
+    },
+    {
+      "id": "D",
+      "type": "whirlpool",
+      "lat": 45.36164411949866,
+      "lng": 172.10472617539614,
+      "name": "司令官！うずしおが発生しました！",
+      "meta": {}
+    },
+    {
+      "id": "L",
+      "type": "relay",
+      "lat": 45.920116369776764,
+      "lng": 190.07757676588255,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "N",
+      "type": "normal",
+      "lat": 48.21951011703072,
+      "lng": 195.85067422827927,
+      "name": "敵北方艦隊 泊地防衛部隊",
+      "meta": {}
+    },
+    {
+      "id": "O",
+      "type": "supply",
+      "lat": 45.514506827786334,
+      "lng": 198.1381279397948,
+      "name": "家具箱(中) +1",
+      "meta": {}
+    }
+  ],
+  "edges": [
+    {
+      "from": "Start",
+      "to": "A",
+      "arrow": false
+    },
+    {
+      "from": "Start",
+      "to": "B",
+      "arrow": false
+    },
+    {
+      "from": "Start",
+      "to": "D",
+      "arrow": false
+    },
+    {
+      "from": "A",
+      "to": "C",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "C",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "H",
+      "arrow": false
+    },
+    {
+      "from": "C",
+      "to": "E",
+      "arrow": false
+    },
+    {
+      "from": "C",
+      "to": "F",
+      "arrow": false
+    },
+    {
+      "from": "D",
+      "to": "H",
+      "arrow": false
+    },
+    {
+      "from": "E",
+      "to": "G",
+      "arrow": false
+    },
+    {
+      "from": "F",
+      "to": "G",
+      "arrow": false
+    },
+    {
+      "from": "F",
+      "to": "I",
+      "arrow": true
+    },
+    {
+      "from": "F",
+      "to": "J",
+      "arrow": false
+    },
+    {
+      "from": "F",
+      "to": "M",
+      "arrow": false
+    },
+    {
+      "from": "G",
+      "to": "H",
+      "arrow": false
+    },
+    {
+      "from": "G",
+      "to": "J",
+      "arrow": false
+    },
+    {
+      "from": "H",
+      "to": "L",
+      "arrow": false
+    },
+    {
+      "from": "J",
+      "to": "L",
+      "arrow": false
+    },
+    {
+      "from": "J",
+      "to": "P",
+      "arrow": true
+    },
+    {
+      "from": "L",
+      "to": "N",
+      "arrow": false
+    },
+    {
+      "from": "L",
+      "to": "O",
+      "arrow": true
+    },
+    {
+      "from": "M",
+      "to": "K",
+      "arrow": true
+    },
+    {
+      "from": "M",
+      "to": "P",
+      "arrow": true
+    },
+    {
+      "from": "N",
+      "to": "P",
+      "arrow": true
+    }
+  ]
+}

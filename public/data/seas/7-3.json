@@ -1,0 +1,382 @@
+{
+  "code": "7-3",
+  "name": "ペナン島沖",
+  "meta": {},
+  "nodes": [],
+  "edges": [],
+  "submaps": [
+    {
+      "id": "1",
+      "name": "戦力ゲージ1",
+      "nodes": [
+        {
+          "id": "A",
+          "type": "relay",
+          "lat": 2.562003563032107,
+          "lng": 101.1945830843664,
+          "name": "我、マラッカ海峡に突入す。",
+          "meta": {}
+        },
+        {
+          "id": "B",
+          "type": "normal",
+          "lat": 2.8232290108640825,
+          "lng": 100.34165443304278,
+          "name": "深海東方部隊 魚雷艇戦隊",
+          "meta": {}
+        },
+        {
+          "id": "C",
+          "type": "normal",
+          "lat": 3.5001920609231405,
+          "lng": 100.27016235115155,
+          "name": "深海東方部隊 前衛駆逐艦",
+          "meta": {}
+        },
+        {
+          "id": "D",
+          "type": "normal",
+          "lat": 4.224847448272257,
+          "lng": 100.28835628609096,
+          "name": "深海5,500t級軽巡洋艦",
+          "meta": {}
+        },
+        {
+          "id": "F",
+          "type": "relay",
+          "lat": 6.485717522919813,
+          "lng": 98.18390446021374,
+          "name": "敵影を見ず。",
+          "meta": {}
+        },
+        {
+          "id": "E",
+          "type": "boss",
+          "lat": 5.314375972328847,
+          "lng": 98.77373662684914,
+          "name": "深海東方部隊 精鋭駆逐隊",
+          "meta": {}
+        },
+        {
+          "id": "Start",
+          "type": "start",
+          "lat": 1.0866822251157089,
+          "lng": 103.60965135577317,
+          "name": "Start",
+          "meta": {}
+        }
+      ],
+      "edges": [
+        {
+          "from": "Start",
+          "to": "A",
+          "arrow": false
+        },
+        {
+          "from": "A",
+          "to": "C",
+          "arrow": false
+        },
+        {
+          "from": "A",
+          "to": "B",
+          "arrow": false
+        },
+        {
+          "from": "B",
+          "to": "C",
+          "arrow": false
+        },
+        {
+          "from": "C",
+          "to": "E",
+          "arrow": true
+        },
+        {
+          "from": "C",
+          "to": "D",
+          "arrow": false
+        },
+        {
+          "from": "D",
+          "to": "F",
+          "arrow": true
+        },
+        {
+          "from": "D",
+          "to": "E",
+          "arrow": true
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "name": "戦力ゲージ2",
+      "nodes": [
+        {
+          "id": "A",
+          "type": "relay",
+          "lat": 2.562003563032107,
+          "lng": 101.1945830843664,
+          "name": "我、マラッカ海峡に突入す。",
+          "meta": {}
+        },
+        {
+          "id": "C",
+          "type": "normal",
+          "lat": 3.5001920609231405,
+          "lng": 100.27016235115155,
+          "name": "深海東方部隊 前衛駆逐艦",
+          "meta": {}
+        },
+        {
+          "id": "G",
+          "type": "relay",
+          "lat": 7.360023144008352,
+          "lng": 98.09221208082454,
+          "name": "マラッカ海峡を抜ける･･･対潜警戒を厳にせよ！",
+          "meta": {}
+        },
+        {
+          "id": "F",
+          "type": "relay",
+          "lat": 6.485717522919813,
+          "lng": 98.18390446021374,
+          "name": "敵影を見ず。",
+          "meta": {}
+        },
+        {
+          "id": "E",
+          "type": "boss",
+          "lat": 5.314375972328847,
+          "lng": 98.77373662684914,
+          "name": "深海東方部隊 精鋭駆逐隊",
+          "meta": {}
+        },
+        {
+          "id": "H",
+          "type": "supply",
+          "lat": 9.002689558693888,
+          "lng": 98.19066247371381,
+          "name": "燃料 +30~50",
+          "meta": {}
+        },
+        {
+          "id": "I",
+          "type": "relay",
+          "lat": 5.959668870662327,
+          "lng": 96.35057456925199,
+          "name": "我、マラッカ海峡を突破、アンダマン海へ！",
+          "meta": {}
+        },
+        {
+          "id": "Start",
+          "type": "start",
+          "lat": 1.0866822251157089,
+          "lng": 103.60965135577317,
+          "name": "Start",
+          "meta": {}
+        },
+        {
+          "id": "J",
+          "type": "normal",
+          "lat": 7.758595950104734,
+          "lng": 96.67403104486885,
+          "name": "深海潜水艦隊 海峡警戒線",
+          "meta": {}
+        },
+        {
+          "id": "L",
+          "type": "whirlpool",
+          "lat": 6.915256633055165,
+          "lng": 94.54195031812338,
+          "name": "司令官！うずしおが発生しました！",
+          "meta": {}
+        },
+        {
+          "id": "M",
+          "type": "normal",
+          "lat": 8.474317141558217,
+          "lng": 94.05050561546238,
+          "name": "深海東方部隊 巡洋艦戦隊",
+          "meta": {}
+        },
+        {
+          "id": "N",
+          "type": "normal",
+          "lat": 7.916166855933994,
+          "lng": 92.34269947212516,
+          "name": "深海東方部隊 空母機動部隊",
+          "meta": {}
+        },
+        {
+          "id": "O",
+          "type": "supply",
+          "lat": 11.480095657350688,
+          "lng": 92.79350808527317,
+          "name": "ボーキサイト +40~50",
+          "meta": {}
+        },
+        {
+          "id": "K",
+          "type": "whirlpool",
+          "lat": 10.52189787635298,
+          "lng": 96.94637911578559,
+          "name": "司令官！うずしおが発生しました！",
+          "meta": {}
+        },
+        {
+          "id": "P",
+          "type": "boss",
+          "lat": 11.130696652966876,
+          "lng": 94.90800253803252,
+          "name": "深海東方部隊 海峡封鎖部隊旗艦",
+          "meta": {}
+        },
+        {
+          "id": "D",
+          "type": "normal",
+          "lat": 4.224847448272257,
+          "lng": 100.28835628609096,
+          "name": "深海5,500t級軽巡洋艦",
+          "meta": {}
+        },
+        {
+          "id": "B",
+          "type": "normal",
+          "lat": 2.8232290108640825,
+          "lng": 100.34165443304278,
+          "name": "深海東方部隊 魚雷艇戦隊",
+          "meta": {}
+        }
+      ],
+      "edges": [
+        {
+          "from": "Start",
+          "to": "A",
+          "arrow": false
+        },
+        {
+          "from": "A",
+          "to": "B",
+          "arrow": false
+        },
+        {
+          "from": "A",
+          "to": "C",
+          "arrow": false
+        },
+        {
+          "from": "B",
+          "to": "C",
+          "arrow": false
+        },
+        {
+          "from": "C",
+          "to": "D",
+          "arrow": false
+        },
+        {
+          "from": "C",
+          "to": "E",
+          "arrow": true
+        },
+        {
+          "from": "C",
+          "to": "I",
+          "arrow": false
+        },
+        {
+          "from": "D",
+          "to": "E",
+          "arrow": true
+        },
+        {
+          "from": "D",
+          "to": "F",
+          "arrow": true
+        },
+        {
+          "from": "D",
+          "to": "G",
+          "arrow": false
+        },
+        {
+          "from": "G",
+          "to": "H",
+          "arrow": true
+        },
+        {
+          "from": "G",
+          "to": "P",
+          "arrow": true
+        },
+        {
+          "from": "G",
+          "to": "I",
+          "arrow": false
+        },
+        {
+          "from": "G",
+          "to": "J",
+          "arrow": false
+        },
+        {
+          "from": "G",
+          "to": "K",
+          "arrow": false
+        },
+        {
+          "from": "I",
+          "to": "J",
+          "arrow": false
+        },
+        {
+          "from": "I",
+          "to": "L",
+          "arrow": false
+        },
+        {
+          "from": "I",
+          "to": "M",
+          "arrow": false
+        },
+        {
+          "from": "J",
+          "to": "M",
+          "arrow": false
+        },
+        {
+          "from": "J",
+          "to": "P",
+          "arrow": true
+        },
+        {
+          "from": "K",
+          "to": "P",
+          "arrow": true
+        },
+        {
+          "from": "L",
+          "to": "M",
+          "arrow": false
+        },
+        {
+          "from": "M",
+          "to": "N",
+          "arrow": true
+        },
+        {
+          "from": "M",
+          "to": "O",
+          "arrow": true
+        },
+        {
+          "from": "M",
+          "to": "P",
+          "arrow": true
+        }
+      ]
+    }
+  ]
+}

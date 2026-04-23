@@ -1,0 +1,190 @@
+{
+  "code": "4-4",
+  "name": "カスガダマ島",
+  "meta": {},
+  "nodes": [
+    {
+      "id": "C",
+      "type": "supply",
+      "lat": 6.611126862536267,
+      "lng": 77.97432450212818,
+      "name": "燃料 +60~150",
+      "meta": {}
+    },
+    {
+      "id": "Start",
+      "type": "start",
+      "lat": -10.642427308405018,
+      "lng": 104.53371565528158,
+      "name": "Start",
+      "meta": {}
+    },
+    {
+      "id": "J",
+      "type": "supply",
+      "lat": -1.4082281442792492,
+      "lng": 45.10707795010072,
+      "name": "鋼材 +40～70",
+      "meta": {}
+    },
+    {
+      "id": "K",
+      "type": "boss",
+      "lat": -11.749700582048192,
+      "lng": 45.0406794722162,
+      "name": "敵東方中枢艦隊 旗艦",
+      "meta": {}
+    },
+    {
+      "id": "E",
+      "type": "normal",
+      "lat": -3.7656925882374424,
+      "lng": 72.83451890250743,
+      "name": "敵潜水艦哨戒線",
+      "meta": {}
+    },
+    {
+      "id": "A",
+      "type": "normal",
+      "lat": -4.178552930405189,
+      "lng": 88.21614376674165,
+      "name": "敵東方哨戒艦隊 A群",
+      "meta": {}
+    },
+    {
+      "id": "I",
+      "type": "normal",
+      "lat": -6.444832785065557,
+      "lng": 55.93542432072576,
+      "name": "敵東方中枢艦隊 護衛戦隊",
+      "meta": {}
+    },
+    {
+      "id": "H",
+      "type": "normal",
+      "lat": -22.709704988798435,
+      "lng": 57.97163709836667,
+      "name": "敵東方艦隊 残存部隊",
+      "meta": {}
+    },
+    {
+      "id": "G",
+      "type": "normal",
+      "lat": 6.2721719739590185,
+      "lng": 60.013955491177796,
+      "name": "敵東方艦隊 新鋭戦艦戦隊",
+      "meta": {}
+    },
+    {
+      "id": "B",
+      "type": "normal",
+      "lat": -13.211087675082936,
+      "lng": 85.06216107104672,
+      "name": "敵東方哨戒艦隊 B群",
+      "meta": {}
+    },
+    {
+      "id": "D",
+      "type": "whirlpool",
+      "lat": -10.031100373879141,
+      "lng": 75.05613185792356,
+      "name": "司令官！うずしおが発生しました！",
+      "meta": {}
+    },
+    {
+      "id": "F",
+      "type": "normal",
+      "lat": -18.6252933758922,
+      "lng": 69.22480357478031,
+      "name": "敵東方空母機動部隊",
+      "meta": {}
+    }
+  ],
+  "edges": [
+    {
+      "from": "Start",
+      "to": "A",
+      "arrow": false
+    },
+    {
+      "from": "Start",
+      "to": "B",
+      "arrow": false
+    },
+    {
+      "from": "A",
+      "to": "B",
+      "arrow": false
+    },
+    {
+      "from": "A",
+      "to": "E",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "D",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "F",
+      "arrow": false
+    },
+    {
+      "from": "D",
+      "to": "E",
+      "arrow": false
+    },
+    {
+      "from": "E",
+      "to": "C",
+      "arrow": true
+    },
+    {
+      "from": "E",
+      "to": "G",
+      "arrow": false
+    },
+    {
+      "from": "E",
+      "to": "I",
+      "arrow": false
+    },
+    {
+      "from": "F",
+      "to": "I",
+      "arrow": false
+    },
+    {
+      "from": "F",
+      "to": "H",
+      "arrow": true
+    },
+    {
+      "from": "G",
+      "to": "C",
+      "arrow": true
+    },
+    {
+      "from": "G",
+      "to": "I",
+      "arrow": false
+    },
+    {
+      "from": "G",
+      "to": "J",
+      "arrow": true
+    },
+    {
+      "from": "I",
+      "to": "H",
+      "arrow": true
+    },
+    {
+      "from": "I",
+      "to": "K",
+      "arrow": true
+    }
+  ]
+}
