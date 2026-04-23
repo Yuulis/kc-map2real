@@ -1,0 +1,219 @@
+{
+  "code": "6-5",
+  "name": "KW環礁沖海域",
+  "meta": {},
+  "nodes": [
+    {
+      "id": "Start_2",
+      "type": "start",
+      "lat": 9.1096201911364,
+      "lng": 167.4588432090291,
+      "name": "Start 2",
+      "meta": {}
+    },
+    {
+      "id": "M",
+      "type": "boss",
+      "lat": 9.776674934730906,
+      "lng": 170.0842334378657,
+      "name": "任務部隊 主力群",
+      "meta": {}
+    },
+    {
+      "id": "J",
+      "type": "night-battle",
+      "lat": 9.233817569661767,
+      "lng": 169.81126221888866,
+      "name": "深海護衛空母部隊 C群",
+      "meta": {}
+    },
+    {
+      "id": "L",
+      "type": "relay",
+      "lat": 9.190907116758552,
+      "lng": 170.24392180567065,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "I",
+      "type": "normal",
+      "lat": 8.816830604921563,
+      "lng": 169.49011925195003,
+      "name": "深海護衛空母部隊 A群",
+      "meta": {}
+    },
+    {
+      "id": "F",
+      "type": "normal",
+      "lat": 8.906380922607298,
+      "lng": 168.84436500616414,
+      "name": "深海巡洋艦戦",
+      "meta": {}
+    },
+    {
+      "id": "B",
+      "type": "normal",
+      "lat": 9.001504103553003,
+      "lng": 168.15329467295635,
+      "name": "深海潜水艦隊 前方展開部隊",
+      "meta": {}
+    },
+    {
+      "id": "G",
+      "type": "air-rade",
+      "lat": 9.67640848283311,
+      "lng": 169.31907828543945,
+      "name": "深海任務部隊 艦載機群",
+      "meta": {}
+    },
+    {
+      "id": "H",
+      "type": "air-rade",
+      "lat": 9.212976222761526,
+      "lng": 169.39560982736776,
+      "name": "深海任務部隊 艦載機群",
+      "meta": {}
+    },
+    {
+      "id": "E",
+      "type": "normal",
+      "lat": 9.17294559484229,
+      "lng": 168.84632165254249,
+      "name": "深海潜水艦隊 精鋭群狼部隊",
+      "meta": {}
+    },
+    {
+      "id": "D",
+      "type": "normal",
+      "lat": 9.700252193310973,
+      "lng": 168.76521870055478,
+      "name": "深海護衛空母部隊 B群",
+      "meta": {}
+    },
+    {
+      "id": "C",
+      "type": "normal",
+      "lat": 9.397604500847606,
+      "lng": 168.29571660890593,
+      "name": "先遣任務部隊",
+      "meta": {}
+    },
+    {
+      "id": "A",
+      "type": "normal",
+      "lat": 9.718518310041773,
+      "lng": 167.83358121243435,
+      "name": "先遣任務部隊 前衛艦隊",
+      "meta": {}
+    },
+    {
+      "id": "Start_1",
+      "type": "start",
+      "lat": 10.017831424434732,
+      "lng": 167.28383264232684,
+      "name": "Start 1",
+      "meta": {}
+    },
+    {
+      "id": "K",
+      "type": "relay",
+      "lat": 10.132039655124004,
+      "lng": 169.5272579110984,
+      "name": "敵影を見ず。",
+      "meta": {}
+    }
+  ],
+  "edges": [
+    {
+      "from": "Start_1",
+      "to": "A",
+      "arrow": false
+    },
+    {
+      "from": "Start_2",
+      "to": "B",
+      "arrow": false
+    },
+    {
+      "from": "A",
+      "to": "C",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "C",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "F",
+      "arrow": false
+    },
+    {
+      "from": "C",
+      "to": "D",
+      "arrow": false
+    },
+    {
+      "from": "C",
+      "to": "E",
+      "arrow": false
+    },
+    {
+      "from": "D",
+      "to": "G",
+      "arrow": false
+    },
+    {
+      "from": "E",
+      "to": "H",
+      "arrow": false
+    },
+    {
+      "from": "E",
+      "to": "I",
+      "arrow": false
+    },
+    {
+      "from": "F",
+      "to": "I",
+      "arrow": false
+    },
+    {
+      "from": "G",
+      "to": "H",
+      "arrow": false
+    },
+    {
+      "from": "G",
+      "to": "K",
+      "arrow": true
+    },
+    {
+      "from": "G",
+      "to": "M",
+      "arrow": true
+    },
+    {
+      "from": "H",
+      "to": "I",
+      "arrow": false
+    },
+    {
+      "from": "I",
+      "to": "J",
+      "arrow": false
+    },
+    {
+      "from": "J",
+      "to": "L",
+      "arrow": true
+    },
+    {
+      "from": "J",
+      "to": "M",
+      "arrow": true
+    }
+  ]
+}

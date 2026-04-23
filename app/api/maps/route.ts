@@ -1,42 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
-import path from "path";
-import fs from "fs";
 
-import type { MapsData, MapNode, MapEdge, MapSea, MapGroup, MapSubSea } from "@/app/types/maps";
+import type { MapNode, MapEdge, MapSea, MapSubSea } from "@/app/types/maps";
+import {
+  readIndex,
+  writeIndex,
+  readSea,
+  writeSea,
+  deleteSea,
+  readFullMapsData,
+  findSeaInIndex,
+  findGroupInIndex,
+} from "@/app/lib/maps-io";
 
-const DATA_PATH = path.join(process.cwd(), "public", "data", "maps.json");
-
-/** Read and parse maps.json */
-function readMapsData(): MapsData {
-  const content = fs.readFileSync(DATA_PATH, "utf-8");
-  return JSON.parse(content) as MapsData;
-}
-
-/** Write maps data back to maps.json */
-function writeMapsData(data: MapsData): void {
-  fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2), "utf-8");
-}
-
-/** Find a sea by code across all groups */
-function findSea(data: MapsData, seaCode: string): MapSea | undefined {
-  for (const group of data.groups) {
-    for (const sea of group.seas) {
-      if (sea.code === seaCode) {
-        return sea;
-      }
-    }
+// ---------------------------------------------------------------------------
+// GET: Return full MapsData (assembled from index + sea files)
+// ---------------------------------------------------------------------------
+export async function GET(): Promise<NextResponse> {
+  try {
+    const data = await readFullMapsData();
+    return NextResponse.json(data);
+  } catch (err) {
+    console.error("GET /api/maps error:", err);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
-  return undefined;
-}
-
-/** Check if a sea code is unique across all groups */
-function isSeaCodeUnique(data: MapsData, code: string): boolean {
-  return findSea(data, code) === undefined;
-}
-
-/** Find a group by id */
-function findGroup(data: MapsData, groupId: string): MapGroup | undefined {
-  return data.groups.find((g) => g.id === groupId);
 }
 
 // ---------------------------------------------------------------------------
@@ -58,8 +47,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const data = readMapsData();
-
     // --- Add a new sea to a group ---
     if (target === "seas") {
       const { groupId, sea } = body as {
@@ -72,19 +59,24 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           { status: 400 },
         );
       }
-      const group = findGroup(data, groupId);
+      const index = await readIndex();
+      const group = findGroupInIndex(index, groupId);
       if (!group) {
         return NextResponse.json(
           { error: `Group "${groupId}" not found` },
           { status: 404 },
         );
       }
-      if (!isSeaCodeUnique(data, sea.code)) {
+      if (findSeaInIndex(index, sea.code)) {
         return NextResponse.json(
           { error: `Sea code "${sea.code}" already exists` },
           { status: 409 },
         );
       }
+      // Add to index
+      group.seas.push({ code: sea.code, name: sea.name, meta: {} });
+      await writeIndex(index);
+      // Create sea file
       const newSea: MapSea = {
         code: sea.code,
         name: sea.name,
@@ -92,8 +84,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         nodes: [],
         edges: [],
       };
-      group.seas.push(newSea);
-      writeMapsData(data);
+      await writeSea(newSea);
       return NextResponse.json({ success: true });
     }
 
@@ -108,24 +99,24 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           { status: 400 },
         );
       }
-      if (findGroup(data, group.id)) {
+      const index = await readIndex();
+      if (findGroupInIndex(index, group.id)) {
         return NextResponse.json(
           { error: `Group "${group.id}" already exists` },
           { status: 409 },
         );
       }
-      const newGroup: MapGroup = {
+      index.groups.push({
         id: group.id,
         name: group.name,
         meta: {},
         seas: [],
-      };
-      data.groups.push(newGroup);
-      writeMapsData(data);
+      });
+      await writeIndex(index);
       return NextResponse.json({ success: true });
     }
 
-    // --- Existing: Add node or edge (require seaCode) ---
+    // --- Add node, edge, or submap (require seaCode) ---
     const { seaCode } = body as { seaCode: string };
     if (!seaCode) {
       return NextResponse.json(
@@ -134,13 +125,15 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const sea = findSea(data, seaCode);
-    if (!sea) {
+    const index = await readIndex();
+    if (!findSeaInIndex(index, seaCode)) {
       return NextResponse.json(
         { error: `Sea "${seaCode}" not found` },
         { status: 404 },
       );
     }
+
+    const sea = await readSea(seaCode);
 
     if (target === "nodes") {
       const { node, submapId } = body as { node: MapNode; submapId?: string };
@@ -150,8 +143,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           { status: 400 },
         );
       }
-      // Check for duplicate node ID only within the target location
-      // (cross-location duplicates are allowed for multi-submap membership)
       if (submapId) {
         const submap = sea.submaps?.find((sm) => sm.id === submapId);
         if (!submap) {
@@ -181,7 +172,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         }
         sea.nodes.push(node);
       }
-      writeMapsData(data);
+      await writeSea(sea);
       return NextResponse.json({ success: true });
     }
 
@@ -193,7 +184,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           { status: 400 },
         );
       }
-      // Collect all node IDs across the sea and all submaps
       const allNodeIds = new Set<string>(sea.nodes.map((n) => n.id));
       if (sea.submaps) {
         for (const sm of sea.submaps) {
@@ -202,15 +192,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           }
         }
       }
-      // Verify both nodes exist (in base or any submap)
       if (!allNodeIds.has(edge.from) || !allNodeIds.has(edge.to)) {
         return NextResponse.json(
           { error: "Edge references non-existent node(s)" },
           { status: 400 },
         );
       }
-      // Check for duplicate edge only within the target location
-      // (cross-location duplicates are allowed for multi-submap membership)
       if (submapId) {
         const submap = sea.submaps?.find((sm) => sm.id === submapId);
         if (!submap) {
@@ -241,7 +228,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         }
         sea.edges.push(edge);
       }
-      writeMapsData(data);
+      await writeSea(sea);
       return NextResponse.json({ success: true });
     }
 
@@ -270,7 +257,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         edges: [],
       };
       sea.submaps.push(newSubmap);
-      writeMapsData(data);
+      await writeSea(sea);
       return NextResponse.json({ success: true });
     }
 
@@ -297,7 +284,6 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
   try {
     const body = await req.json();
     const { target } = body as { target?: string };
-    const data = readMapsData();
 
     // --- Update a sea ---
     if (target === "seas") {
@@ -311,26 +297,35 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
           { status: 400 },
         );
       }
-      const sea = findSea(data, seaCode);
-      if (!sea) {
+      const index = await readIndex();
+      const result = findSeaInIndex(index, seaCode);
+      if (!result) {
         return NextResponse.json(
           { error: `Sea "${seaCode}" not found` },
           { status: 404 },
         );
       }
+      const sea = await readSea(seaCode);
+
       if (updates.code !== undefined && updates.code !== seaCode) {
-        if (!isSeaCodeUnique(data, updates.code)) {
+        if (findSeaInIndex(index, updates.code)) {
           return NextResponse.json(
             { error: `Sea code "${updates.code}" already exists` },
             { status: 409 },
           );
         }
+        // Update index entry
+        result.sea.code = updates.code;
+        // Update sea object and rename file
         sea.code = updates.code;
+        await deleteSea(seaCode);
       }
       if (updates.name !== undefined) {
+        result.sea.name = updates.name;
         sea.name = updates.name;
       }
-      writeMapsData(data);
+      await writeIndex(index);
+      await writeSea(sea);
       return NextResponse.json({ success: true });
     }
 
@@ -346,7 +341,8 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
           { status: 400 },
         );
       }
-      const group = findGroup(data, groupId);
+      const index = await readIndex();
+      const group = findGroupInIndex(index, groupId);
       if (!group) {
         return NextResponse.json(
           { error: `Group "${groupId}" not found` },
@@ -354,7 +350,7 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
         );
       }
       if (updates.id !== undefined && updates.id !== groupId) {
-        if (findGroup(data, updates.id)) {
+        if (findGroupInIndex(index, updates.id)) {
           return NextResponse.json(
             { error: `Group "${updates.id}" already exists` },
             { status: 409 },
@@ -365,7 +361,7 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
       if (updates.name !== undefined) {
         group.name = updates.name;
       }
-      writeMapsData(data);
+      await writeIndex(index);
       return NextResponse.json({ success: true });
     }
 
@@ -382,14 +378,15 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
           { status: 400 },
         );
       }
-      const smSea = findSea(data, smSeaCode);
-      if (!smSea) {
+      const index = await readIndex();
+      if (!findSeaInIndex(index, smSeaCode)) {
         return NextResponse.json(
           { error: `Sea "${smSeaCode}" not found` },
           { status: 404 },
         );
       }
-      const submap = smSea.submaps?.find((sm) => sm.id === submapId);
+      const sea = await readSea(smSeaCode);
+      const submap = sea.submaps?.find((sm) => sm.id === submapId);
       if (!submap) {
         return NextResponse.json(
           { error: `Submap "${submapId}" not found in sea "${smSeaCode}"` },
@@ -397,7 +394,7 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
         );
       }
       if (smUpdates.id !== undefined && smUpdates.id !== submapId) {
-        if (smSea.submaps?.find((sm) => sm.id === smUpdates.id)) {
+        if (sea.submaps?.find((sm) => sm.id === smUpdates.id)) {
           return NextResponse.json(
             { error: `Submap "${smUpdates.id}" already exists` },
             { status: 409 },
@@ -408,7 +405,7 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
       if (smUpdates.name !== undefined) {
         submap.name = smUpdates.name;
       }
-      writeMapsData(data);
+      await writeSea(sea);
       return NextResponse.json({ success: true });
     }
 
@@ -429,13 +426,14 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
         );
       }
 
-      const edgeSea = findSea(data, edgeSeaCode);
-      if (!edgeSea) {
+      const index = await readIndex();
+      if (!findSeaInIndex(index, edgeSeaCode)) {
         return NextResponse.json(
           { error: `Sea "${edgeSeaCode}" not found` },
           { status: 404 },
         );
       }
+      const edgeSea = await readSea(edgeSeaCode);
 
       // Find and remove edge from current location
       let edge: MapEdge | undefined;
@@ -483,11 +481,11 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
         edgeSea.edges.push(edge);
       }
 
-      writeMapsData(data);
+      await writeSea(edgeSea);
       return NextResponse.json({ success: true });
     }
 
-    // --- Existing: Update a node (backward compatible, target is optional) ---
+    // --- Update a node (backward compatible, target is optional) ---
     const { seaCode, nodeId, submapId: nodeSubmapId, newSubmapId: nodeNewSubmapId, updates } = body as {
       seaCode: string;
       nodeId: string;
@@ -503,14 +501,14 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const sea = findSea(data, seaCode);
-
-    if (!sea) {
+    const index = await readIndex();
+    if (!findSeaInIndex(index, seaCode)) {
       return NextResponse.json(
         { error: `Sea "${seaCode}" not found` },
         { status: 404 },
       );
     }
+    const sea = await readSea(seaCode);
 
     // Find node in submap or base sea
     let node: MapNode | undefined;
@@ -577,7 +575,6 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
         if (edge.from === nodeId) edge.from = updates.id;
         if (edge.to === nodeId) edge.to = updates.id;
       }
-      // Also update edges in all submaps
       if (sea.submaps) {
         for (const submap of sea.submaps) {
           for (const edge of submap.edges) {
@@ -588,7 +585,7 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
       }
     }
 
-    writeMapsData(data);
+    await writeSea(sea);
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error("PUT /api/maps error:", err);
@@ -618,8 +615,6 @@ export async function DELETE(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const data = readMapsData();
-
     // --- Delete a sea ---
     if (target === "seas") {
       const { seaCode } = body as { seaCode: string };
@@ -629,11 +624,12 @@ export async function DELETE(req: NextRequest): Promise<NextResponse> {
           { status: 400 },
         );
       }
+      const index = await readIndex();
       let found = false;
-      for (const group of data.groups) {
-        const seaIndex = group.seas.findIndex((s) => s.code === seaCode);
-        if (seaIndex !== -1) {
-          group.seas.splice(seaIndex, 1);
+      for (const group of index.groups) {
+        const seaIdx = group.seas.findIndex((s) => s.code === seaCode);
+        if (seaIdx !== -1) {
+          group.seas.splice(seaIdx, 1);
           found = true;
           break;
         }
@@ -644,7 +640,8 @@ export async function DELETE(req: NextRequest): Promise<NextResponse> {
           { status: 404 },
         );
       }
-      writeMapsData(data);
+      await writeIndex(index);
+      await deleteSea(seaCode);
       return NextResponse.json({ success: true });
     }
 
@@ -660,14 +657,15 @@ export async function DELETE(req: NextRequest): Promise<NextResponse> {
           { status: 400 },
         );
       }
-      const groupIndex = data.groups.findIndex((g) => g.id === groupId);
+      const index = await readIndex();
+      const groupIndex = index.groups.findIndex((g) => g.id === groupId);
       if (groupIndex === -1) {
         return NextResponse.json(
           { error: `Group "${groupId}" not found` },
           { status: 404 },
         );
       }
-      const group = data.groups[groupIndex];
+      const group = index.groups[groupIndex];
       if (group.seas.length > 0 && !force) {
         return NextResponse.json(
           {
@@ -676,12 +674,20 @@ export async function DELETE(req: NextRequest): Promise<NextResponse> {
           { status: 400 },
         );
       }
-      data.groups.splice(groupIndex, 1);
-      writeMapsData(data);
+      // Delete all sea files in the group
+      for (const sea of group.seas) {
+        try {
+          await deleteSea(sea.code);
+        } catch {
+          // Sea file may not exist; ignore
+        }
+      }
+      index.groups.splice(groupIndex, 1);
+      await writeIndex(index);
       return NextResponse.json({ success: true });
     }
 
-    // --- Existing: Delete node or edge (require seaCode) ---
+    // --- Delete node, edge, or submap (require seaCode) ---
     const { seaCode } = body as { seaCode: string };
     if (!seaCode) {
       return NextResponse.json(
@@ -690,13 +696,14 @@ export async function DELETE(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const sea = findSea(data, seaCode);
-    if (!sea) {
+    const index = await readIndex();
+    if (!findSeaInIndex(index, seaCode)) {
       return NextResponse.json(
         { error: `Sea "${seaCode}" not found` },
         { status: 404 },
       );
     }
+    const sea = await readSea(seaCode);
 
     if (target === "nodes") {
       const { nodeId, submapId } = body as { nodeId: string; submapId?: string };
@@ -706,7 +713,6 @@ export async function DELETE(req: NextRequest): Promise<NextResponse> {
           { status: 400 },
         );
       }
-      // Remove from submap nodes if submapId is specified
       if (submapId) {
         const submap = sea.submaps?.find((sm) => sm.id === submapId);
         if (!submap) {
@@ -731,7 +737,6 @@ export async function DELETE(req: NextRequest): Promise<NextResponse> {
             { status: 404 },
           );
         }
-        // Remove node from base
         sea.nodes.splice(nodeIndex, 1);
       }
       // Remove all edges referencing this node (from base and all submaps)
@@ -745,7 +750,7 @@ export async function DELETE(req: NextRequest): Promise<NextResponse> {
           );
         }
       }
-      writeMapsData(data);
+      await writeSea(sea);
       return NextResponse.json({ success: true });
     }
 
@@ -757,7 +762,6 @@ export async function DELETE(req: NextRequest): Promise<NextResponse> {
           { status: 400 },
         );
       }
-      // Delete from submap edges if submapId is specified
       if (submapId) {
         const submap = sea.submaps?.find((sm) => sm.id === submapId);
         if (!submap) {
@@ -788,7 +792,7 @@ export async function DELETE(req: NextRequest): Promise<NextResponse> {
         }
         sea.edges.splice(edgeIndex, 1);
       }
-      writeMapsData(data);
+      await writeSea(sea);
       return NextResponse.json({ success: true });
     }
 
@@ -815,11 +819,10 @@ export async function DELETE(req: NextRequest): Promise<NextResponse> {
         );
       }
       sea.submaps.splice(submapIndex, 1);
-      // Remove empty submaps array
       if (sea.submaps.length === 0) {
         delete sea.submaps;
       }
-      writeMapsData(data);
+      await writeSea(sea);
       return NextResponse.json({ success: true });
     }
 

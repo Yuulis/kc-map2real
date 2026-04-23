@@ -1,0 +1,162 @@
+{
+  "code": "4-1",
+  "name": "ジャム島沖",
+  "meta": {},
+  "nodes": [
+    {
+      "id": "B",
+      "type": "supply",
+      "lat": -2.520942997262182,
+      "lng": 105.75493991117577,
+      "name": "燃料 +40~120",
+      "meta": {}
+    },
+    {
+      "id": "E",
+      "type": "normal",
+      "lat": -1.446955373172628,
+      "lng": 109.66167904952925,
+      "name": "敵増援強襲輸送船団",
+      "meta": {}
+    },
+    {
+      "id": "D",
+      "type": "normal",
+      "lat": -4.168069561296093,
+      "lng": 107.46746431098359,
+      "name": "敵東方潜水艦隊 警戒隊",
+      "meta": {}
+    },
+    {
+      "id": "F",
+      "type": "relay",
+      "lat": -3.5030207257108827,
+      "lng": 109.06631893797123,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "I",
+      "type": "relay",
+      "lat": -3.699861168311145,
+      "lng": 113.2178701800679,
+      "name": "気のせいだった。",
+      "meta": {}
+    },
+    {
+      "id": "H",
+      "type": "normal",
+      "lat": -4.687342876598038,
+      "lng": 110.3990129667668,
+      "name": "敵深海連合巡洋艦戦隊",
+      "meta": {}
+    },
+    {
+      "id": "J",
+      "type": "boss",
+      "lat": -5.679592631165889,
+      "lng": 111.61356292833699,
+      "name": "敵深海連合部隊 司令部艦隊",
+      "meta": {}
+    },
+    {
+      "id": "A",
+      "type": "normal",
+      "lat": -0.15716241838926237,
+      "lng": 105.66705277693364,
+      "name": "敵水雷戦隊",
+      "meta": {}
+    },
+    {
+      "id": "Start",
+      "type": "start",
+      "lat": 1.2288660963602354,
+      "lng": 107.57878642144635,
+      "name": "Start",
+      "meta": {}
+    },
+    {
+      "id": "C",
+      "type": "normal",
+      "lat": -1.1122618022347552,
+      "lng": 108.19396562995826,
+      "name": "敵哨戒艦隊",
+      "meta": {}
+    },
+    {
+      "id": "G",
+      "type": "normal",
+      "lat": -5.862807237756584,
+      "lng": 108.61505594662401,
+      "name": "東方艦隊 先遣戦艦部隊",
+      "meta": {}
+    }
+  ],
+  "edges": [
+    {
+      "from": "Start",
+      "to": "A",
+      "arrow": false
+    },
+    {
+      "from": "Start",
+      "to": "C",
+      "arrow": false
+    },
+    {
+      "from": "A",
+      "to": "B",
+      "arrow": false
+    },
+    {
+      "from": "C",
+      "to": "E",
+      "arrow": true
+    },
+    {
+      "from": "C",
+      "to": "F",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "D",
+      "arrow": false
+    },
+    {
+      "from": "D",
+      "to": "F",
+      "arrow": false
+    },
+    {
+      "from": "D",
+      "to": "G",
+      "arrow": false
+    },
+    {
+      "from": "D",
+      "to": "H",
+      "arrow": false
+    },
+    {
+      "from": "F",
+      "to": "H",
+      "arrow": false
+    },
+    {
+      "from": "G",
+      "to": "J",
+      "arrow": false
+    },
+    {
+      "from": "H",
+      "to": "I",
+      "arrow": true
+    },
+    {
+      "from": "H",
+      "to": "J",
+      "arrow": true
+    }
+  ]
+}

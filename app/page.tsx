@@ -241,7 +241,7 @@ export default function Home() {
 
   // Helper to load/reload map data from maps.json
   const loadMapData = useCallback(() => {
-    fetch(`/data/maps.json?t=${Date.now()}`)
+    fetch(`/api/maps?t=${Date.now()}`)
       .then((res) => res.json())
       .then((data: MapsData) => {
         const arr: SectionData[] = [];
@@ -266,7 +266,7 @@ export default function Home() {
         setAllSeas(seas);
         setFullMapsData(data);
       })
-      .catch((err) => console.error("maps.json loading failed", err));
+      .catch((err) => console.error("maps data loading failed", err));
   }, []);
 
   // 1. Load map data from merged maps.json

@@ -1,0 +1,260 @@
+{
+  "code": "5-4",
+  "name": "サーモン海域",
+  "meta": {},
+  "nodes": [
+    {
+      "id": "I",
+      "type": "supply",
+      "lat": -9.349763592595764,
+      "lng": 160.1617529979659,
+      "name": "弾薬+60",
+      "meta": {}
+    },
+    {
+      "id": "B",
+      "type": "relay",
+      "lat": -7.914321473962815,
+      "lng": 157.63729533682113,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "J",
+      "type": "night-battle",
+      "lat": -9.306565767679757,
+      "lng": 160.65059306529884,
+      "name": "敵泊地投錨中 輸送船団",
+      "meta": {}
+    },
+    {
+      "id": "H",
+      "type": "night-battle",
+      "lat": -8.88150659653111,
+      "lng": 159.789650857161,
+      "name": "敵鉄底海峡巡洋艦戦隊",
+      "meta": {}
+    },
+    {
+      "id": "E",
+      "type": "normal",
+      "lat": -8.370718306060837,
+      "lng": 158.96209247156685,
+      "name": "敵鉄底海峡哨戒隊",
+      "meta": {}
+    },
+    {
+      "id": "M",
+      "type": "relay",
+      "lat": -9.981366101707863,
+      "lng": 161.73080092030546,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "D",
+      "type": "whirlpool",
+      "lat": -8.859732180963178,
+      "lng": 158.64105213237525,
+      "name": "司令官！うずしおが発生しました！",
+      "meta": {}
+    },
+    {
+      "id": "A",
+      "type": "relay",
+      "lat": -9.04256372153688,
+      "lng": 156.5731745030496,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "Start",
+      "type": "start",
+      "lat": -7.214355195052491,
+      "lng": 156.10135317683347,
+      "name": "Start",
+      "meta": {}
+    },
+    {
+      "id": "C",
+      "type": "normal",
+      "lat": -7.020392657661617,
+      "lng": 158.34587462869047,
+      "name": "敵南方増援部隊 前方警戒艦隊",
+      "meta": {}
+    },
+    {
+      "id": "G",
+      "type": "normal",
+      "lat": -7.241102177692667,
+      "lng": 159.78155952131982,
+      "name": "敵南方増援部隊 機動部隊",
+      "meta": {}
+    },
+    {
+      "id": "F",
+      "type": "night-battle",
+      "lat": -9.734677169181964,
+      "lng": 158.95250204808855,
+      "name": "深海水上打撃群",
+      "meta": {}
+    },
+    {
+      "id": "O",
+      "type": "relay",
+      "lat": -9.688171164740368,
+      "lng": 163.24607611665834,
+      "name": "気のせいだった。",
+      "meta": {}
+    },
+    {
+      "id": "K",
+      "type": "whirlpool",
+      "lat": -6.782549626497399,
+      "lng": 160.8948678498685,
+      "name": "司令官！うずしおが発生しました！",
+      "meta": {}
+    },
+    {
+      "id": "L",
+      "type": "normal",
+      "lat": -8.152559065504121,
+      "lng": 161.5756386205519,
+      "name": "敵南方増援部隊 本隊",
+      "meta": {}
+    },
+    {
+      "id": "N",
+      "type": "relay",
+      "lat": -7.003371836162685,
+      "lng": 162.00701811880595,
+      "name": "気のせいだった。",
+      "meta": {}
+    },
+    {
+      "id": "P",
+      "type": "boss",
+      "lat": -7.9256409497628795,
+      "lng": 162.56646340560383,
+      "name": "敵南方増援部隊 本隊",
+      "meta": {}
+    }
+  ],
+  "edges": [
+    {
+      "from": "Start",
+      "to": "A",
+      "arrow": false
+    },
+    {
+      "from": "Start",
+      "to": "B",
+      "arrow": false
+    },
+    {
+      "from": "A",
+      "to": "D",
+      "arrow": false
+    },
+    {
+      "from": "A",
+      "to": "F",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "C",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "D",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "E",
+      "arrow": false
+    },
+    {
+      "from": "C",
+      "to": "G",
+      "arrow": false
+    },
+    {
+      "from": "D",
+      "to": "E",
+      "arrow": false
+    },
+    {
+      "from": "D",
+      "to": "F",
+      "arrow": false
+    },
+    {
+      "from": "E",
+      "to": "H",
+      "arrow": false
+    },
+    {
+      "from": "F",
+      "to": "H",
+      "arrow": false
+    },
+    {
+      "from": "G",
+      "to": "K",
+      "arrow": false
+    },
+    {
+      "from": "G",
+      "to": "L",
+      "arrow": false
+    },
+    {
+      "from": "H",
+      "to": "I",
+      "arrow": false
+    },
+    {
+      "from": "I",
+      "to": "J",
+      "arrow": false
+    },
+    {
+      "from": "I",
+      "to": "J",
+      "arrow": false
+    },
+    {
+      "from": "J",
+      "to": "M",
+      "arrow": false
+    },
+    {
+      "from": "K",
+      "to": "L",
+      "arrow": false
+    },
+    {
+      "from": "L",
+      "to": "N",
+      "arrow": true
+    },
+    {
+      "from": "L",
+      "to": "P",
+      "arrow": true
+    },
+    {
+      "from": "M",
+      "to": "O",
+      "arrow": true
+    },
+    {
+      "from": "M",
+      "to": "P",
+      "arrow": true
+    }
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "code": "3-1",
+  "name": "モーレイ海",
+  "meta": {},
+  "nodes": [
+    {
+      "id": "A",
+      "type": "supply",
+      "lat": 52.81268752541146,
+      "lng": 159.16584917272695,
+      "name": "弾薬 +35~140",
+      "meta": {}
+    },
+    {
+      "id": "B",
+      "type": "normal",
+      "lat": 53.22698982219808,
+      "lng": 161.40892860280513,
+      "name": "敵哨戒艦隊",
+      "meta": {}
+    },
+    {
+      "id": "Start",
+      "type": "start",
+      "lat": 51.20366328756904,
+      "lng": 159.98444575537883,
+      "name": "Start",
+      "meta": {}
+    },
+    {
+      "id": "D",
+      "type": "normal",
+      "lat": 53.99807110075065,
+      "lng": 168.43679042098302,
+      "name": "敵北方支援任務部隊",
+      "meta": {}
+    },
+    {
+      "id": "E",
+      "type": "relay",
+      "lat": 55.1493839312393,
+      "lng": 170.02588601440937,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "F",
+      "type": "normal",
+      "lat": 51.13494629152723,
+      "lng": 174.16301419757195,
+      "name": "敵北方任務部隊",
+      "meta": {}
+    },
+    {
+      "id": "G",
+      "type": "boss",
+      "lat": 54.51819994772865,
+      "lng": 175.09455299378135,
+      "name": "敵北方侵攻艦隊",
+      "meta": {}
+    },
+    {
+      "id": "C",
+      "type": "normal",
+      "lat": 52.62316121768973,
+      "lng": 164.3544586374889,
+      "name": "敵通商破壊侵入水雷戦隊",
+      "meta": {}
+    }
+  ],
+  "edges": [
+    {
+      "from": "Start",
+      "to": "C",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "A",
+      "arrow": true
+    },
+    {
+      "from": "C",
+      "to": "B",
+      "arrow": false
+    },
+    {
+      "from": "C",
+      "to": "D",
+      "arrow": false
+    },
+    {
+      "from": "C",
+      "to": "F",
+      "arrow": false
+    },
+    {
+      "from": "D",
+      "to": "E",
+      "arrow": true
+    },
+    {
+      "from": "D",
+      "to": "G",
+      "arrow": true
+    },
+    {
+      "from": "D",
+      "to": "F",
+      "arrow": false
+    },
+    {
+      "from": "F",
+      "to": "G",
+      "arrow": true
+    }
+  ]
+}

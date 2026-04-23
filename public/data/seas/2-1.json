@@ -1,0 +1,130 @@
+{
+  "code": "2-1",
+  "name": "南西諸島近海",
+  "meta": {},
+  "nodes": [
+    {
+      "id": "Start",
+      "type": "start",
+      "lat": 23.272903,
+      "lng": 122.216633,
+      "name": "Start",
+      "meta": {}
+    },
+    {
+      "id": "A",
+      "type": "normal",
+      "lat": 21.246397,
+      "lng": 121.661241,
+      "name": "敵上陸船団",
+      "meta": {}
+    },
+    {
+      "id": "B",
+      "type": "supply",
+      "lat": 22.576573,
+      "lng": 121.189892,
+      "name": "鋼材 +10~30",
+      "meta": {}
+    },
+    {
+      "id": "C",
+      "type": "normal",
+      "lat": 22.118456,
+      "lng": 122.596219,
+      "name": "敵前衛艦隊",
+      "meta": {}
+    },
+    {
+      "id": "D",
+      "type": "normal",
+      "lat": 22.774213,
+      "lng": 124.397205,
+      "name": "敵護衛空母群",
+      "meta": {}
+    },
+    {
+      "id": "E",
+      "type": "supply",
+      "lat": 24.086694,
+      "lng": 123.953032,
+      "name": "高速建造材 +1",
+      "meta": {}
+    },
+    {
+      "id": "F",
+      "type": "normal",
+      "lat": 24.457289,
+      "lng": 125.49247,
+      "name": "敵機動部隊群",
+      "meta": {}
+    },
+    {
+      "id": "G",
+      "type": "relay",
+      "lat": 24.647672,
+      "lng": 126.224103,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "H",
+      "type": "boss",
+      "lat": 23.429445,
+      "lng": 126.182987,
+      "name": "敵主力部隊",
+      "meta": {}
+    }
+  ],
+  "edges": [
+    {
+      "from": "Start",
+      "to": "C"
+    },
+    {
+      "from": "B",
+      "to": "A",
+      "arrow": true
+    },
+    {
+      "from": "C",
+      "to": "B"
+    },
+    {
+      "from": "C",
+      "to": "D"
+    },
+    {
+      "from": "C",
+      "to": "E"
+    },
+    {
+      "from": "D",
+      "to": "E"
+    },
+    {
+      "from": "D",
+      "to": "H",
+      "arrow": true
+    },
+    {
+      "from": "E",
+      "to": "F"
+    },
+    {
+      "from": "E",
+      "to": "H",
+      "arrow": true
+    },
+    {
+      "from": "F",
+      "to": "G",
+      "arrow": true
+    },
+    {
+      "from": "F",
+      "to": "H",
+      "arrow": true
+    }
+  ]
+}

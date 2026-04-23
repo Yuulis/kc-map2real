@@ -1,0 +1,337 @@
+{
+  "code": "4-5",
+  "name": "カレー洋リランカ島沖",
+  "meta": {},
+  "nodes": [
+    {
+      "id": "T",
+      "type": "boss",
+      "lat": 5.805285926993662,
+      "lng": 79.92165502769825,
+      "name": "リランカ島港湾守備隊",
+      "meta": {}
+    },
+    {
+      "id": "J",
+      "type": "normal",
+      "lat": 8.090331975749663,
+      "lng": 82.04667682048506,
+      "name": "東洋方面艦隊 突撃水雷戦隊",
+      "meta": {}
+    },
+    {
+      "id": "I",
+      "type": "relay",
+      "lat": 11.546369890141847,
+      "lng": 81.97415522304277,
+      "name": "【能動分岐】",
+      "meta": {}
+    },
+    {
+      "id": "C",
+      "type": "relay",
+      "lat": 11.211876485299385,
+      "lng": 90.15976981606758,
+      "name": "【能動分岐】",
+      "meta": {}
+    },
+    {
+      "id": "F",
+      "type": "normal",
+      "lat": 13.631550907828668,
+      "lng": 86.20571117800631,
+      "name": "東洋方面潜水艦隊 哨戒線Aライン",
+      "meta": {}
+    },
+    {
+      "id": "G",
+      "type": "normal",
+      "lat": 8.485096597305144,
+      "lng": 85.12493515026938,
+      "name": "東洋方面艦隊 威力偵察部隊",
+      "meta": {}
+    },
+    {
+      "id": "H",
+      "type": "normal",
+      "lat": 4.426013801064244,
+      "lng": 84.91405202290582,
+      "name": "東洋方面艦隊 新編水上打撃部隊",
+      "meta": {}
+    },
+    {
+      "id": "A",
+      "type": "relay",
+      "lat": 5.476479950568773,
+      "lng": 93.9820264995252,
+      "name": "【能動分岐】",
+      "meta": {}
+    },
+    {
+      "id": "Start",
+      "type": "start",
+      "lat": 9.344472662258411,
+      "lng": 95.1418837000237,
+      "name": "Start",
+      "meta": {}
+    },
+    {
+      "id": "B",
+      "type": "normal",
+      "lat": 0.05459739460042101,
+      "lng": 92.79580890810729,
+      "name": "東洋方面潜水艦隊 哨戒線Cライン",
+      "meta": {}
+    },
+    {
+      "id": "D",
+      "type": "normal",
+      "lat": 6.210730285638277,
+      "lng": 88.1827404970361,
+      "name": "東洋方面潜水艦隊 哨戒線Bライン",
+      "meta": {}
+    },
+    {
+      "id": "E",
+      "type": "normal",
+      "lat": -1.263319767630236,
+      "lng": 86.99652290561829,
+      "name": "東洋方面艦隊 威力偵察部隊",
+      "meta": {}
+    },
+    {
+      "id": "K",
+      "type": "normal",
+      "lat": 2.452643590189524,
+      "lng": 81.48720120325419,
+      "name": "深海東洋艦隊 機動部隊",
+      "meta": {}
+    },
+    {
+      "id": "L",
+      "type": "relay",
+      "lat": 3.952795951715288,
+      "lng": 77.66494451979486,
+      "name": "気のせいだった。",
+      "meta": {}
+    },
+    {
+      "id": "M",
+      "type": "relay",
+      "lat": -1.263319767630236,
+      "lng": 74.3435352638225,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "N",
+      "type": "normal",
+      "lat": 5.056495114835101,
+      "lng": 72.94643454504109,
+      "name": "東洋方面艦隊 後方兵站部隊",
+      "meta": {}
+    },
+    {
+      "id": "O",
+      "type": "normal",
+      "lat": 9.604480522130402,
+      "lng": 72.39286633571373,
+      "name": "深海東洋方面増援潜水艦隊",
+      "meta": {}
+    },
+    {
+      "id": "S",
+      "type": "normal",
+      "lat": 8.35471529673778,
+      "lng": 65.77640821469166,
+      "name": "深海東洋方面増援艦隊",
+      "meta": {}
+    },
+    {
+      "id": "P",
+      "type": "relay",
+      "lat": 11.780168350531582,
+      "lng": 69.75682724367232,
+      "name": "気のせいだった。",
+      "meta": {}
+    },
+    {
+      "id": "Q",
+      "type": "relay",
+      "lat": 10.071988422642363,
+      "lng": 67.77979792464248,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "R",
+      "type": "whirlpool",
+      "lat": 4.320879277025938,
+      "lng": 66.30361603309962,
+      "name": "司令官！うずしおが発生しました！",
+      "meta": {}
+    }
+  ],
+  "edges": [
+    {
+      "from": "Start",
+      "to": "A",
+      "arrow": false
+    },
+    {
+      "from": "Start",
+      "to": "C",
+      "arrow": false
+    },
+    {
+      "from": "A",
+      "to": "B",
+      "arrow": true
+    },
+    {
+      "from": "A",
+      "to": "D",
+      "arrow": true
+    },
+    {
+      "from": "B",
+      "to": "E",
+      "arrow": false
+    },
+    {
+      "from": "C",
+      "to": "D",
+      "arrow": true
+    },
+    {
+      "from": "C",
+      "to": "F",
+      "arrow": true
+    },
+    {
+      "from": "D",
+      "to": "G",
+      "arrow": false
+    },
+    {
+      "from": "D",
+      "to": "H",
+      "arrow": false
+    },
+    {
+      "from": "E",
+      "to": "K",
+      "arrow": false
+    },
+    {
+      "from": "E",
+      "to": "M",
+      "arrow": false
+    },
+    {
+      "from": "F",
+      "to": "I",
+      "arrow": false
+    },
+    {
+      "from": "G",
+      "to": "H",
+      "arrow": false
+    },
+    {
+      "from": "H",
+      "to": "J",
+      "arrow": false
+    },
+    {
+      "from": "H",
+      "to": "T",
+      "arrow": true
+    },
+    {
+      "from": "H",
+      "to": "K",
+      "arrow": false
+    },
+    {
+      "from": "I",
+      "to": "G",
+      "arrow": true
+    },
+    {
+      "from": "I",
+      "to": "J",
+      "arrow": true
+    },
+    {
+      "from": "K",
+      "to": "T",
+      "arrow": true
+    },
+    {
+      "from": "K",
+      "to": "L",
+      "arrow": true
+    },
+    {
+      "from": "K",
+      "to": "M",
+      "arrow": false
+    },
+    {
+      "from": "M",
+      "to": "N",
+      "arrow": false
+    },
+    {
+      "from": "M",
+      "to": "R",
+      "arrow": false
+    },
+    {
+      "from": "N",
+      "to": "O",
+      "arrow": false
+    },
+    {
+      "from": "N",
+      "to": "T",
+      "arrow": true
+    },
+    {
+      "from": "N",
+      "to": "R",
+      "arrow": false
+    },
+    {
+      "from": "N",
+      "to": "Q",
+      "arrow": false
+    },
+    {
+      "from": "O",
+      "to": "T",
+      "arrow": true
+    },
+    {
+      "from": "O",
+      "to": "Q",
+      "arrow": false
+    },
+    {
+      "from": "Q",
+      "to": "P",
+      "arrow": true
+    },
+    {
+      "from": "R",
+      "to": "S",
+      "arrow": false
+    },
+    {
+      "from": "S",
+      "to": "Q",
+      "arrow": false
+    }
+  ]
+}

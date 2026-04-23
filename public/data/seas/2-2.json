@@ -1,0 +1,172 @@
+{
+  "code": "2-2",
+  "name": "バシー海峡",
+  "meta": {},
+  "nodes": [
+    {
+      "id": "Start",
+      "type": "start",
+      "lat": 21.575231,
+      "lng": 121.672895,
+      "name": "Start",
+      "meta": {}
+    },
+    {
+      "id": "A",
+      "type": "supply",
+      "lat": 22.426034,
+      "lng": 120.411383,
+      "name": "ボーキサイト +10~20",
+      "meta": {}
+    },
+    {
+      "id": "B",
+      "type": "normal",
+      "lat": 21.713985,
+      "lng": 120.251194,
+      "name": "敵上陸船団",
+      "meta": {}
+    },
+    {
+      "id": "C",
+      "type": "relay",
+      "lat": 21.267987,
+      "lng": 120.882095,
+      "name": "静かな海です。",
+      "meta": {}
+    },
+    {
+      "id": "D",
+      "type": "normal",
+      "lat": 21.012178,
+      "lng": 120.184783,
+      "name": "敵上陸船団",
+      "meta": {}
+    },
+    {
+      "id": "E",
+      "type": "normal",
+      "lat": 20.300687,
+      "lng": 120.921573,
+      "name": "敵水雷戦隊",
+      "meta": {}
+    },
+    {
+      "id": "F",
+      "type": "supply",
+      "lat": 20.464494,
+      "lng": 121.830744,
+      "name": "ボーキサイト +15~35",
+      "meta": {}
+    },
+    {
+      "id": "G",
+      "type": "normal",
+      "lat": 19.911048,
+      "lng": 121.362662,
+      "name": "敵水上打撃部隊",
+      "meta": {}
+    },
+    {
+      "id": "H",
+      "type": "relay",
+      "lat": 19.61953,
+      "lng": 121.797914,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "I",
+      "type": "relay",
+      "lat": 19.645063,
+      "lng": 122.385721,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "J",
+      "type": "supply",
+      "lat": 19.017829,
+      "lng": 121.840141,
+      "name": "高速建造材+1",
+      "meta": {}
+    },
+    {
+      "id": "K",
+      "type": "boss",
+      "lat": 19.405404,
+      "lng": 121.019195,
+      "name": "敵通商破壊機動部隊 主力艦隊",
+      "meta": {}
+    }
+  ],
+  "edges": [
+    {
+      "from": "Start",
+      "to": "C"
+    },
+    {
+      "from": "B",
+      "to": "A",
+      "arrow": true
+    },
+    {
+      "from": "C",
+      "to": "B"
+    },
+    {
+      "from": "C",
+      "to": "D",
+      "arrow": true
+    },
+    {
+      "from": "C",
+      "to": "E"
+    },
+    {
+      "from": "E",
+      "to": "F"
+    },
+    {
+      "from": "F",
+      "to": "G"
+    },
+    {
+      "from": "E",
+      "to": "G"
+    },
+    {
+      "from": "E",
+      "to": "K",
+      "arrow": true
+    },
+    {
+      "from": "F",
+      "to": "H"
+    },
+    {
+      "from": "G",
+      "to": "H"
+    },
+    {
+      "from": "G",
+      "to": "K",
+      "arrow": true
+    },
+    {
+      "from": "H",
+      "to": "I",
+      "arrow": true
+    },
+    {
+      "from": "H",
+      "to": "J",
+      "arrow": true
+    },
+    {
+      "from": "H",
+      "to": "K",
+      "arrow": true
+    }
+  ]
+}
