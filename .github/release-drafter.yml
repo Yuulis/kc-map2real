@@ -1,0 +1,57 @@
+name-template: "v$RESOLVED_VERSION"
+tag-template: "v$RESOLVED_VERSION"
+template: |
+  ## What's Changed
+
+  $CHANGES
+
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION
+
+categories:
+  - title: "🚀 Features"
+    labels:
+      - "feature"
+  - title: "🐛 Bug Fixes"
+    labels:
+      - "fix"
+  - title: "🔧 Maintenance"
+    labels:
+      - "chore"
+      - "deps"
+  - title: "💥 Breaking Changes"
+    labels:
+      - "breaking"
+
+change-template: "- $TITLE @$AUTHOR (#$NUMBER)"
+change-title-escapes: '\<*_&'
+
+version-resolver:
+  major:
+    labels:
+      - "breaking"
+  minor:
+    labels:
+      - "feature"
+  patch:
+    labels:
+      - "fix"
+      - "chore"
+      - "deps"
+  default: patch
+
+exclude-labels:
+  - "skip-changelog"
+
+autolabeler:
+  - label: "feature"
+    branch:
+      - "/^feat(ure)?[/-]/"
+  - label: "fix"
+    branch:
+      - "/^fix[/-]/"
+  - label: "chore"
+    branch:
+      - "/^chore[/-]/"
+  - label: "deps"
+    title:
+      - "/^(chore\\(deps\\)|build\\(deps\\))/"
