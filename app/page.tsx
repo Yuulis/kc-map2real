@@ -645,6 +645,7 @@ export default function Home() {
   // Callback passed to NodeMarker — looks up sea code (and submap) and opens edit dialog
   const handleNodeClick = useCallback(
     (node: MapNode) => {
+      if (!devToolsEnabled && !contributionMode) return;
       if (contributionMode && contributionData) {
         // In contribution mode, open edit dialog with contribution data context
         openEditNodeDialog(node, contributionData.code);
@@ -655,7 +656,7 @@ export default function Home() {
         openEditNodeDialog(node, result.seaCode, result.submapId);
       }
     },
-    [findSeaForNode, openEditNodeDialog, contributionMode, contributionData],
+    [devToolsEnabled, findSeaForNode, openEditNodeDialog, contributionMode, contributionData],
   );
 
   // Handle node add/update from dialog
