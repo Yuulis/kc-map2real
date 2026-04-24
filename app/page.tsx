@@ -11,7 +11,7 @@ import type { Feature, FeatureCollection, LineString, Point } from "geojson";
 import type { ExpressionSpecification, MapLayerMouseEvent } from "maplibre-gl";
 
 import { toast } from "sonner";
-import { Pencil, MapIcon } from "lucide-react";
+import { Pencil, MapIcon, GitPullRequest } from "lucide-react";
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -22,9 +22,10 @@ import Divider from "@mui/material/Divider";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import IconButton from "@mui/material/IconButton";
-import type { MapsData, MapNode, MapEdge } from "@/app/types/maps";
+import type { MapsData, MapNode, MapEdge, MapSea } from "@/app/types/maps";
 import NodeEditDialog from "@/app/components/NodeEditDialog";
 import SeaManagerDialog from "@/app/components/SeaManagerDialog";
+import ContributionPanel from "@/app/components/ContributionPanel";
 
 // Internal view-layer types derived from MapsData
 type Node = MapNode;
@@ -174,6 +175,9 @@ export default function Home() {
   const [edgeFrom, setEdgeFrom] = useState("");
   const [edgeTo, setEdgeTo] = useState("");
   const [edgeArrow, setEdgeArrow] = useState(false);
+  // Contribution mode state (client-side only, no API writes)
+  const [contributionMode, setContributionMode] = useState(false);
+  const [contributionData, setContributionData] = useState<MapSea | null>(null);
   // Feature 1: Persisted map view state (read once before mount)
   const initialViewState = useMemo(() => {
     if (typeof window === "undefined") {
@@ -404,17 +408,27 @@ export default function Home() {
   }, [filteredSections, selectedSubmaps, visibleSubmapNodes]);
 
   // All nodes (for Marker rendering)
+  // In contribution mode, use contributionData nodes instead of visibleSections
   const allNodes = useMemo(
-    () =>
-      visibleSections.flatMap((s) =>
+    () => {
+      if (contributionMode && contributionData) {
+        return contributionData.nodes.filter((n) => ALLOWED_NODE_TYPES.has(n.type));
+      }
+      return visibleSections.flatMap((s) =>
         s.nodes.filter((n) => ALLOWED_NODE_TYPES.has(n.type))
-      ),
-    [visibleSections]
+      );
+    },
+    [visibleSections, contributionMode, contributionData]
   );
 
   // Convert edges to GeoJSON (LineString FeatureCollection per section)
+  // In contribution mode, use contributionData instead of visibleSections
   const edgeCollections = useMemo(() => {
-    return visibleSections.map((s) => {
+    const sourceSections = contributionMode && contributionData
+      ? [{ key: contributionData.code, nodes: contributionData.nodes, edges: contributionData.edges }]
+      : visibleSections;
+
+    return sourceSections.map((s) => {
       const idx: Record<string, [number, number]> = {};
       for (const n of s.nodes) idx[n.id] = [n.lng, n.lat];
       const features: Feature<
@@ -452,11 +466,16 @@ export default function Home() {
         fc,
       } as const;
     });
-  }, [visibleSections]);
+  }, [visibleSections, contributionMode, contributionData]);
 
   // Arrow GeoJSON (point at start of line for directional arrows)
+  // In contribution mode, use contributionData instead of visibleSections
   const arrowCollections = useMemo(() => {
-    return visibleSections.map((s) => {
+    const sourceSections = contributionMode && contributionData
+      ? [{ key: contributionData.code, nodes: contributionData.nodes, edges: contributionData.edges }]
+      : visibleSections;
+
+    return sourceSections.map((s) => {
       const idx: Record<string, [number, number]> = {};
       for (const n of s.nodes) idx[n.id] = [n.lng, n.lat];
       const features: Feature<
@@ -506,7 +525,7 @@ export default function Home() {
         fc,
       } as const;
     });
-  }, [visibleSections]);
+  }, [visibleSections, contributionMode, contributionData]);
 
   // Find which sea (and optionally submap) a node belongs to.
   // Returns { seaCode, submapId? } or undefined if not found.
@@ -626,12 +645,17 @@ export default function Home() {
   // Callback passed to NodeMarker — looks up sea code (and submap) and opens edit dialog
   const handleNodeClick = useCallback(
     (node: MapNode) => {
+      if (contributionMode && contributionData) {
+        // In contribution mode, open edit dialog with contribution data context
+        openEditNodeDialog(node, contributionData.code);
+        return;
+      }
       const result = findSeaForNode(node.id, node.lat, node.lng);
       if (result) {
         openEditNodeDialog(node, result.seaCode, result.submapId);
       }
     },
-    [findSeaForNode, openEditNodeDialog],
+    [findSeaForNode, openEditNodeDialog, contributionMode, contributionData],
   );
 
   // Handle node add/update from dialog
@@ -908,6 +932,95 @@ export default function Home() {
     [singleActiveSea, loadMapData],
   );
 
+  // Toggle contribution mode on/off
+  const toggleContributionMode = useCallback(() => {
+    if (contributionMode) {
+      // Exit contribution mode
+      setContributionMode(false);
+      setContributionData(null);
+      toast.success("Contribution mode OFF");
+      return;
+    }
+    // Enter contribution mode: require exactly one sea selected
+    if (!singleActiveSea) {
+      toast.error("Please select exactly one sea area first");
+      return;
+    }
+    // Build MapSea from current filtered section
+    const section = singleActiveSea;
+    const seaInfo = allSeas.find((s) => s.code === section.key);
+    const mapSea: MapSea = {
+      code: section.key,
+      name: seaInfo?.name ?? section.key,
+      meta: {},
+      nodes: section.nodes.map((n) => ({ ...n })),
+      edges: section.edges.map((e) => ({ ...e })),
+    };
+    setContributionData(mapSea);
+    setContributionMode(true);
+    // Disable conflicting modes
+    setEditMode(false);
+    setPinMode(false);
+    toast.success(`Contribution mode ON: ${mapSea.code}`);
+  }, [contributionMode, singleActiveSea, allSeas]);
+
+  // Handle contribution mode node confirm (add or edit, local only)
+  const handleContributionNodeConfirm = useCallback(
+    (_seaCode: string, node: MapNode, _submapIds: string[]) => {
+      if (!contributionData) return;
+      if (editDialogMode === "add") {
+        // Check for duplicate ID
+        if (contributionData.nodes.some((n) => n.id === node.id)) {
+          toast.error(`Node "${node.id}" already exists`);
+          return;
+        }
+        setContributionData({
+          ...contributionData,
+          nodes: [...contributionData.nodes, node],
+        });
+        toast.success(`Node "${node.id}" added (local)`);
+      } else {
+        // Edit: replace node by matching the editing node's original ID
+        const originalId = editingNode?.node.id ?? node.id;
+        setContributionData({
+          ...contributionData,
+          nodes: contributionData.nodes.map((n) =>
+            n.id === originalId ? node : n
+          ),
+          // If ID changed, update edges too
+          edges:
+            originalId !== node.id
+              ? contributionData.edges.map((e) => ({
+                  ...e,
+                  from: e.from === originalId ? node.id : e.from,
+                  to: e.to === originalId ? node.id : e.to,
+                }))
+              : contributionData.edges,
+        });
+        toast.success(`Node "${node.id}" updated (local)`);
+      }
+      setEditDialogOpen(false);
+    },
+    [contributionData, editDialogMode, editingNode]
+  );
+
+  // Handle contribution mode node delete (local only)
+  const handleContributionNodeDelete = useCallback(
+    (_seaCode: string, nodeId: string, _submapIds: string[]) => {
+      if (!contributionData) return;
+      setContributionData({
+        ...contributionData,
+        nodes: contributionData.nodes.filter((n) => n.id !== nodeId),
+        edges: contributionData.edges.filter(
+          (e) => e.from !== nodeId && e.to !== nodeId
+        ),
+      });
+      toast.success(`Node "${nodeId}" deleted (local)`);
+      setEditDialogOpen(false);
+    },
+    [contributionData]
+  );
+
   // Memoized sorted node list for edge dropdown selects.
   // Includes ALL nodes (base + all submaps) so cross-submap edge creation is possible.
   const sortedSeaNodes = useMemo(() => {
@@ -963,10 +1076,15 @@ export default function Home() {
     [pinMode],
   );
 
-  // Map onClick handler — places pins or logs coordinates
+  // Map onClick handler — places pins, opens contribution add dialog, or logs coordinates
   const handleMapClick = useCallback(
     (e: MapLayerMouseEvent) => {
       const { lng, lat } = e.lngLat;
+      if (contributionMode) {
+        // In contribution mode, clicking the map opens add node dialog
+        openAddNodeDialog(lat, lng);
+        return;
+      }
       if (pinMode) {
         const id = `pin-${Date.now()}`;
         setPins((prev) => [
@@ -981,7 +1099,7 @@ export default function Home() {
         );
       }
     },
-    [pinMode, openAddNodeDialog],
+    [pinMode, contributionMode, openAddNodeDialog],
   );
 
   return (
@@ -1119,8 +1237,8 @@ export default function Home() {
         </Paper>
       )}
 
-      {/* Floating panel (bottom-right): visible when devTools enabled OR submaps available */}
-      {(devToolsEnabled || (singleActiveSea && singleActiveSea.submaps && singleActiveSea.submaps.length > 0)) && (
+      {/* Floating panel (bottom-right): visible when devTools enabled OR submaps available OR contribution mode */}
+      {(devToolsEnabled || contributionMode || (singleActiveSea && singleActiveSea.submaps && singleActiveSea.submaps.length > 0)) && (
       <Paper
         elevation={4}
         sx={{
@@ -1128,10 +1246,16 @@ export default function Home() {
           right: 12,
           bottom: 12,
           zIndex: 60,
-          backgroundColor: pinMode ? "rgba(239, 68, 68, 0.7)" : "rgba(0,0,0,0.85)",
-          border: pinMode
-            ? "1px solid rgba(239, 68, 68, 1)"
-            : "1px solid transparent",
+          backgroundColor: contributionMode
+            ? "rgba(0,0,0,0.9)"
+            : pinMode
+              ? "rgba(239, 68, 68, 0.7)"
+              : "rgba(0,0,0,0.85)",
+          border: contributionMode
+            ? "2px solid #22c55e"
+            : pinMode
+              ? "1px solid rgba(239, 68, 68, 1)"
+              : "1px solid transparent",
           color: "#fff",
           borderRadius: 2,
           fontSize: 13,
@@ -1155,41 +1279,45 @@ export default function Home() {
                   : "none",
             }}
           >
-            {/* Pin mode toggle */}
-            <Typography
-              component="span"
-              variant="body2"
-              onClick={() => setPinMode((prev) => !prev)}
-              sx={{ cursor: "pointer", flex: 1, fontSize: 13 }}
-            >
-              {pinMode ? "Pin: ON" : "Pin: OFF"}
-              {pinMode && pins.length > 0 && (
-                <Typography component="span" sx={{ fontSize: 11, opacity: 0.8, ml: 0.5 }}>
-                  {pins.length}
-                </Typography>
-              )}
-            </Typography>
+            {/* Pin mode toggle (hidden in contribution mode) */}
+            {!contributionMode && (
+              <Typography
+                component="span"
+                variant="body2"
+                onClick={() => setPinMode((prev) => !prev)}
+                sx={{ cursor: "pointer", flex: 1, fontSize: 13 }}
+              >
+                {pinMode ? "Pin: ON" : "Pin: OFF"}
+                {pinMode && pins.length > 0 && (
+                  <Typography component="span" sx={{ fontSize: 11, opacity: 0.8, ml: 0.5 }}>
+                    {pins.length}
+                  </Typography>
+                )}
+              </Typography>
+            )}
 
-            {/* Edit mode toggle */}
-            <Button
-              size="small"
-              variant="contained"
-              onClick={() => setEditMode((prev) => !prev)}
-              title={editMode ? "Edit mode: ON" : "Edit mode: OFF"}
-              startIcon={<Pencil size={12} />}
-              sx={{
-                backgroundColor: editMode ? "#3b82f6" : "#4b5563",
-                "&:hover": { backgroundColor: editMode ? "#2563eb" : "#6b7280" },
-                fontSize: 11,
-                fontWeight: 600,
-                minWidth: 0,
-                px: 0.75,
-                py: 0.5,
-                textTransform: "none",
-              }}
-            >
-              {editMode ? "ON" : "OFF"}
-            </Button>
+            {/* Edit mode toggle (hidden in contribution mode) */}
+            {!contributionMode && (
+              <Button
+                size="small"
+                variant="contained"
+                onClick={() => setEditMode((prev) => !prev)}
+                title={editMode ? "Edit mode: ON" : "Edit mode: OFF"}
+                startIcon={<Pencil size={12} />}
+                sx={{
+                  backgroundColor: editMode ? "#3b82f6" : "#4b5563",
+                  "&:hover": { backgroundColor: editMode ? "#2563eb" : "#6b7280" },
+                  fontSize: 11,
+                  fontWeight: 600,
+                  minWidth: 0,
+                  px: 0.75,
+                  py: 0.5,
+                  textTransform: "none",
+                }}
+              >
+                {editMode ? "ON" : "OFF"}
+              </Button>
+            )}
 
             {/* Sea manager button */}
             <IconButton
@@ -1205,6 +1333,22 @@ export default function Home() {
               }}
             >
               <MapIcon size={12} />
+            </IconButton>
+
+            {/* Contribution mode toggle */}
+            <IconButton
+              size="small"
+              onClick={toggleContributionMode}
+              title={contributionMode ? "Contribution mode: ON" : "Contribution mode: OFF"}
+              sx={{
+                backgroundColor: contributionMode ? "#16a34a" : "#4b5563",
+                color: "#fff",
+                borderRadius: 1,
+                "&:hover": { backgroundColor: contributionMode ? "#15803d" : "#6b7280" },
+                p: 0.75,
+              }}
+            >
+              <GitPullRequest size={12} />
             </IconButton>
           </Box>
         )}
@@ -1395,8 +1539,17 @@ export default function Home() {
           </Box>
         )}
 
-        {/* Edge editing section (visible when editMode is ON and exactly one sea is active) */}
-        {editMode && singleActiveSea && (
+        {/* Contribution panel (visible when contribution mode is ON) */}
+        {contributionMode && contributionData && (
+          <ContributionPanel
+            contributionData={contributionData}
+            onContributionDataChange={setContributionData}
+            onExit={toggleContributionMode}
+          />
+        )}
+
+        {/* Edge editing section (visible when editMode is ON, exactly one sea is active, and NOT in contribution mode) */}
+        {editMode && singleActiveSea && !contributionMode && (
           <Box sx={{ px: 1.25, py: 1, borderTop: "1px solid rgba(255,255,255,0.2)" }}>
             <Typography sx={{ fontSize: 11, fontWeight: 700, mb: 0.75, opacity: 0.8 }}>
               Edges ({singleActiveSea.key} - all)
@@ -1620,18 +1773,28 @@ export default function Home() {
         lat={pendingCoord?.lat}
         lng={pendingCoord?.lng}
         node={editingNode?.node}
-        seaCode={editingNode?.seaCode ?? singleActiveSea?.key}
-        submapIds={
-          editingNode
-            ? findNodeSubmapMemberships(editingNode.seaCode, editingNode.node.id)
-            : (singleActiveSea && selectedSubmaps[singleActiveSea.key]
-              ? [selectedSubmaps[singleActiveSea.key]!]
-              : [])
+        seaCode={
+          contributionMode && contributionData
+            ? contributionData.code
+            : (editingNode?.seaCode ?? singleActiveSea?.key)
         }
-        availableSeas={allSeas}
-        availableSubmaps={singleActiveSea?.submaps}
-        onConfirm={handleNodeConfirm}
-        onDelete={handleNodeDelete}
+        submapIds={
+          contributionMode
+            ? []
+            : editingNode
+              ? findNodeSubmapMemberships(editingNode.seaCode, editingNode.node.id)
+              : (singleActiveSea && selectedSubmaps[singleActiveSea.key]
+                ? [selectedSubmaps[singleActiveSea.key]!]
+                : [])
+        }
+        availableSeas={
+          contributionMode && contributionData
+            ? [{ code: contributionData.code, name: contributionData.name }]
+            : allSeas
+        }
+        availableSubmaps={contributionMode ? [] : singleActiveSea?.submaps}
+        onConfirm={contributionMode ? handleContributionNodeConfirm : handleNodeConfirm}
+        onDelete={contributionMode ? handleContributionNodeDelete : handleNodeDelete}
         onClose={() => setEditDialogOpen(false)}
       />
 
