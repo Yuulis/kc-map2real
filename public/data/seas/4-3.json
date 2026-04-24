@@ -1,0 +1,239 @@
+{
+  "code": "4-3",
+  "name": "リランカ島",
+  "meta": {},
+  "nodes": [
+    {
+      "id": "Start",
+      "type": "start",
+      "lat": 6.779353534722915,
+      "lng": 97.42380341705638,
+      "name": "Start",
+      "meta": {}
+    },
+    {
+      "id": "B",
+      "type": "supply",
+      "lat": 15.794985048555333,
+      "lng": 92.78481371600839,
+      "name": "燃料 +30~90",
+      "meta": {}
+    },
+    {
+      "id": "I",
+      "type": "normal",
+      "lat": 8.926217283608977,
+      "lng": 81.46795915702609,
+      "name": "敵東方艦隊 増援戦艦部隊",
+      "meta": {}
+    },
+    {
+      "id": "J",
+      "type": "supply",
+      "lat": 15.173397388819183,
+      "lng": 80.55909259918002,
+      "name": "ボーキサイト +50~100",
+      "meta": {}
+    },
+    {
+      "id": "N",
+      "type": "boss",
+      "lat": 5.985207293790978,
+      "lng": 80.54707238842548,
+      "name": "敵東方港湾基地",
+      "meta": {}
+    },
+    {
+      "id": "H",
+      "type": "normal",
+      "lat": 5.988310642548299,
+      "lng": 83.74137802698391,
+      "name": "敵東方空母機動部隊 分遣群",
+      "meta": {}
+    },
+    {
+      "id": "F",
+      "type": "normal",
+      "lat": 2.8312885551216596,
+      "lng": 85.8939655279408,
+      "name": "敵東方空母機動部隊",
+      "meta": {}
+    },
+    {
+      "id": "C",
+      "type": "normal",
+      "lat": 4.946258843948357,
+      "lng": 92.8735674249304,
+      "name": "敵東方潜水艦隊 哨戒主力集団",
+      "meta": {}
+    },
+    {
+      "id": "A",
+      "type": "normal",
+      "lat": 13.279185024934122,
+      "lng": 95.12399981227833,
+      "name": "敵東方潜水艦隊 哨戒分遣集団",
+      "meta": {}
+    },
+    {
+      "id": "D",
+      "type": "normal",
+      "lat": 7.5720873038603855,
+      "lng": 91.3080492424279,
+      "name": "敵東方哨戒艦隊 B群",
+      "meta": {}
+    },
+    {
+      "id": "G",
+      "type": "normal",
+      "lat": 11.303516324430163,
+      "lng": 85.43735605804312,
+      "name": "敵東方哨戒艦隊 A群",
+      "meta": {}
+    },
+    {
+      "id": "E",
+      "type": "whirlpool",
+      "lat": 16.80367877863,
+      "lng": 87.03820768514657,
+      "name": "司令官！うずしおが発生しました！",
+      "meta": {}
+    },
+    {
+      "id": "K",
+      "type": "whirlpool",
+      "lat": 2.1863386520390122,
+      "lng": 78.70118257524325,
+      "name": "司令官！うずしおが発生しました！",
+      "meta": {}
+    },
+    {
+      "id": "L",
+      "type": "normal",
+      "lat": 6.668138550729765,
+      "lng": 74.26725910855234,
+      "name": "敵哨戒艦隊",
+      "meta": {}
+    },
+    {
+      "id": "M",
+      "type": "relay",
+      "lat": 10.61870334653561,
+      "lng": 71.05110335454296,
+      "name": "敵影を見ず。",
+      "meta": {}
+    }
+  ],
+  "edges": [
+    {
+      "from": "Start",
+      "to": "A",
+      "arrow": false
+    },
+    {
+      "from": "Start",
+      "to": "C",
+      "arrow": false
+    },
+    {
+      "from": "Start",
+      "to": "D",
+      "arrow": false
+    },
+    {
+      "from": "A",
+      "to": "B",
+      "arrow": false
+    },
+    {
+      "from": "A",
+      "to": "D",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "E",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "G",
+      "arrow": false
+    },
+    {
+      "from": "C",
+      "to": "D",
+      "arrow": false
+    },
+    {
+      "from": "C",
+      "to": "F",
+      "arrow": false
+    },
+    {
+      "from": "D",
+      "to": "H",
+      "arrow": false
+    },
+    {
+      "from": "E",
+      "to": "G",
+      "arrow": false
+    },
+    {
+      "from": "F",
+      "to": "H",
+      "arrow": false
+    },
+    {
+      "from": "F",
+      "to": "K",
+      "arrow": false
+    },
+    {
+      "from": "G",
+      "to": "H",
+      "arrow": false
+    },
+    {
+      "from": "G",
+      "to": "I",
+      "arrow": true
+    },
+    {
+      "from": "G",
+      "to": "J",
+      "arrow": true
+    },
+    {
+      "from": "H",
+      "to": "I",
+      "arrow": true
+    },
+    {
+      "from": "H",
+      "to": "N",
+      "arrow": true
+    },
+    {
+      "from": "K",
+      "to": "N",
+      "arrow": true
+    },
+    {
+      "from": "K",
+      "to": "L",
+      "arrow": false
+    },
+    {
+      "from": "L",
+      "to": "N",
+      "arrow": true
+    },
+    {
+      "from": "L",
+      "to": "M",
+      "arrow": true
+    }
+  ]
+}

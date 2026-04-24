@@ -1,0 +1,268 @@
+{
+  "code": "5-3",
+  "name": "サブ島沖海域",
+  "meta": {},
+  "nodes": [
+    {
+      "id": "F",
+      "type": "supply",
+      "lat": -9.386367644804253,
+      "lng": 159.58083614710165,
+      "name": "弾薬 +60",
+      "meta": {}
+    },
+    {
+      "id": "H",
+      "type": "supply",
+      "lat": -9.384413782505348,
+      "lng": 159.90005411192635,
+      "name": "鋼材 +50～80",
+      "meta": {}
+    },
+    {
+      "id": "K",
+      "type": "night-battle",
+      "lat": -9.376332952154556,
+      "lng": 160.3614439028671,
+      "name": "敵鉄底海峡任務部隊 増援艦隊",
+      "meta": {}
+    },
+    {
+      "id": "O",
+      "type": "relay",
+      "lat": -9.368251933607453,
+      "lng": 160.82010357670254,
+      "name": "【能動分岐】",
+      "meta": {}
+    },
+    {
+      "id": "P",
+      "type": "night-battle",
+      "lat": -9.551894992060582,
+      "lng": 161.02853682629905,
+      "name": "敵泊地投錨中 輸送船団",
+      "meta": {}
+    },
+    {
+      "id": "E",
+      "type": "relay",
+      "lat": -9.112903037099528,
+      "lng": 159.51671251614368,
+      "name": "鉄底海峡を離脱する！引き続き警戒を厳とせよ！",
+      "meta": {}
+    },
+    {
+      "id": "I",
+      "type": "night-battle",
+      "lat": -9.110370597833906,
+      "lng": 160.01428426084914,
+      "name": "敵鉄底海峡任務部隊 重巡戦隊",
+      "meta": {}
+    },
+    {
+      "id": "D",
+      "type": "relay",
+      "lat": -8.532515395247131,
+      "lng": 159.30639868590907,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "G",
+      "type": "relay",
+      "lat": -8.874796793534799,
+      "lng": 159.65930763483846,
+      "name": "これより鉄底海峡に突入す！全艦、戦闘配置！",
+      "meta": {}
+    },
+    {
+      "id": "C",
+      "type": "normal",
+      "lat": -8.347053113855637,
+      "lng": 159.05630051943137,
+      "name": "敵鉄底海峡任務部隊 哨戒隊",
+      "meta": {}
+    },
+    {
+      "id": "B",
+      "type": "relay",
+      "lat": -9.427399604991919,
+      "lng": 158.97551487717675,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "A",
+      "type": "relay",
+      "lat": -9.70337280246784,
+      "lng": 158.52253824024223,
+      "name": "気のせいだった。",
+      "meta": {}
+    },
+    {
+      "id": "Start",
+      "type": "start",
+      "lat": -8.857692438939708,
+      "lng": 158.30037772403995,
+      "name": "Start",
+      "meta": {}
+    },
+    {
+      "id": "Q",
+      "type": "boss",
+      "lat": -8.874796793534799,
+      "lng": 159.23229781148888,
+      "name": "敵南方艦隊 旗艦",
+      "meta": {}
+    },
+    {
+      "id": "J",
+      "type": "night-battle",
+      "lat": -8.598179696786232,
+      "lng": 160.25365914571898,
+      "name": "敵任務部隊 前衛哨戒隊",
+      "meta": {}
+    },
+    {
+      "id": "M",
+      "type": "normal",
+      "lat": -8.261404605622815,
+      "lng": 160.40080442268498,
+      "name": "敵任務部隊 増援部隊",
+      "meta": {}
+    },
+    {
+      "id": "L",
+      "type": "whirlpool",
+      "lat": -9.045796245056152,
+      "lng": 160.38926361664835,
+      "name": "司令官！うずしおが発生しました！",
+      "meta": {}
+    },
+    {
+      "id": "N",
+      "type": "night-battle",
+      "lat": -8.960306577901605,
+      "lng": 160.62585014039723,
+      "name": "敵南方支援艦隊",
+      "meta": {}
+    }
+  ],
+  "edges": [
+    {
+      "from": "Start",
+      "to": "C",
+      "arrow": false
+    },
+    {
+      "from": "Start",
+      "to": "D",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "A",
+      "arrow": true
+    },
+    {
+      "from": "B",
+      "to": "F",
+      "arrow": true
+    },
+    {
+      "from": "C",
+      "to": "D",
+      "arrow": false
+    },
+    {
+      "from": "D",
+      "to": "G",
+      "arrow": false
+    },
+    {
+      "from": "E",
+      "to": "B",
+      "arrow": false
+    },
+    {
+      "from": "E",
+      "to": "Q",
+      "arrow": true
+    },
+    {
+      "from": "E",
+      "to": "K",
+      "arrow": false
+    },
+    {
+      "from": "E",
+      "to": "H",
+      "arrow": false
+    },
+    {
+      "from": "G",
+      "to": "I",
+      "arrow": false
+    },
+    {
+      "from": "H",
+      "to": "K",
+      "arrow": false
+    },
+    {
+      "from": "G",
+      "to": "J",
+      "arrow": false
+    },
+    {
+      "from": "I",
+      "to": "J",
+      "arrow": false
+    },
+    {
+      "from": "I",
+      "to": "O",
+      "arrow": false
+    },
+    {
+      "from": "J",
+      "to": "M",
+      "arrow": true
+    },
+    {
+      "from": "J",
+      "to": "N",
+      "arrow": false
+    },
+    {
+      "from": "J",
+      "to": "L",
+      "arrow": false
+    },
+    {
+      "from": "K",
+      "to": "P",
+      "arrow": false
+    },
+    {
+      "from": "L",
+      "to": "O",
+      "arrow": false
+    },
+    {
+      "from": "N",
+      "to": "O",
+      "arrow": false
+    },
+    {
+      "from": "O",
+      "to": "K",
+      "arrow": true
+    },
+    {
+      "from": "O",
+      "to": "P",
+      "arrow": true
+    }
+  ]
+}

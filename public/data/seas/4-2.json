@@ -1,0 +1,193 @@
+{
+  "code": "4-2",
+  "name": "カレー洋海域",
+  "meta": {},
+  "nodes": [
+    {
+      "id": "J",
+      "type": "supply",
+      "lat": 15.332540935975274,
+      "lng": 80.41305032743173,
+      "name": "ボーキサイト +40~60",
+      "meta": {}
+    },
+    {
+      "id": "K",
+      "type": "supply",
+      "lat": 11.758029386061267,
+      "lng": 80.02422933748494,
+      "name": "鋼材 +20~80",
+      "meta": {}
+    },
+    {
+      "id": "I",
+      "type": "relay",
+      "lat": 13.139660181733504,
+      "lng": 81.16046596872968,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "A",
+      "type": "normal",
+      "lat": 14.68773379071736,
+      "lng": 93.61375424240794,
+      "name": "敵東方前衛艦隊",
+      "meta": {}
+    },
+    {
+      "id": "B",
+      "type": "normal",
+      "lat": 9.364035779060785,
+      "lng": 92.79212720236404,
+      "name": "敵潜水教導艦隊",
+      "meta": {}
+    },
+    {
+      "id": "G",
+      "type": "normal",
+      "lat": 13.435349216740562,
+      "lng": 83.40756055773846,
+      "name": "敵東方艦隊 上陸輸送船団",
+      "meta": {}
+    },
+    {
+      "id": "H",
+      "type": "normal",
+      "lat": 10.01149464948844,
+      "lng": 82.94705360480555,
+      "name": "敵潜水哨戒部隊",
+      "meta": {}
+    },
+    {
+      "id": "F",
+      "type": "relay",
+      "lat": 15.987191147898741,
+      "lng": 83.81828297521884,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "E",
+      "type": "normal",
+      "lat": 16.274138086275684,
+      "lng": 87.61435380344528,
+      "name": "敵東方艦隊 遊撃戦隊分遣隊",
+      "meta": {}
+    },
+    {
+      "id": "D",
+      "type": "normal",
+      "lat": 8.782947098240783,
+      "lng": 87.41175542318149,
+      "name": "敵空母機動部隊",
+      "meta": {}
+    },
+    {
+      "id": "C",
+      "type": "normal",
+      "lat": 12.409648009651079,
+      "lng": 87.65035100791857,
+      "name": "敵東方艦隊 遊撃戦隊",
+      "meta": {}
+    },
+    {
+      "id": "L",
+      "type": "boss",
+      "lat": 11.538281422660873,
+      "lng": 84.62814026792768,
+      "name": "敵東方艦隊 強襲上陸主力艦隊",
+      "meta": {}
+    },
+    {
+      "id": "Start",
+      "type": "start",
+      "lat": 11.41357442399017,
+      "lng": 96.54201313241646,
+      "name": "Start",
+      "meta": {}
+    }
+  ],
+  "edges": [
+    {
+      "from": "Start",
+      "to": "A",
+      "arrow": false
+    },
+    {
+      "from": "Start",
+      "to": "B",
+      "arrow": false
+    },
+    {
+      "from": "A",
+      "to": "C",
+      "arrow": false
+    },
+    {
+      "from": "A",
+      "to": "E",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "D",
+      "arrow": false
+    },
+    {
+      "from": "C",
+      "to": "D",
+      "arrow": false
+    },
+    {
+      "from": "C",
+      "to": "G",
+      "arrow": false
+    },
+    {
+      "from": "C",
+      "to": "L",
+      "arrow": true
+    },
+    {
+      "from": "D",
+      "to": "H",
+      "arrow": false
+    },
+    {
+      "from": "E",
+      "to": "G",
+      "arrow": false
+    },
+    {
+      "from": "F",
+      "to": "G",
+      "arrow": false
+    },
+    {
+      "from": "F",
+      "to": "J",
+      "arrow": true
+    },
+    {
+      "from": "G",
+      "to": "L",
+      "arrow": true
+    },
+    {
+      "from": "G",
+      "to": "I",
+      "arrow": true
+    },
+    {
+      "from": "G",
+      "to": "H",
+      "arrow": false
+    },
+    {
+      "from": "H",
+      "to": "K",
+      "arrow": true
+    }
+  ]
+}

@@ -89,6 +89,40 @@ export interface MapsData {
 }
 
 // ---------------------------------------------------------------------------
+// Index-only types (per-sea split: maps-index.json has no nodes/edges)
+// ---------------------------------------------------------------------------
+
+/** Sea area reference in the index (no nodes/edges) */
+export interface MapSeaIndex {
+  /** Sea area code (e.g. "1-1") */
+  code: string;
+  /** Display name of the sea area */
+  name: string;
+  /** Extensible metadata */
+  meta: Meta;
+}
+
+/** Group in the index file */
+export interface MapGroupIndex {
+  /** Group identifier (e.g. "1") */
+  id: string;
+  /** Display name of the group */
+  name: string;
+  /** Extensible metadata */
+  meta: Meta;
+  /** Sea area references (no nodes/edges) */
+  seas: MapSeaIndex[];
+}
+
+/** Root schema for maps-index.json */
+export interface MapsIndex {
+  /** Schema version */
+  version: number;
+  /** Sea area groups (index-only, no nodes/edges) */
+  groups: MapGroupIndex[];
+}
+
+// ---------------------------------------------------------------------------
 // Legacy / API response types (used by /api/names and the admin UI)
 // These represent the backward-compatible shape returned by the names API,
 // where node names are stored as a flat { [nodeId]: name } map rather than

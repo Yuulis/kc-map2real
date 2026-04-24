@@ -1,0 +1,206 @@
+{
+  "code": "3-3",
+  "name": "アルフォンシーノ方面",
+  "meta": {},
+  "nodes": [
+    {
+      "id": "D",
+      "type": "supply",
+      "lat": 51.69008999033045,
+      "lng": -181.9460186404876,
+      "name": "家具箱(中) +1",
+      "meta": {}
+    },
+    {
+      "id": "H",
+      "type": "supply",
+      "lat": 51.835087566011936,
+      "lng": -174.1446648615532,
+      "name": "家具箱(大) +1",
+      "meta": {}
+    },
+    {
+      "id": "G",
+      "type": "normal",
+      "lat": 52.86163515176608,
+      "lng": -175.72444978389754,
+      "name": "敵北方機動部隊",
+      "meta": {}
+    },
+    {
+      "id": "M",
+      "type": "boss",
+      "lat": 55.24220127270047,
+      "lng": -169.23527633869327,
+      "name": "敵深海北方泊地艦隊",
+      "meta": {}
+    },
+    {
+      "id": "C",
+      "type": "whirlpool",
+      "lat": 53.78590118406859,
+      "lng": -183.08387884785228,
+      "name": "司令官！うずしおが発生しました！",
+      "meta": {}
+    },
+    {
+      "id": "E",
+      "type": "normal",
+      "lat": 54.901568295573014,
+      "lng": -178.53690646350614,
+      "name": "敵北方護衛空母群",
+      "meta": {}
+    },
+    {
+      "id": "I",
+      "type": "relay",
+      "lat": 55.82946308391854,
+      "lng": -175.0637179202969,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "F",
+      "type": "whirlpool",
+      "lat": 49.77824805269606,
+      "lng": -175.53163750737215,
+      "name": "司令官！うずしおが発生しました！",
+      "meta": {}
+    },
+    {
+      "id": "J",
+      "type": "relay",
+      "lat": 50.13040277946479,
+      "lng": -172.95683337006653,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "K",
+      "type": "normal",
+      "lat": 50.4863411066909,
+      "lng": -170.12345703583037,
+      "name": "敵北方巡洋艦戦隊 A群",
+      "meta": {}
+    },
+    {
+      "id": "L",
+      "type": "relay",
+      "lat": 50.90324576294853,
+      "lng": -166.87794473343055,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "B",
+      "type": "normal",
+      "lat": 48.85631489061697,
+      "lng": -181.86816957099936,
+      "name": "敵北方巡洋艦戦隊 B群",
+      "meta": {}
+    },
+    {
+      "id": "A",
+      "type": "normal",
+      "lat": 49.68937470238711,
+      "lng": -186.94807543817535,
+      "name": "敵前衛艦隊",
+      "meta": {}
+    },
+    {
+      "id": "Start",
+      "type": "start",
+      "lat": 50.83995395645289,
+      "lng": -192.00149541137134,
+      "name": "Start",
+      "meta": {}
+    }
+  ],
+  "edges": [
+    {
+      "from": "Start",
+      "to": "A",
+      "arrow": false
+    },
+    {
+      "from": "A",
+      "to": "B",
+      "arrow": false
+    },
+    {
+      "from": "A",
+      "to": "C",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "D",
+      "arrow": true
+    },
+    {
+      "from": "B",
+      "to": "F",
+      "arrow": false
+    },
+    {
+      "from": "C",
+      "to": "E",
+      "arrow": false
+    },
+    {
+      "from": "C",
+      "to": "G",
+      "arrow": false
+    },
+    {
+      "from": "E",
+      "to": "G",
+      "arrow": false
+    },
+    {
+      "from": "F",
+      "to": "G",
+      "arrow": false
+    },
+    {
+      "from": "F",
+      "to": "H",
+      "arrow": true
+    },
+    {
+      "from": "F",
+      "to": "J",
+      "arrow": false
+    },
+    {
+      "from": "G",
+      "to": "I",
+      "arrow": true
+    },
+    {
+      "from": "G",
+      "to": "M",
+      "arrow": true
+    },
+    {
+      "from": "J",
+      "to": "K",
+      "arrow": false
+    },
+    {
+      "from": "J",
+      "to": "M",
+      "arrow": true
+    },
+    {
+      "from": "K",
+      "to": "M",
+      "arrow": true
+    },
+    {
+      "from": "K",
+      "to": "L",
+      "arrow": true
+    }
+  ]
+}

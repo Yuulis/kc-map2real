@@ -1,0 +1,309 @@
+{
+  "code": "5-5",
+  "name": "サーモン海域北方",
+  "meta": {},
+  "nodes": [
+    {
+      "id": "E",
+      "type": "supply",
+      "lat": -9.206338655072273,
+      "lng": 159.9014240966241,
+      "name": "燃料 +40",
+      "meta": {}
+    },
+    {
+      "id": "C",
+      "type": "normal",
+      "lat": -8.505410713744013,
+      "lng": 159.15626320604497,
+      "name": "敵哨戒水雷戦隊",
+      "meta": {}
+    },
+    {
+      "id": "G",
+      "type": "night-battle",
+      "lat": -9.452718389502877,
+      "lng": 160.67479389698508,
+      "name": "敵哨戒重巡戦隊",
+      "meta": {}
+    },
+    {
+      "id": "I",
+      "type": "relay",
+      "lat": -9.925412687922488,
+      "lng": 161.673827246288,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "A",
+      "type": "relay",
+      "lat": -7.199080849678197,
+      "lng": 156.17248360279223,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "Start",
+      "type": "start",
+      "lat": -4.720008952211131,
+      "lng": 156.032995902273,
+      "name": "Start",
+      "meta": {}
+    },
+    {
+      "id": "B",
+      "type": "normal",
+      "lat": -5.086284395374747,
+      "lng": 159.0870809494176,
+      "name": "深海南方潜水艦隊 哨戒線",
+      "meta": {}
+    },
+    {
+      "id": "D",
+      "type": "whirlpool",
+      "lat": -7.503394716368007,
+      "lng": 159.6243736891946,
+      "name": "司令官！うずしおが発生しました！",
+      "meta": {}
+    },
+    {
+      "id": "F",
+      "type": "relay",
+      "lat": -6.118198329886965,
+      "lng": 160.15224024055186,
+      "name": "【能動分岐】",
+      "meta": {}
+    },
+    {
+      "id": "H",
+      "type": "normal",
+      "lat": -7.381886689437536,
+      "lng": 161.53788993786873,
+      "name": "敵機動部隊 C群",
+      "meta": {}
+    },
+    {
+      "id": "M",
+      "type": "night-battle",
+      "lat": -9.349548523788343,
+      "lng": 163.63050376646765,
+      "name": "敵新鋭戦艦戦隊",
+      "meta": {}
+    },
+    {
+      "id": "L",
+      "type": "whirlpool",
+      "lat": -8.380948439706017,
+      "lng": 162.47108259116231,
+      "name": "司令官！うずしおが発生しました！",
+      "meta": {}
+    },
+    {
+      "id": "N",
+      "type": "normal",
+      "lat": -7.512740089094677,
+      "lng": 163.6682085201346,
+      "name": "深海南方任務部隊 重水雷戦隊",
+      "meta": {}
+    },
+    {
+      "id": "J",
+      "type": "normal",
+      "lat": -5.621231268448511,
+      "lng": 161.91493747455308,
+      "name": "敵機動部隊 B群",
+      "meta": {}
+    },
+    {
+      "id": "K",
+      "type": "normal",
+      "lat": -4.1843394798786875,
+      "lng": 162.2637064459854,
+      "name": "敵機動部隊 A群",
+      "meta": {}
+    },
+    {
+      "id": "O",
+      "type": "relay",
+      "lat": -8.641974591183683,
+      "lng": 164.86533444910924,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "P",
+      "type": "normal",
+      "lat": -5.808817892298279,
+      "lng": 165.59115095722603,
+      "name": "深海南方任務部隊 水上打撃群",
+      "meta": {}
+    },
+    {
+      "id": "S",
+      "type": "boss",
+      "lat": -7.437971499290072,
+      "lng": 167.7026171626597,
+      "name": "深海南方任務部隊 本隊",
+      "meta": {}
+    },
+    {
+      "id": "Q",
+      "type": "relay",
+      "lat": -5.01116746593604,
+      "lng": 167.37270056806193,
+      "name": "気のせいだった。",
+      "meta": {}
+    },
+    {
+      "id": "R",
+      "type": "relay",
+      "lat": -9.302000285377346,
+      "lng": 167.83616504679816,
+      "name": "気のせいだった。",
+      "meta": {}
+    }
+  ],
+  "edges": [
+    {
+      "from": "Start",
+      "to": "A",
+      "arrow": false
+    },
+    {
+      "from": "Start",
+      "to": "B",
+      "arrow": false
+    },
+    {
+      "from": "A",
+      "to": "C",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "K",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "F",
+      "arrow": false
+    },
+    {
+      "from": "C",
+      "to": "E",
+      "arrow": false
+    },
+    {
+      "from": "D",
+      "to": "H",
+      "arrow": false
+    },
+    {
+      "from": "E",
+      "to": "H",
+      "arrow": false
+    },
+    {
+      "from": "E",
+      "to": "G",
+      "arrow": false
+    },
+    {
+      "from": "F",
+      "to": "D",
+      "arrow": true
+    },
+    {
+      "from": "F",
+      "to": "J",
+      "arrow": true
+    },
+    {
+      "from": "G",
+      "to": "I",
+      "arrow": false
+    },
+    {
+      "from": "H",
+      "to": "P",
+      "arrow": false
+    },
+    {
+      "from": "I",
+      "to": "M",
+      "arrow": false
+    },
+    {
+      "from": "I",
+      "to": "L",
+      "arrow": true
+    },
+    {
+      "from": "H",
+      "to": "L",
+      "arrow": true
+    },
+    {
+      "from": "J",
+      "to": "P",
+      "arrow": false
+    },
+    {
+      "from": "K",
+      "to": "P",
+      "arrow": false
+    },
+    {
+      "from": "H",
+      "to": "N",
+      "arrow": false
+    },
+    {
+      "from": "L",
+      "to": "N",
+      "arrow": true
+    },
+    {
+      "from": "M",
+      "to": "L",
+      "arrow": true
+    },
+    {
+      "from": "M",
+      "to": "O",
+      "arrow": false
+    },
+    {
+      "from": "N",
+      "to": "M",
+      "arrow": true
+    },
+    {
+      "from": "N",
+      "to": "O",
+      "arrow": true
+    },
+    {
+      "from": "O",
+      "to": "R",
+      "arrow": true
+    },
+    {
+      "from": "O",
+      "to": "S",
+      "arrow": true
+    },
+    {
+      "from": "P",
+      "to": "Q",
+      "arrow": true
+    },
+    {
+      "from": "P",
+      "to": "S",
+      "arrow": true
+    }
+  ]
+}

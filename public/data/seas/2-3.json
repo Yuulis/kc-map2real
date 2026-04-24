@@ -1,0 +1,229 @@
+{
+  "code": "2-3",
+  "name": "東部オリョール海",
+  "meta": {},
+  "nodes": [
+    {
+      "id": "D",
+      "type": "supply",
+      "lat": 18.574327636007382,
+      "lng": 120.71599862307454,
+      "name": "燃料 +15~45",
+      "meta": {}
+    },
+    {
+      "id": "I",
+      "type": "supply",
+      "lat": 18.40513303041257,
+      "lng": 121.91176292173958,
+      "name": "燃料 +15~45",
+      "meta": {}
+    },
+    {
+      "id": "G",
+      "type": "supply",
+      "lat": 19.165374123630883,
+      "lng": 121.63325774263598,
+      "name": "弾薬 +15~45",
+      "meta": {}
+    },
+    {
+      "id": "H",
+      "type": "supply",
+      "lat": 20.584045120902417,
+      "lng": 121.8003608500984,
+      "name": "弾薬 +35, 40",
+      "meta": {}
+    },
+    {
+      "id": "F",
+      "type": "normal",
+      "lat": 19.826088825857767,
+      "lng": 121.37796132845779,
+      "name": "敵水雷戦隊",
+      "meta": {}
+    },
+    {
+      "id": "E",
+      "type": "normal",
+      "lat": 20.86623444054372,
+      "lng": 120.94163654786189,
+      "name": "敵前衛警戒部隊",
+      "meta": {}
+    },
+    {
+      "id": "J",
+      "type": "normal",
+      "lat": 20.218780099008242,
+      "lng": 122.50826280563217,
+      "name": "敵巡洋艦戦隊",
+      "meta": {}
+    },
+    {
+      "id": "L",
+      "type": "relay",
+      "lat": 20.695549635101287,
+      "lng": 123.951040216855,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "C",
+      "type": "relay",
+      "lat": 20.08389623864973,
+      "lng": 119.41317599400116,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "B",
+      "type": "relay",
+      "lat": 20.566687670215927,
+      "lng": 119.07193818304825,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "A",
+      "type": "normal",
+      "lat": 19.16476881216029,
+      "lng": 118.13802417412359,
+      "name": "敵前衛警戒部隊",
+      "meta": {}
+    },
+    {
+      "id": "Start",
+      "type": "start",
+      "lat": 20.20192599337966,
+      "lng": 117.57528111746387,
+      "name": "Start",
+      "meta": {}
+    },
+    {
+      "id": "K",
+      "type": "normal",
+      "lat": 19.22696030428301,
+      "lng": 122.8554872448475,
+      "name": "敵巡洋艦戦隊",
+      "meta": {}
+    },
+    {
+      "id": "N",
+      "type": "boss",
+      "lat": 19.616531179994055,
+      "lng": 124.20247860392703,
+      "name": "敵主力打撃群",
+      "meta": {}
+    },
+    {
+      "id": "M",
+      "type": "normal",
+      "lat": 19.988283160007143,
+      "lng": 124.61555595402871,
+      "name": "敵揚陸艦隊",
+      "meta": {}
+    }
+  ],
+  "edges": [
+    {
+      "from": "Start",
+      "to": "A",
+      "arrow": false
+    },
+    {
+      "from": "Start",
+      "to": "B",
+      "arrow": false
+    },
+    {
+      "from": "Start",
+      "to": "C",
+      "arrow": false
+    },
+    {
+      "from": "A",
+      "to": "D",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "E",
+      "arrow": false
+    },
+    {
+      "from": "C",
+      "to": "D",
+      "arrow": false
+    },
+    {
+      "from": "C",
+      "to": "F",
+      "arrow": false
+    },
+    {
+      "from": "D",
+      "to": "F",
+      "arrow": false
+    },
+    {
+      "from": "D",
+      "to": "G",
+      "arrow": false
+    },
+    {
+      "from": "E",
+      "to": "F",
+      "arrow": false
+    },
+    {
+      "from": "F",
+      "to": "G",
+      "arrow": false
+    },
+    {
+      "from": "F",
+      "to": "H",
+      "arrow": true
+    },
+    {
+      "from": "F",
+      "to": "J",
+      "arrow": false
+    },
+    {
+      "from": "G",
+      "to": "I",
+      "arrow": false
+    },
+    {
+      "from": "G",
+      "to": "K",
+      "arrow": false
+    },
+    {
+      "from": "I",
+      "to": "K",
+      "arrow": false
+    },
+    {
+      "from": "J",
+      "to": "L",
+      "arrow": true
+    },
+    {
+      "from": "J",
+      "to": "M",
+      "arrow": true
+    },
+    {
+      "from": "J",
+      "to": "N",
+      "arrow": true
+    },
+    {
+      "from": "K",
+      "to": "N",
+      "arrow": true
+    }
+  ]
+}

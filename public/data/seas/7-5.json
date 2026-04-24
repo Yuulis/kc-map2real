@@ -1,0 +1,846 @@
+{
+  "code": "7-5",
+  "name": "ジャワ島沖",
+  "meta": {},
+  "nodes": [],
+  "edges": [
+    {
+      "from": "Start",
+      "to": "A",
+      "arrow": false
+    },
+    {
+      "from": "A",
+      "to": "B",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "C",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "D",
+      "arrow": false
+    },
+    {
+      "from": "C",
+      "to": "D",
+      "arrow": false
+    },
+    {
+      "from": "D",
+      "to": "F",
+      "arrow": false
+    },
+    {
+      "from": "D",
+      "to": "E",
+      "arrow": false
+    },
+    {
+      "from": "E",
+      "to": "F",
+      "arrow": false
+    },
+    {
+      "from": "F",
+      "to": "G",
+      "arrow": true
+    },
+    {
+      "from": "F",
+      "to": "J",
+      "arrow": true
+    },
+    {
+      "from": "G",
+      "to": "H",
+      "arrow": false
+    },
+    {
+      "from": "H",
+      "to": "I",
+      "arrow": true
+    },
+    {
+      "from": "H",
+      "to": "K",
+      "arrow": true
+    },
+    {
+      "from": "I",
+      "to": "L",
+      "arrow": false
+    },
+    {
+      "from": "I",
+      "to": "M",
+      "arrow": true
+    },
+    {
+      "from": "L",
+      "to": "M",
+      "arrow": true
+    },
+    {
+      "from": "J",
+      "to": "N",
+      "arrow": false
+    },
+    {
+      "from": "J",
+      "to": "O",
+      "arrow": false
+    },
+    {
+      "from": "N",
+      "to": "O",
+      "arrow": false
+    },
+    {
+      "from": "O",
+      "to": "P",
+      "arrow": true
+    },
+    {
+      "from": "O",
+      "to": "Q",
+      "arrow": true
+    },
+    {
+      "from": "P",
+      "to": "R",
+      "arrow": false
+    },
+    {
+      "from": "P",
+      "to": "T",
+      "arrow": true
+    },
+    {
+      "from": "P",
+      "to": "S",
+      "arrow": true
+    },
+    {
+      "from": "R",
+      "to": "T",
+      "arrow": true
+    }
+  ],
+  "submaps": [
+    {
+      "id": "1",
+      "name": "戦力ゲージ1",
+      "nodes": [
+        {
+          "id": "G",
+          "type": "normal",
+          "lat": -5.898494903631615,
+          "lng": 111.77300430760317,
+          "name": "深海連合混成艦隊 警戒隊",
+          "meta": {}
+        },
+        {
+          "id": "H",
+          "type": "relay",
+          "lat": -6.017824496944115,
+          "lng": 113.1963836497157,
+          "name": "【能動分岐】",
+          "meta": {}
+        },
+        {
+          "id": "I",
+          "type": "relay",
+          "lat": -6.222815994140319,
+          "lng": 114.5801256108067,
+          "name": "敵影を見ず。",
+          "meta": {}
+        },
+        {
+          "id": "D",
+          "type": "normal",
+          "lat": -4.771046227606604,
+          "lng": 114.85825022022192,
+          "name": "深海連合混成艦隊 前衛艦隊",
+          "meta": {}
+        },
+        {
+          "id": "B",
+          "type": "normal",
+          "lat": -4.365272354241739,
+          "lng": 117.23251748673806,
+          "name": "マカッサル海峡 深海哨戒群",
+          "meta": {}
+        },
+        {
+          "id": "C",
+          "type": "normal",
+          "lat": -5.713461819569801,
+          "lng": 116.99544085842655,
+          "name": "深海連合混成艦隊 駆逐隊",
+          "meta": {}
+        },
+        {
+          "id": "Start",
+          "type": "start",
+          "lat": -1.1074733097125034,
+          "lng": 118.44100293444205,
+          "name": "Start",
+          "meta": {}
+        },
+        {
+          "id": "A",
+          "type": "air-rade",
+          "lat": -3.251775511496106,
+          "lng": 117.73807577374339,
+          "name": "深海基地航空隊 ジャワ展開部隊",
+          "meta": {}
+        },
+        {
+          "id": "F",
+          "type": "relay",
+          "lat": -4.298243954359336,
+          "lng": 111.99596651754956,
+          "name": "【能動分岐】",
+          "meta": {}
+        },
+        {
+          "id": "J",
+          "type": "normal",
+          "lat": -4.1144388318081155,
+          "lng": 111.19336989506547,
+          "name": "深海連合混成艦隊 ジャワ防衛線",
+          "meta": {}
+        },
+        {
+          "id": "E",
+          "type": "normal",
+          "lat": -3.80682127046326,
+          "lng": 113.55713217285665,
+          "name": "深海連合混成艦隊 哨戒艇部隊",
+          "meta": {}
+        }
+      ],
+      "edges": [
+        {
+          "from": "Start",
+          "to": "A",
+          "arrow": false
+        },
+        {
+          "from": "A",
+          "to": "B",
+          "arrow": false
+        },
+        {
+          "from": "B",
+          "to": "C",
+          "arrow": false
+        },
+        {
+          "from": "B",
+          "to": "D",
+          "arrow": false
+        },
+        {
+          "from": "C",
+          "to": "D",
+          "arrow": false
+        },
+        {
+          "from": "D",
+          "to": "F",
+          "arrow": false
+        },
+        {
+          "from": "D",
+          "to": "E",
+          "arrow": false
+        },
+        {
+          "from": "E",
+          "to": "F",
+          "arrow": false
+        },
+        {
+          "from": "F",
+          "to": "G",
+          "arrow": true
+        },
+        {
+          "from": "F",
+          "to": "J",
+          "arrow": true
+        },
+        {
+          "from": "G",
+          "to": "H",
+          "arrow": false
+        },
+        {
+          "from": "H",
+          "to": "I",
+          "arrow": true
+        },
+        {
+          "from": "H",
+          "to": "K",
+          "arrow": true
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "name": "戦力ゲージ2",
+      "nodes": [
+        {
+          "id": "Q",
+          "type": "boss",
+          "lat": -6.539192417441512,
+          "lng": 111.03194065904972,
+          "name": "深海連合混成艦隊 クラガン陣地",
+          "meta": {}
+        },
+        {
+          "id": "G",
+          "type": "normal",
+          "lat": -5.898494903631615,
+          "lng": 111.77300430760317,
+          "name": "深海連合混成艦隊 警戒隊",
+          "meta": {}
+        },
+        {
+          "id": "K",
+          "type": "boss",
+          "lat": -5.414507979141874,
+          "lng": 113.8865616937805,
+          "name": "深海連合混成艦隊 主力艦隊",
+          "meta": {}
+        },
+        {
+          "id": "H",
+          "type": "relay",
+          "lat": -6.017824496944115,
+          "lng": 113.1963836497157,
+          "name": "【能動分岐】",
+          "meta": {}
+        },
+        {
+          "id": "I",
+          "type": "relay",
+          "lat": -6.222815994140319,
+          "lng": 114.5801256108067,
+          "name": "敵影を見ず。",
+          "meta": {}
+        },
+        {
+          "id": "M",
+          "type": "normal",
+          "lat": -6.80109016596829,
+          "lng": 116.45970064341634,
+          "name": "深海連合混成艦隊 脱出残存部隊",
+          "meta": {}
+        },
+        {
+          "id": "L",
+          "type": "normal",
+          "lat": -5.875853076074449,
+          "lng": 115.69609470758888,
+          "name": "深海連合混成艦隊 遊撃戦力",
+          "meta": {}
+        },
+        {
+          "id": "D",
+          "type": "normal",
+          "lat": -4.771046227606604,
+          "lng": 114.85825022022192,
+          "name": "深海連合混成艦隊 前衛艦隊",
+          "meta": {}
+        },
+        {
+          "id": "B",
+          "type": "normal",
+          "lat": -4.365272354241739,
+          "lng": 117.23251748673806,
+          "name": "マカッサル海峡 深海哨戒群",
+          "meta": {}
+        },
+        {
+          "id": "C",
+          "type": "normal",
+          "lat": -5.713461819569801,
+          "lng": 116.99544085842655,
+          "name": "深海連合混成艦隊 駆逐隊",
+          "meta": {}
+        },
+        {
+          "id": "Start",
+          "type": "start",
+          "lat": -1.1074733097125034,
+          "lng": 118.44100293444205,
+          "name": "Start",
+          "meta": {}
+        },
+        {
+          "id": "A",
+          "type": "air-rade",
+          "lat": -3.251775511496106,
+          "lng": 117.73807577374339,
+          "name": "深海基地航空隊 ジャワ展開部隊",
+          "meta": {}
+        },
+        {
+          "id": "F",
+          "type": "relay",
+          "lat": -4.298243954359336,
+          "lng": 111.99596651754956,
+          "name": "【能動分岐】",
+          "meta": {}
+        },
+        {
+          "id": "J",
+          "type": "normal",
+          "lat": -4.1144388318081155,
+          "lng": 111.19336989506547,
+          "name": "深海連合混成艦隊 ジャワ防衛線",
+          "meta": {}
+        },
+        {
+          "id": "O",
+          "type": "relay",
+          "lat": -4.956568949571036,
+          "lng": 111.16243842498687,
+          "name": "【能動分岐】",
+          "meta": {}
+        },
+        {
+          "id": "N",
+          "type": "normal",
+          "lat": -3.893269973580871,
+          "lng": 110.0728380543813,
+          "name": "深海潜水艦隊 ジャワ海哨戒群",
+          "meta": {}
+        },
+        {
+          "id": "P",
+          "type": "relay",
+          "lat": -4.574268016063684,
+          "lng": 109.52194727193017,
+          "name": "敵影を見ず。",
+          "meta": {}
+        },
+        {
+          "id": "E",
+          "type": "normal",
+          "lat": -3.80682127046326,
+          "lng": 113.55713217285665,
+          "name": "深海連合混成艦隊 哨戒艇部隊",
+          "meta": {}
+        }
+      ],
+      "edges": [
+        {
+          "from": "Start",
+          "to": "A",
+          "arrow": false
+        },
+        {
+          "from": "A",
+          "to": "B",
+          "arrow": false
+        },
+        {
+          "from": "B",
+          "to": "C",
+          "arrow": false
+        },
+        {
+          "from": "B",
+          "to": "D",
+          "arrow": false
+        },
+        {
+          "from": "C",
+          "to": "D",
+          "arrow": false
+        },
+        {
+          "from": "D",
+          "to": "F",
+          "arrow": false
+        },
+        {
+          "from": "D",
+          "to": "E",
+          "arrow": false
+        },
+        {
+          "from": "E",
+          "to": "F",
+          "arrow": false
+        },
+        {
+          "from": "F",
+          "to": "G",
+          "arrow": true
+        },
+        {
+          "from": "F",
+          "to": "J",
+          "arrow": true
+        },
+        {
+          "from": "G",
+          "to": "H",
+          "arrow": false
+        },
+        {
+          "from": "H",
+          "to": "I",
+          "arrow": true
+        },
+        {
+          "from": "H",
+          "to": "K",
+          "arrow": true
+        },
+        {
+          "from": "I",
+          "to": "L",
+          "arrow": false
+        },
+        {
+          "from": "I",
+          "to": "M",
+          "arrow": true
+        },
+        {
+          "from": "L",
+          "to": "M",
+          "arrow": true
+        },
+        {
+          "from": "J",
+          "to": "N",
+          "arrow": false
+        },
+        {
+          "from": "J",
+          "to": "O",
+          "arrow": false
+        },
+        {
+          "from": "N",
+          "to": "O",
+          "arrow": false
+        },
+        {
+          "from": "O",
+          "to": "P",
+          "arrow": true
+        },
+        {
+          "from": "O",
+          "to": "Q",
+          "arrow": true
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "name": "戦力ゲージ3",
+      "nodes": [
+        {
+          "id": "G",
+          "type": "normal",
+          "lat": -5.898494903631615,
+          "lng": 111.77300430760317,
+          "name": "深海連合混成艦隊 警戒隊",
+          "meta": {}
+        },
+        {
+          "id": "Q",
+          "type": "boss",
+          "lat": -6.539192417441512,
+          "lng": 111.03194065904972,
+          "name": "深海連合混成艦隊 クラガン陣地",
+          "meta": {}
+        },
+        {
+          "id": "H",
+          "type": "relay",
+          "lat": -6.017824496944115,
+          "lng": 113.1963836497157,
+          "name": "【能動分岐】",
+          "meta": {}
+        },
+        {
+          "id": "I",
+          "type": "relay",
+          "lat": -6.222815994140319,
+          "lng": 114.5801256108067,
+          "name": "敵影を見ず。",
+          "meta": {}
+        },
+        {
+          "id": "M",
+          "type": "normal",
+          "lat": -6.80109016596829,
+          "lng": 116.45970064341634,
+          "name": "深海連合混成艦隊 脱出残存部隊",
+          "meta": {}
+        },
+        {
+          "id": "L",
+          "type": "normal",
+          "lat": -5.875853076074449,
+          "lng": 115.69609470758888,
+          "name": "深海連合混成艦隊 遊撃戦力",
+          "meta": {}
+        },
+        {
+          "id": "D",
+          "type": "normal",
+          "lat": -4.771046227606604,
+          "lng": 114.85825022022192,
+          "name": "深海連合混成艦隊 前衛艦隊",
+          "meta": {}
+        },
+        {
+          "id": "B",
+          "type": "normal",
+          "lat": -4.365272354241739,
+          "lng": 117.23251748673806,
+          "name": "マカッサル海峡 深海哨戒群",
+          "meta": {}
+        },
+        {
+          "id": "C",
+          "type": "normal",
+          "lat": -5.713461819569801,
+          "lng": 116.99544085842655,
+          "name": "深海連合混成艦隊 駆逐隊",
+          "meta": {}
+        },
+        {
+          "id": "Start",
+          "type": "start",
+          "lat": -1.1074733097125034,
+          "lng": 118.44100293444205,
+          "name": "Start",
+          "meta": {}
+        },
+        {
+          "id": "A",
+          "type": "air-rade",
+          "lat": -3.251775511496106,
+          "lng": 117.73807577374339,
+          "name": "深海基地航空隊 ジャワ展開部隊",
+          "meta": {}
+        },
+        {
+          "id": "F",
+          "type": "relay",
+          "lat": -4.298243954359336,
+          "lng": 111.99596651754956,
+          "name": "【能動分岐】",
+          "meta": {}
+        },
+        {
+          "id": "J",
+          "type": "normal",
+          "lat": -4.1144388318081155,
+          "lng": 111.19336989506547,
+          "name": "深海連合混成艦隊 ジャワ防衛線",
+          "meta": {}
+        },
+        {
+          "id": "O",
+          "type": "relay",
+          "lat": -4.956568949571036,
+          "lng": 111.16243842498687,
+          "name": "【能動分岐】",
+          "meta": {}
+        },
+        {
+          "id": "N",
+          "type": "normal",
+          "lat": -3.893269973580871,
+          "lng": 110.0728380543813,
+          "name": "深海潜水艦隊 ジャワ海哨戒群",
+          "meta": {}
+        },
+        {
+          "id": "P",
+          "type": "relay",
+          "lat": -4.574268016063684,
+          "lng": 109.52194727193017,
+          "name": "敵影を見ず。",
+          "meta": {}
+        },
+        {
+          "id": "R",
+          "type": "normal",
+          "lat": -5.75996706113213,
+          "lng": 108.55650418103602,
+          "name": "深海連合混成艦隊 増援機動部隊",
+          "meta": {}
+        },
+        {
+          "id": "T",
+          "type": "boss",
+          "lat": -5.1573839132936,
+          "lng": 107.2652709359852,
+          "name": "深海連合混成艦隊 残存部隊旗艦",
+          "meta": {}
+        },
+        {
+          "id": "E",
+          "type": "normal",
+          "lat": -3.80682127046326,
+          "lng": 113.55713217285665,
+          "name": "深海連合混成艦隊 哨戒艇部隊",
+          "meta": {}
+        },
+        {
+          "id": "S",
+          "type": "relay",
+          "lat": -3.9833506322812013,
+          "lng": 107.79473447357623,
+          "name": "敵影を見ず。",
+          "meta": {}
+        }
+      ],
+      "edges": [
+        {
+          "from": "Start",
+          "to": "A",
+          "arrow": false
+        },
+        {
+          "from": "A",
+          "to": "B",
+          "arrow": false
+        },
+        {
+          "from": "B",
+          "to": "C",
+          "arrow": false
+        },
+        {
+          "from": "B",
+          "to": "D",
+          "arrow": false
+        },
+        {
+          "from": "C",
+          "to": "D",
+          "arrow": false
+        },
+        {
+          "from": "D",
+          "to": "F",
+          "arrow": false
+        },
+        {
+          "from": "D",
+          "to": "E",
+          "arrow": false
+        },
+        {
+          "from": "E",
+          "to": "F",
+          "arrow": false
+        },
+        {
+          "from": "F",
+          "to": "G",
+          "arrow": true
+        },
+        {
+          "from": "F",
+          "to": "J",
+          "arrow": true
+        },
+        {
+          "from": "G",
+          "to": "H",
+          "arrow": false
+        },
+        {
+          "from": "H",
+          "to": "I",
+          "arrow": true
+        },
+        {
+          "from": "H",
+          "to": "K",
+          "arrow": true
+        },
+        {
+          "from": "I",
+          "to": "L",
+          "arrow": false
+        },
+        {
+          "from": "I",
+          "to": "M",
+          "arrow": true
+        },
+        {
+          "from": "L",
+          "to": "M",
+          "arrow": true
+        },
+        {
+          "from": "J",
+          "to": "N",
+          "arrow": false
+        },
+        {
+          "from": "J",
+          "to": "O",
+          "arrow": false
+        },
+        {
+          "from": "N",
+          "to": "O",
+          "arrow": false
+        },
+        {
+          "from": "O",
+          "to": "P",
+          "arrow": true
+        },
+        {
+          "from": "O",
+          "to": "Q",
+          "arrow": true
+        },
+        {
+          "from": "P",
+          "to": "R",
+          "arrow": false
+        },
+        {
+          "from": "P",
+          "to": "T",
+          "arrow": true
+        },
+        {
+          "from": "P",
+          "to": "S",
+          "arrow": true
+        },
+        {
+          "from": "R",
+          "to": "T",
+          "arrow": true
+        }
+      ]
+    }
+  ]
+}

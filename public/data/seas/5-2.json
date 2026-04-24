@@ -1,0 +1,242 @@
+{
+  "code": "5-2",
+  "name": "珊瑚諸島沖",
+  "meta": {},
+  "nodes": [
+    {
+      "id": "G",
+      "type": "supply",
+      "lat": -8.819859997741446,
+      "lng": 158.09754036249524,
+      "name": "弾薬 +20~50",
+      "meta": {}
+    },
+    {
+      "id": "J",
+      "type": "supply",
+      "lat": -8.049845168446637,
+      "lng": 156.5831186812253,
+      "name": "ボーキサイト +40~80",
+      "meta": {}
+    },
+    {
+      "id": "D",
+      "type": "normal",
+      "lat": -11.189184268396886,
+      "lng": 160.71593298899052,
+      "name": "敵任務部隊 随伴部隊",
+      "meta": {}
+    },
+    {
+      "id": "E",
+      "type": "normal",
+      "lat": -12.278073631630932,
+      "lng": 160.13299378927246,
+      "name": "敵任務部隊 機動部隊",
+      "meta": {}
+    },
+    {
+      "id": "F",
+      "type": "normal",
+      "lat": -10.449581859499474,
+      "lng": 158.47058614166758,
+      "name": "敵任務部隊 機動部隊",
+      "meta": {}
+    },
+    {
+      "id": "H",
+      "type": "relay",
+      "lat": -10.050588488771979,
+      "lng": 156.96022797402776,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "A",
+      "type": "whirlpool",
+      "lat": -9.661095077987525,
+      "lng": 165.78923444392643,
+      "name": "司令官！うずしおが発生しました！",
+      "meta": {}
+    },
+    {
+      "id": "B",
+      "type": "relay",
+      "lat": -11.285779925112152,
+      "lng": 164.88707419614173,
+      "name": "これより戦場海域に突入す。艦隊、戦闘配置！",
+      "meta": {}
+    },
+    {
+      "id": "C",
+      "type": "air-rade",
+      "lat": -12.317689755818265,
+      "lng": 164.20791985230431,
+      "name": "敵任務部隊 機動部隊",
+      "meta": {}
+    },
+    {
+      "id": "N",
+      "type": "relay",
+      "lat": -9.356459610096437,
+      "lng": 153.91664211884256,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "L",
+      "type": "air-rade",
+      "lat": -9.005698920158352,
+      "lng": 154.76171130458954,
+      "name": "敵任務部隊 機動部隊",
+      "meta": {}
+    },
+    {
+      "id": "K",
+      "type": "normal",
+      "lat": -11.387267338696617,
+      "lng": 155.75082637427198,
+      "name": "敵任務部隊 随伴護衛戦隊",
+      "meta": {}
+    },
+    {
+      "id": "I",
+      "type": "aerial",
+      "lat": -10.708665387004316,
+      "lng": 156.45184967608594,
+      "name": "敵任務部隊 機動部隊本隊",
+      "meta": {}
+    },
+    {
+      "id": "O",
+      "type": "boss",
+      "lat": -12.711434684578336,
+      "lng": 157.05684238861045,
+      "name": "敵任務部隊 機動部隊本隊",
+      "meta": {}
+    },
+    {
+      "id": "M",
+      "type": "whirlpool",
+      "lat": -10.689793161949979,
+      "lng": 154.50242871350866,
+      "name": "司令官！うずしおが発生しました！",
+      "meta": {}
+    },
+    {
+      "id": "Start",
+      "type": "start",
+      "lat": -8.132088278132827,
+      "lng": 162.57860127275706,
+      "name": "Start",
+      "meta": {}
+    }
+  ],
+  "edges": [
+    {
+      "from": "Start",
+      "to": "A",
+      "arrow": false
+    },
+    {
+      "from": "Start",
+      "to": "B",
+      "arrow": false
+    },
+    {
+      "from": "A",
+      "to": "B",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "C",
+      "arrow": false
+    },
+    {
+      "from": "C",
+      "to": "D",
+      "arrow": false
+    },
+    {
+      "from": "C",
+      "to": "E",
+      "arrow": false
+    },
+    {
+      "from": "D",
+      "to": "G",
+      "arrow": false
+    },
+    {
+      "from": "D",
+      "to": "F",
+      "arrow": false
+    },
+    {
+      "from": "E",
+      "to": "F",
+      "arrow": false
+    },
+    {
+      "from": "F",
+      "to": "I",
+      "arrow": false
+    },
+    {
+      "from": "F",
+      "to": "H",
+      "arrow": true
+    },
+    {
+      "from": "F",
+      "to": "O",
+      "arrow": true
+    },
+    {
+      "from": "G",
+      "to": "J",
+      "arrow": false
+    },
+    {
+      "from": "G",
+      "to": "L",
+      "arrow": false
+    },
+    {
+      "from": "I",
+      "to": "O",
+      "arrow": true
+    },
+    {
+      "from": "J",
+      "to": "L",
+      "arrow": false
+    },
+    {
+      "from": "K",
+      "to": "O",
+      "arrow": true
+    },
+    {
+      "from": "L",
+      "to": "K",
+      "arrow": false
+    },
+    {
+      "from": "L",
+      "to": "M",
+      "arrow": false
+    },
+    {
+      "from": "L",
+      "to": "N",
+      "arrow": true
+    },
+    {
+      "from": "M",
+      "to": "K",
+      "arrow": false
+    }
+  ]
+}

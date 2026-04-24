@@ -1,0 +1,180 @@
+{
+  "code": "3-5",
+  "name": "北方AL海域",
+  "meta": {},
+  "nodes": [
+    {
+      "id": "Start",
+      "type": "start",
+      "lat": 51.274187329678,
+      "lng": -177.98321355828392,
+      "name": "Start",
+      "meta": {}
+    },
+    {
+      "id": "B",
+      "type": "normal",
+      "lat": 53.25659649696195,
+      "lng": -176.77475688794715,
+      "name": "北方前衛警戒部隊",
+      "meta": {}
+    },
+    {
+      "id": "C",
+      "type": "relay",
+      "lat": 51.74542053907655,
+      "lng": -175.29935136068715,
+      "name": "気のせいだった。",
+      "meta": {}
+    },
+    {
+      "id": "E",
+      "type": "normal",
+      "lat": 52.569237465468944,
+      "lng": -173.2508007395366,
+      "name": "北方遊撃部隊",
+      "meta": {}
+    },
+    {
+      "id": "F",
+      "type": "normal",
+      "lat": 51.399517073639515,
+      "lng": -172.44253732062108,
+      "name": "北方増援部隊前衛A",
+      "meta": {}
+    },
+    {
+      "id": "A",
+      "type": "relay",
+      "lat": 52.88739792173317,
+      "lng": -179.35318955234877,
+      "name": "気のせいだった。",
+      "meta": {}
+    },
+    {
+      "id": "D",
+      "type": "normal",
+      "lat": 54.03618944584761,
+      "lng": -174.16009708581655,
+      "name": "北方派遣任務部隊",
+      "meta": {}
+    },
+    {
+      "id": "H",
+      "type": "normal",
+      "lat": 53.82203775919754,
+      "lng": -167.69398973449245,
+      "name": "北方AL泊地",
+      "meta": {}
+    },
+    {
+      "id": "G",
+      "type": "normal",
+      "lat": 52.168266442288,
+      "lng": -168.19915437131465,
+      "name": "北方増援部隊前衛B",
+      "meta": {}
+    },
+    {
+      "id": "J",
+      "type": "supply",
+      "lat": 54.52937960594923,
+      "lng": -165.10213124833038,
+      "name": "弾薬 +50",
+      "meta": {}
+    },
+    {
+      "id": "K",
+      "type": "boss",
+      "lat": 53.43666732604868,
+      "lng": -164.6095406026045,
+      "name": "北方増援部隊主力",
+      "meta": {}
+    },
+    {
+      "id": "I",
+      "type": "relay",
+      "lat": 51.94400340794317,
+      "lng": -165.214083667814,
+      "name": "気のせいだった。",
+      "meta": {}
+    }
+  ],
+  "edges": [
+    {
+      "from": "Start",
+      "to": "B",
+      "arrow": false
+    },
+    {
+      "from": "Start",
+      "to": "F",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "A",
+      "arrow": true
+    },
+    {
+      "from": "B",
+      "to": "C",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "D",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "E",
+      "arrow": false
+    },
+    {
+      "from": "C",
+      "to": "F",
+      "arrow": false
+    },
+    {
+      "from": "D",
+      "to": "H",
+      "arrow": false
+    },
+    {
+      "from": "E",
+      "to": "F",
+      "arrow": false
+    },
+    {
+      "from": "E",
+      "to": "H",
+      "arrow": false
+    },
+    {
+      "from": "F",
+      "to": "G",
+      "arrow": false
+    },
+    {
+      "from": "G",
+      "to": "K",
+      "arrow": true
+    },
+    {
+      "from": "G",
+      "to": "I",
+      "arrow": true
+    },
+    {
+      "from": "H",
+      "to": "J",
+      "arrow": true
+    },
+    {
+      "from": "H",
+      "to": "K",
+      "arrow": true
+    }
+  ]
+}
