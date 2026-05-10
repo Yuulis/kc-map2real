@@ -155,6 +155,14 @@ export default function Home() {
   const [pins, setPins] = useState<
     Array<{ id: string; lat: number; lng: number; num: number }>
   >([]);
+  const [selectedPin, setSelectedPin] = useState<{
+    id: string;
+    lat: number;
+    lng: number;
+    num: number;
+  } | null>(null);
+  const [editPinLat, setEditPinLat] = useState<number>(0);
+  const [editPinLng, setEditPinLng] = useState<number>(0);
   // Edit mode (independent of pin mode)
   const [editMode, setEditMode] = useState(false);
   // Sub-map selection: maps seaCode -> selected submap id (null = default edges)
@@ -1189,7 +1197,9 @@ export default function Home() {
               title={`#${p.num} lat: ${p.lat.toFixed(6)}, lng: ${p.lng.toFixed(6)}`}
               onClick={(e) => {
                 e.stopPropagation();
-                setPins((prev) => prev.filter((pin) => pin.id !== p.id));
+                setSelectedPin(p);
+                setEditPinLat(p.lat);
+                setEditPinLng(p.lng);
               }}
               style={{
                 width: 24,
@@ -1214,6 +1224,116 @@ export default function Home() {
           </Marker>
         ))}
       </Map>
+
+      {selectedPin !== null && (
+        <Paper
+          elevation={4}
+          sx={{
+            position: "fixed",
+            left: "50%",
+            top: "50%",
+            transform: "translate(-50%, -50%)",
+            zIndex: 1000,
+            backgroundColor: "#1e1e2e",
+            color: "#fff",
+            p: 2,
+            borderRadius: 2,
+            minWidth: 240,
+            border: "1px solid rgba(255,255,255,0.12)",
+          }}
+        >
+          <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700 }}>
+            Pin #{selectedPin.num}
+          </Typography>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mb: 2 }}>
+            <Box>
+              <Typography variant="caption" sx={{ color: "#9ca3af", display: "block", mb: 0.5 }}>
+                Latitude
+              </Typography>
+              <input
+                type="number"
+                step="any"
+                value={editPinLat}
+                onChange={(e) => setEditPinLat(parseFloat(e.target.value) || 0)}
+                style={{
+                  width: "100%",
+                  background: "#2a2a3e",
+                  border: "1px solid #4b5563",
+                  borderRadius: 4,
+                  padding: "6px 10px",
+                  color: "#fff",
+                  fontSize: 13,
+                  fontFamily: "monospace",
+                  outline: "none",
+                  boxSizing: "border-box",
+                }}
+              />
+            </Box>
+            <Box>
+              <Typography variant="caption" sx={{ color: "#9ca3af", display: "block", mb: 0.5 }}>
+                Longitude
+              </Typography>
+              <input
+                type="number"
+                step="any"
+                value={editPinLng}
+                onChange={(e) => setEditPinLng(parseFloat(e.target.value) || 0)}
+                style={{
+                  width: "100%",
+                  background: "#2a2a3e",
+                  border: "1px solid #4b5563",
+                  borderRadius: 4,
+                  padding: "6px 10px",
+                  color: "#fff",
+                  fontSize: 13,
+                  fontFamily: "monospace",
+                  outline: "none",
+                  boxSizing: "border-box",
+                }}
+              />
+            </Box>
+          </Box>
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <Button
+              size="small"
+              variant="contained"
+              sx={{ flex: 1, fontSize: 12 }}
+              onClick={() => {
+                setPins((prev) =>
+                  prev.map((pin) =>
+                    pin.id === selectedPin.id
+                      ? { ...pin, lat: editPinLat, lng: editPinLng }
+                      : pin
+                  )
+                );
+                setSelectedPin(null);
+              }}
+            >
+              Save
+            </Button>
+            <Button
+              size="small"
+              variant="outlined"
+              color="error"
+              sx={{ flex: 1, fontSize: 12 }}
+              onClick={() => {
+                setPins((prev) => prev.filter((pin) => pin.id !== selectedPin.id));
+                setSelectedPin(null);
+              }}
+            >
+              Delete
+            </Button>
+            <Button
+              size="small"
+              variant="text"
+              sx={{ flex: 1, fontSize: 12, color: "#9ca3af" }}
+              onClick={() => setSelectedPin(null)}
+            >
+              Cancel
+            </Button>
+          </Box>
+        </Paper>
+      )}
 
       {/* Cursor coordinate tooltip when pin mode is ON */}
       {pinMode && cursorCoord !== null && (

@@ -274,7 +274,6 @@ export default function NodeEditDialog({
                   step="any"
                   value={nodeLat}
                   onChange={(e) => setNodeLat(parseFloat(e.target.value) || 0)}
-                  readOnly={mode === "add"}
                   className="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm font-mono focus:outline-none focus:border-blue-500 read-only:opacity-60"
                 />
               </div>
@@ -291,7 +290,6 @@ export default function NodeEditDialog({
                   step="any"
                   value={nodeLng}
                   onChange={(e) => setNodeLng(parseFloat(e.target.value) || 0)}
-                  readOnly={mode === "add"}
                   className="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm font-mono focus:outline-none focus:border-blue-500 read-only:opacity-60"
                 />
               </div>
