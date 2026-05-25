@@ -2,6 +2,169 @@
   "code": "6-1",
   "name": "中部海域哨戒線",
   "meta": {},
-  "nodes": [],
-  "edges": []
+  "nodes": [
+    {
+      "id": "K",
+      "type": "boss",
+      "lat": 3,
+      "lng": 172.3,
+      "name": "敵回航中空母",
+      "meta": {}
+    },
+    {
+      "id": "Start",
+      "type": "start",
+      "lat": 3.2559577929638266,
+      "lng": 167.322274251002,
+      "name": "Start",
+      "meta": {}
+    },
+    {
+      "id": "A",
+      "type": "relay",
+      "lat": 3.8323944180575467,
+      "lng": 168.3925968215841,
+      "name": "気のせいだった。",
+      "meta": {}
+    },
+    {
+      "id": "D",
+      "type": "normal",
+      "lat": 4.349493073913536,
+      "lng": 169.46931804390442,
+      "name": "中部海域哨戒戦 D地点",
+      "meta": {}
+    },
+    {
+      "id": "F",
+      "type": "normal",
+      "lat": 3.646690771587828,
+      "lng": 169.9212751001865,
+      "name": "中部海域哨戒戦 F地点",
+      "meta": {}
+    },
+    {
+      "id": "G",
+      "type": "relay",
+      "lat": 2.750830237717196,
+      "lng": 170.466282138645,
+      "name": "気のせいだった。",
+      "meta": {}
+    },
+    {
+      "id": "H",
+      "type": "normal",
+      "lat": 1.9672226040566443,
+      "lng": 170.8850070584366,
+      "name": "中部海域哨戒戦 H地点",
+      "meta": {}
+    },
+    {
+      "id": "E",
+      "type": "relay",
+      "lat": 2.3457999574670367,
+      "lng": 169.4959037530964,
+      "name": "気のせいだった。",
+      "meta": {}
+    },
+    {
+      "id": "C",
+      "type": "normal",
+      "lat": 3.0893574031288296,
+      "lng": 168.98412885113004,
+      "name": "中部海域 敵遊撃部隊",
+      "meta": {}
+    },
+    {
+      "id": "B",
+      "type": "relay",
+      "lat": 2.119993158865256,
+      "lng": 168.53217179484795,
+      "name": "気のせいだった。",
+      "meta": {}
+    },
+    {
+      "id": "I",
+      "type": "normal",
+      "lat": 4.230192574518725,
+      "lng": 170.9847034679098,
+      "name": "敵機動部隊",
+      "meta": {}
+    },
+    {
+      "id": "J",
+      "type": "normal",
+      "lat": 1.9672226040566443,
+      "lng": 172.16776752700343,
+      "name": "中部海域 敵輸送船団",
+      "meta": {}
+    }
+  ],
+  "edges": [
+    {
+      "from": "Start",
+      "to": "A",
+      "arrow": false
+    },
+    {
+      "from": "Start",
+      "to": "B",
+      "arrow": true
+    },
+    {
+      "from": "Start",
+      "to": "C",
+      "arrow": false
+    },
+    {
+      "from": "A",
+      "to": "D",
+      "arrow": false
+    },
+    {
+      "from": "A",
+      "to": "F",
+      "arrow": false
+    },
+    {
+      "from": "C",
+      "to": "F",
+      "arrow": false
+    },
+    {
+      "from": "D",
+      "to": "F",
+      "arrow": false
+    },
+    {
+      "from": "F",
+      "to": "G",
+      "arrow": false
+    },
+    {
+      "from": "G",
+      "to": "E",
+      "arrow": true
+    },
+    {
+      "from": "G",
+      "to": "H",
+      "arrow": false
+    },
+    {
+      "from": "G",
+      "to": "I",
+      "arrow": true
+    },
+    {
+      "from": "H",
+      "to": "J",
+      "arrow": true
+    },
+    {
+      "from": "H",
+      "to": "K",
+      "arrow": true
+    }
+  ]
 }
