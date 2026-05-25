@@ -12,10 +12,11 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import { Settings, X, Map, History, Link2, Info } from "lucide-react";
+import { Settings, X, Map, History, Link2, Info, NotebookPen } from "lucide-react";
 import { Toaster, toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 import Tooltip from "@mui/material/Tooltip";
+import SeaNotesDialog from "./SeaNotesDialog";
 
 type SeaInfo = {
   code: string;
@@ -60,6 +61,9 @@ export default function Header() {
 
   // Map selector dialog state
   const [mapSelectorOpen, setMapSelectorOpen] = useState(false);
+
+  // Sea notes dialog state
+  const [notesOpen, setNotesOpen] = useState(false);
 
   // Full group data including submaps (loaded from maps.json)
   const [groupData, setGroupData] = useState<GroupInfo[]>([]);
@@ -274,6 +278,15 @@ export default function Header() {
                 </Tooltip>
               );
             })}
+            <Tooltip title="海域考察" placement="bottom">
+              <IconButton
+                size="small"
+                onClick={() => setNotesOpen(true)}
+                sx={{ color: "#9ca3af", "&:hover": { color: "#fff" } }}
+              >
+                <NotebookPen size={18} />
+              </IconButton>
+            </Tooltip>
             <Tooltip title="設定" placement="bottom">
               <IconButton
                 edge="end"
@@ -751,6 +764,13 @@ export default function Header() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Sea notes Dialog */}
+      <SeaNotesDialog
+        open={notesOpen}
+        onClose={() => setNotesOpen(false)}
+        groupData={groupData}
+      />
     </>
   );
 }

@@ -196,16 +196,21 @@ export default function Home() {
   // Contribution mode state (client-side only, no API writes)
   const [contributionMode, setContributionMode] = useState(false);
   const [contributionData, setContributionData] = useState<MapSea | null>(null);
-  const [selectedStyleId, setSelectedStyleId] = useState<MapStyleId>(() => {
-    if (typeof window === "undefined") return "ocean";
+  const [selectedStyleId, setSelectedStyleId] = useState<MapStyleId>("ocean");
+  const [isStyleLoaded, setIsStyleLoaded] = useState(false);
+
+  useEffect(() => {
     try {
       const stored = localStorage.getItem("kc-map-style");
       if (stored && MAP_STYLES.some((s) => s.id === stored)) {
-        return stored as MapStyleId;
+        setSelectedStyleId(stored as MapStyleId);
       }
-    } catch { /* ignore */ }
-    return "ocean";
-  });
+    } catch {
+      /* ignore */
+    }
+    setIsStyleLoaded(true);
+  }, []);
+
   const [layerSwitcherOpen, setLayerSwitcherOpen] = useState(false);
   // Feature 1: Persisted map view state (read once before mount)
   const initialViewState = useMemo(() => {
@@ -346,10 +351,13 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    if (!isStyleLoaded) return;
     try {
       localStorage.setItem("kc-map-style", selectedStyleId);
-    } catch { /* ignore */ }
-  }, [selectedStyleId]);
+    } catch {
+      /* ignore */
+    }
+  }, [selectedStyleId, isStyleLoaded]);
 
   // Listen for dev tools toggle events from the header
   useEffect(() => {
