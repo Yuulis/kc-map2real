@@ -11,7 +11,7 @@ import type { Feature, FeatureCollection, LineString, Point } from "geojson";
 import type { ExpressionSpecification, MapLayerMouseEvent } from "maplibre-gl";
 
 import { toast } from "sonner";
-import { Pencil, MapIcon, GitPullRequest } from "lucide-react";
+import { Pencil, MapIcon, GitPullRequest, Layers } from "lucide-react";
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -26,6 +26,16 @@ import type { MapsData, MapNode, MapEdge, MapSea } from "@/app/types/maps";
 import NodeEditDialog from "@/app/components/NodeEditDialog";
 import SeaManagerDialog from "@/app/components/SeaManagerDialog";
 import ContributionPanel from "@/app/components/ContributionPanel";
+
+const MAP_STYLES = [
+  { id: "ocean",         label: "Ocean (航海図)",     maptiler: "ocean" },
+  { id: "streets",       label: "Streets (標準)",      maptiler: "streets" },
+  { id: "openstreetmap", label: "OpenStreetMap",        maptiler: "openstreetmap" },
+  { id: "satellite",     label: "Satellite (衛星)",    maptiler: "satellite" },
+  { id: "topo",          label: "Topo (地形図)",       maptiler: "topo" },
+] as const;
+
+type MapStyleId = (typeof MAP_STYLES)[number]["id"];
 
 // Internal view-layer types derived from MapsData
 type Node = MapNode;
@@ -186,6 +196,17 @@ export default function Home() {
   // Contribution mode state (client-side only, no API writes)
   const [contributionMode, setContributionMode] = useState(false);
   const [contributionData, setContributionData] = useState<MapSea | null>(null);
+  const [selectedStyleId, setSelectedStyleId] = useState<MapStyleId>(() => {
+    if (typeof window === "undefined") return "ocean";
+    try {
+      const stored = localStorage.getItem("kc-map-style");
+      if (stored && MAP_STYLES.some((s) => s.id === stored)) {
+        return stored as MapStyleId;
+      }
+    } catch { /* ignore */ }
+    return "ocean";
+  });
+  const [layerSwitcherOpen, setLayerSwitcherOpen] = useState(false);
   // Feature 1: Persisted map view state (read once before mount)
   const initialViewState = useMemo(() => {
     if (typeof window === "undefined") {
@@ -248,8 +269,9 @@ export default function Home() {
       }
       return "https://demotiles.maplibre.org/style.json";
     }
-    return `https://api.maptiler.com/maps/streets/style.json?key=${MAPTILER_KEY}`;
-  }, [MAPTILER_KEY, isProd]);
+    const style = MAP_STYLES.find((s) => s.id === selectedStyleId) ?? MAP_STYLES[0];
+    return `https://api.maptiler.com/maps/${style.maptiler}/style.json?key=${MAPTILER_KEY}`;
+  }, [MAPTILER_KEY, isProd, selectedStyleId]);
 
   // Helper to load/reload map data from maps.json
   const loadMapData = useCallback(() => {
@@ -322,6 +344,12 @@ export default function Home() {
       // Ignore storage errors
     }
   }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("kc-map-style", selectedStyleId);
+    } catch { /* ignore */ }
+  }, [selectedStyleId]);
 
   // Listen for dev tools toggle events from the header
   useEffect(() => {
@@ -1926,6 +1954,70 @@ export default function Home() {
         mapsData={fullMapsData}
         onDataChanged={loadMapData}
       />
+
+      {/* Layer switcher panel (bottom-left) */}
+      <Paper
+        elevation={4}
+        sx={{
+          position: "fixed",
+          left: 12,
+          bottom: 12,
+          zIndex: 60,
+          backgroundColor: "rgba(0,0,0,0.85)",
+          color: "#fff",
+          borderRadius: 2,
+          userSelect: "none",
+          minWidth: 0,
+        }}
+      >
+        <Button
+          size="small"
+          onClick={() => setLayerSwitcherOpen((prev) => !prev)}
+          startIcon={<Layers size={14} />}
+          sx={{
+            color: "#fff",
+            fontSize: 11,
+            fontWeight: 600,
+            textTransform: "none",
+            px: 1.25,
+            py: 0.5,
+            minWidth: 0,
+            "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
+          }}
+        >
+          {MAP_STYLES.find((s) => s.id === selectedStyleId)?.label ?? "Ocean (航海図)"} {layerSwitcherOpen ? "▲" : "▼"}
+        </Button>
+        {layerSwitcherOpen && (
+          <Box sx={{ px: 0.5, pb: 0.5 }}>
+            {MAP_STYLES.map((s) => (
+              <Button
+                key={s.id}
+                size="small"
+                onClick={() => {
+                  setSelectedStyleId(s.id);
+                  setLayerSwitcherOpen(false);
+                }}
+                sx={{
+                  display: "flex",
+                  justifyContent: "flex-start",
+                  width: "100%",
+                  color: "#fff",
+                  fontSize: 11,
+                  fontWeight: selectedStyleId === s.id ? 700 : 400,
+                  textTransform: "none",
+                  px: 1,
+                  py: 0.25,
+                  minWidth: 0,
+                  backgroundColor: selectedStyleId === s.id ? "rgba(59,130,246,0.3)" : "transparent",
+                  "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
+                }}
+              >
+                {selectedStyleId === s.id ? "● " : "○ "}{s.label}
+              </Button>
+            ))}
+          </Box>
+        )}
+      </Paper>
     </main>
   );
 }
