@@ -1,0 +1,1367 @@
+{
+  "code": "5-6",
+  "name": "ラバウル方面海域",
+  "meta": {},
+  "nodes": [],
+  "edges": [
+    {
+      "from": "Start_1",
+      "to": "A",
+      "arrow": false
+    },
+    {
+      "from": "Start_1",
+      "to": "A1",
+      "arrow": false
+    },
+    {
+      "from": "Start_1",
+      "to": "A2",
+      "arrow": false
+    },
+    {
+      "from": "A",
+      "to": "B",
+      "arrow": false
+    },
+    {
+      "from": "A",
+      "to": "C2",
+      "arrow": false
+    },
+    {
+      "from": "A1",
+      "to": "A2",
+      "arrow": false
+    },
+    {
+      "from": "A2",
+      "to": "B",
+      "arrow": false
+    },
+    {
+      "from": "A2",
+      "to": "C",
+      "arrow": true
+    },
+    {
+      "from": "B",
+      "to": "C",
+      "arrow": true
+    },
+    {
+      "from": "B",
+      "to": "C1",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "C2",
+      "arrow": false
+    },
+    {
+      "from": "C1",
+      "to": "C",
+      "arrow": true
+    },
+    {
+      "from": "C1",
+      "to": "C2",
+      "arrow": false
+    },
+    {
+      "from": "C2",
+      "to": "D",
+      "arrow": false
+    },
+    {
+      "from": "D",
+      "to": "E",
+      "arrow": false
+    },
+    {
+      "from": "E",
+      "to": "F",
+      "arrow": true
+    },
+    {
+      "from": "E",
+      "to": "G",
+      "arrow": true
+    },
+    {
+      "from": "C",
+      "to": "H",
+      "arrow": false
+    },
+    {
+      "from": "H",
+      "to": "R",
+      "arrow": true
+    },
+    {
+      "from": "Start_2",
+      "to": "I",
+      "arrow": false
+    },
+    {
+      "from": "I",
+      "to": "J",
+      "arrow": false
+    },
+    {
+      "from": "I",
+      "to": "O",
+      "arrow": false
+    },
+    {
+      "from": "J",
+      "to": "K",
+      "arrow": false
+    },
+    {
+      "from": "J",
+      "to": "K1",
+      "arrow": false
+    },
+    {
+      "from": "K1",
+      "to": "K",
+      "arrow": false
+    },
+    {
+      "from": "K",
+      "to": "K2",
+      "arrow": false
+    },
+    {
+      "from": "K",
+      "to": "L",
+      "arrow": false
+    },
+    {
+      "from": "K2",
+      "to": "L",
+      "arrow": false
+    },
+    {
+      "from": "L",
+      "to": "M",
+      "arrow": true
+    },
+    {
+      "from": "L",
+      "to": "N",
+      "arrow": true
+    },
+    {
+      "from": "O",
+      "to": "P",
+      "arrow": false
+    },
+    {
+      "from": "O",
+      "to": "Q",
+      "arrow": false
+    },
+    {
+      "from": "P",
+      "to": "Q1",
+      "arrow": true
+    },
+    {
+      "from": "Q",
+      "to": "Q2",
+      "arrow": true
+    },
+    {
+      "from": "Q",
+      "to": "U",
+      "arrow": false
+    },
+    {
+      "from": "Q",
+      "to": "W",
+      "arrow": false
+    },
+    {
+      "from": "Q1",
+      "to": "Q2",
+      "arrow": true
+    },
+    {
+      "from": "Q1",
+      "to": "S",
+      "arrow": true
+    },
+    {
+      "from": "Q1",
+      "to": "T",
+      "arrow": true
+    },
+    {
+      "from": "Q2",
+      "to": "T",
+      "arrow": true
+    },
+    {
+      "from": "Q2",
+      "to": "V",
+      "arrow": false
+    },
+    {
+      "from": "U",
+      "to": "X",
+      "arrow": false
+    },
+    {
+      "from": "V",
+      "to": "W",
+      "arrow": false
+    },
+    {
+      "from": "V",
+      "to": "X",
+      "arrow": false
+    },
+    {
+      "from": "W",
+      "to": "X",
+      "arrow": false
+    },
+    {
+      "from": "X",
+      "to": "Y",
+      "arrow": true
+    },
+    {
+      "from": "X",
+      "to": "Z",
+      "arrow": true
+    }
+  ],
+  "submaps": [
+    {
+      "id": "1",
+      "name": "輸送ゲージ1",
+      "nodes": [
+        {
+          "id": "E",
+          "type": "supply",
+          "lat": -6.809097813788441,
+          "lng": 147.30416365245878,
+          "name": "輸送物資の揚陸地点に到達しました。",
+          "meta": {}
+        },
+        {
+          "id": "C2",
+          "type": "normal",
+          "lat": -5.480963693102282,
+          "lng": 147.49499795570142,
+          "name": "深海南方根拠地隊 水雷艇集団",
+          "meta": {}
+        },
+        {
+          "id": "C1",
+          "type": "air-rade",
+          "lat": -4.754216697924107,
+          "lng": 149.36966434638924,
+          "name": "深海南方方面 基地航空隊",
+          "meta": {}
+        },
+        {
+          "id": "C",
+          "type": "air-rade",
+          "lat": -3.5428525448789827,
+          "lng": 149.83905172003637,
+          "name": "深海南方方面 基地航空隊",
+          "meta": {}
+        },
+        {
+          "id": "B",
+          "type": "normal",
+          "lat": -4.389806710325246,
+          "lng": 148.44605363061993,
+          "name": "深海南方潜水艦隊 前方哨戒線",
+          "meta": {}
+        },
+        {
+          "id": "A",
+          "type": "normal",
+          "lat": -4.218411913149552,
+          "lng": 147.17844154614943,
+          "name": "深海南方部隊 前方遊撃哨戒群",
+          "meta": {}
+        },
+        {
+          "id": "Start_1",
+          "type": "start",
+          "lat": -2.8782074971420997,
+          "lng": 146.85616728738626,
+          "name": "Start_1",
+          "meta": {}
+        },
+        {
+          "id": "A2",
+          "type": "normal",
+          "lat": -3.146398054304342,
+          "lng": 148.01635461893574,
+          "name": "深海南方方面 先遣偵察戦隊 II群",
+          "meta": {}
+        },
+        {
+          "id": "A1",
+          "type": "normal",
+          "lat": -2.4597063578853238,
+          "lng": 147.79076263780127,
+          "name": "深海南方部隊 前方遊撃哨戒群",
+          "meta": {}
+        },
+        {
+          "id": "D",
+          "type": "air-rade",
+          "lat": -6.576317637395093,
+          "lng": 148.42646600654956,
+          "name": "深海南方方面 基地航空隊",
+          "meta": {}
+        },
+        {
+          "id": "G",
+          "type": "boss",
+          "lat": -7.844469102090116,
+          "lng": 148.76807717076696,
+          "name": "深海南方艦隊 ラエ増援阻止集団",
+          "meta": {}
+        },
+        {
+          "id": "F",
+          "type": "relay",
+          "lat": -7.079627666615039,
+          "lng": 149.35212206442804,
+          "name": "敵影を見ず。",
+          "meta": {}
+        }
+      ],
+      "edges": [
+        {
+          "from": "Start_1",
+          "to": "A",
+          "arrow": false
+        },
+        {
+          "from": "Start_1",
+          "to": "A2",
+          "arrow": false
+        },
+        {
+          "from": "Start_1",
+          "to": "A1",
+          "arrow": false
+        },
+        {
+          "from": "A",
+          "to": "B",
+          "arrow": false
+        },
+        {
+          "from": "A",
+          "to": "C2",
+          "arrow": false
+        },
+        {
+          "from": "A1",
+          "to": "A2",
+          "arrow": false
+        },
+        {
+          "from": "A2",
+          "to": "B",
+          "arrow": false
+        },
+        {
+          "from": "A2",
+          "to": "C",
+          "arrow": true
+        },
+        {
+          "from": "B",
+          "to": "C",
+          "arrow": true
+        },
+        {
+          "from": "B",
+          "to": "C1",
+          "arrow": false
+        },
+        {
+          "from": "B",
+          "to": "C2",
+          "arrow": false
+        },
+        {
+          "from": "C1",
+          "to": "C",
+          "arrow": true
+        },
+        {
+          "from": "C1",
+          "to": "C2",
+          "arrow": false
+        },
+        {
+          "from": "C2",
+          "to": "D",
+          "arrow": false
+        },
+        {
+          "from": "D",
+          "to": "E",
+          "arrow": false
+        },
+        {
+          "from": "E",
+          "to": "F",
+          "arrow": true
+        },
+        {
+          "from": "E",
+          "to": "G",
+          "arrow": true
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "name": "戦力ゲージ1",
+      "nodes": [
+        {
+          "id": "E",
+          "type": "supply",
+          "lat": -6.809097813788441,
+          "lng": 147.30416365245878,
+          "name": "輸送物資の揚陸地点に到達しました。",
+          "meta": {}
+        },
+        {
+          "id": "C2",
+          "type": "normal",
+          "lat": -5.480963693102282,
+          "lng": 147.49499795570142,
+          "name": "深海南方根拠地隊 水雷艇集団",
+          "meta": {}
+        },
+        {
+          "id": "C1",
+          "type": "air-rade",
+          "lat": -4.754216697924107,
+          "lng": 149.36966434638924,
+          "name": "深海南方方面 基地航空隊",
+          "meta": {}
+        },
+        {
+          "id": "C",
+          "type": "air-rade",
+          "lat": -3.5428525448789827,
+          "lng": 149.83905172003637,
+          "name": "深海南方方面 基地航空隊",
+          "meta": {}
+        },
+        {
+          "id": "B",
+          "type": "normal",
+          "lat": -4.389806710325246,
+          "lng": 148.44605363061993,
+          "name": "深海南方潜水艦隊 前方哨戒線",
+          "meta": {}
+        },
+        {
+          "id": "A",
+          "type": "normal",
+          "lat": -4.218411913149552,
+          "lng": 147.17844154614943,
+          "name": "深海南方部隊 前方遊撃哨戒群",
+          "meta": {}
+        },
+        {
+          "id": "Start_1",
+          "type": "start",
+          "lat": -2.8782074971420997,
+          "lng": 146.85616728738626,
+          "name": "Start_1",
+          "meta": {}
+        },
+        {
+          "id": "A2",
+          "type": "normal",
+          "lat": -3.146398054304342,
+          "lng": 148.01635461893574,
+          "name": "深海南方方面 先遣偵察戦隊 II群",
+          "meta": {}
+        },
+        {
+          "id": "A1",
+          "type": "normal",
+          "lat": -2.4597063578853238,
+          "lng": 147.79076263780127,
+          "name": "深海南方部隊 前方遊撃哨戒群",
+          "meta": {}
+        },
+        {
+          "id": "D",
+          "type": "air-rade",
+          "lat": -6.576317637395093,
+          "lng": 148.42646600654956,
+          "name": "深海南方方面 基地航空隊",
+          "meta": {}
+        },
+        {
+          "id": "G",
+          "type": "boss",
+          "lat": -7.844469102090116,
+          "lng": 148.76807717076696,
+          "name": "深海南方艦隊 ラエ増援阻止集団",
+          "meta": {}
+        },
+        {
+          "id": "F",
+          "type": "relay",
+          "lat": -7.079627666615039,
+          "lng": 149.35212206442804,
+          "name": "敵影を見ず。",
+          "meta": {}
+        },
+        {
+          "id": "H",
+          "type": "normal",
+          "lat": -3.752355571217862,
+          "lng": 150.8142327299978,
+          "name": "深海潜水艦隊 ラバウル哨戒線",
+          "meta": {}
+        },
+        {
+          "id": "R",
+          "type": "port",
+          "lat": -4.074499516888707,
+          "lng": 151.7953436649812,
+          "name": "我が南方遊撃部隊、ラバウル進出に成功せり！",
+          "meta": {}
+        },
+        {
+          "id": "Start_2",
+          "type": "start",
+          "lat": -4.706400149200903,
+          "lng": 152.5824047997719,
+          "name": "Start_2",
+          "meta": {}
+        },
+        {
+          "id": "I",
+          "type": "relay",
+          "lat": -5.539036101659349,
+          "lng": 153.42233421111013,
+          "name": "【能動分岐】",
+          "meta": {}
+        },
+        {
+          "id": "J",
+          "type": "normal",
+          "lat": -6.751740687455907,
+          "lng": 153.14113196086316,
+          "name": "深海南方任務部隊 前方哨戒群",
+          "meta": {}
+        },
+        {
+          "id": "K1",
+          "type": "air-rade",
+          "lat": -6.1846201011873205,
+          "lng": 151.71907870586045,
+          "name": "空襲戦",
+          "meta": {}
+        },
+        {
+          "id": "K",
+          "type": "normal",
+          "lat": -7.385357622976585,
+          "lng": 151.33212543919353,
+          "name": "深海潜水艦隊 東南哨戒線",
+          "meta": {}
+        },
+        {
+          "id": "O",
+          "type": "relay",
+          "lat": -4.356161628017574,
+          "lng": 154.3265813679763,
+          "name": "【能動分岐】",
+          "meta": {}
+        },
+        {
+          "id": "P",
+          "type": "normal",
+          "lat": -3.229662726378052,
+          "lng": 154.1307361502229,
+          "name": "深海南方任務部隊 前衛艦隊 II群",
+          "meta": {}
+        },
+        {
+          "id": "Q1",
+          "type": "air-rade",
+          "lat": -2.792496518967411,
+          "lng": 156.25047262472555,
+          "name": "深海南方任務部隊 艦載機群",
+          "meta": {}
+        },
+        {
+          "id": "Q",
+          "type": "normal",
+          "lat": -4.137876981815253,
+          "lng": 155.61685574376037,
+          "name": "深海南方任務部隊 前衛艦隊 I群",
+          "meta": {}
+        },
+        {
+          "id": "Q2",
+          "type": "normal",
+          "lat": -3.9540115264463367,
+          "lng": 157.01081288188396,
+          "name": "深海潜水艦隊 機動部隊随伴 II群",
+          "meta": {}
+        },
+        {
+          "id": "M",
+          "type": "relay",
+          "lat": -6.386194586567484,
+          "lng": 154.26897983333993,
+          "name": "敵影を見ず。",
+          "meta": {}
+        },
+        {
+          "id": "L",
+          "type": "normal",
+          "lat": -7.6324978500441745,
+          "lng": 153.92337062554077,
+          "name": "深海南方任務部隊 機動部隊 III群",
+          "meta": {}
+        },
+        {
+          "id": "K2",
+          "type": "air-rade",
+          "lat": -8.567727649817314,
+          "lng": 153.52015988310694,
+          "name": "空襲戦",
+          "meta": {}
+        },
+        {
+          "id": "N",
+          "type": "boss",
+          "lat": -8.123194422732027,
+          "lng": 155.0523607043507,
+          "name": "深海南方任務部隊 機動部隊 II群",
+          "meta": {}
+        }
+      ],
+      "edges": [
+        {
+          "from": "Start_1",
+          "to": "A",
+          "arrow": false
+        },
+        {
+          "from": "Start_1",
+          "to": "A1",
+          "arrow": false
+        },
+        {
+          "from": "Start_1",
+          "to": "A2",
+          "arrow": false
+        },
+        {
+          "from": "A",
+          "to": "B",
+          "arrow": false
+        },
+        {
+          "from": "A",
+          "to": "C2",
+          "arrow": false
+        },
+        {
+          "from": "A1",
+          "to": "A2",
+          "arrow": false
+        },
+        {
+          "from": "A2",
+          "to": "B",
+          "arrow": false
+        },
+        {
+          "from": "A2",
+          "to": "C",
+          "arrow": true
+        },
+        {
+          "from": "B",
+          "to": "C",
+          "arrow": true
+        },
+        {
+          "from": "B",
+          "to": "C1",
+          "arrow": false
+        },
+        {
+          "from": "B",
+          "to": "C2",
+          "arrow": false
+        },
+        {
+          "from": "C1",
+          "to": "C2",
+          "arrow": false
+        },
+        {
+          "from": "C1",
+          "to": "C",
+          "arrow": true
+        },
+        {
+          "from": "C2",
+          "to": "D",
+          "arrow": false
+        },
+        {
+          "from": "D",
+          "to": "E",
+          "arrow": false
+        },
+        {
+          "from": "E",
+          "to": "F",
+          "arrow": true
+        },
+        {
+          "from": "E",
+          "to": "G",
+          "arrow": true
+        },
+        {
+          "from": "C",
+          "to": "H",
+          "arrow": false
+        },
+        {
+          "from": "H",
+          "to": "R",
+          "arrow": true
+        },
+        {
+          "from": "Start_2",
+          "to": "I",
+          "arrow": false
+        },
+        {
+          "from": "I",
+          "to": "J",
+          "arrow": false
+        },
+        {
+          "from": "I",
+          "to": "O",
+          "arrow": false
+        },
+        {
+          "from": "J",
+          "to": "K",
+          "arrow": false
+        },
+        {
+          "from": "J",
+          "to": "K1",
+          "arrow": false
+        },
+        {
+          "from": "K1",
+          "to": "K",
+          "arrow": false
+        },
+        {
+          "from": "K",
+          "to": "K2",
+          "arrow": false
+        },
+        {
+          "from": "K",
+          "to": "L",
+          "arrow": false
+        },
+        {
+          "from": "K2",
+          "to": "L",
+          "arrow": false
+        },
+        {
+          "from": "L",
+          "to": "M",
+          "arrow": true
+        },
+        {
+          "from": "L",
+          "to": "N",
+          "arrow": true
+        },
+        {
+          "from": "O",
+          "to": "P",
+          "arrow": false
+        },
+        {
+          "from": "O",
+          "to": "Q",
+          "arrow": false
+        },
+        {
+          "from": "P",
+          "to": "Q1",
+          "arrow": true
+        },
+        {
+          "from": "Q",
+          "to": "Q2",
+          "arrow": true
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "name": "戦力ゲージ2",
+      "nodes": [
+        {
+          "id": "E",
+          "type": "supply",
+          "lat": -6.809097813788441,
+          "lng": 147.30416365245878,
+          "name": "輸送物資の揚陸地点に到達しました。",
+          "meta": {}
+        },
+        {
+          "id": "C2",
+          "type": "normal",
+          "lat": -5.480963693102282,
+          "lng": 147.49499795570142,
+          "name": "深海南方根拠地隊 水雷艇集団",
+          "meta": {}
+        },
+        {
+          "id": "C1",
+          "type": "air-rade",
+          "lat": -4.754216697924107,
+          "lng": 149.36966434638924,
+          "name": "深海南方方面 基地航空隊",
+          "meta": {}
+        },
+        {
+          "id": "C",
+          "type": "air-rade",
+          "lat": -3.5428525448789827,
+          "lng": 149.83905172003637,
+          "name": "深海南方方面 基地航空隊",
+          "meta": {}
+        },
+        {
+          "id": "B",
+          "type": "normal",
+          "lat": -4.389806710325246,
+          "lng": 148.44605363061993,
+          "name": "深海南方潜水艦隊 前方哨戒線",
+          "meta": {}
+        },
+        {
+          "id": "A",
+          "type": "normal",
+          "lat": -4.218411913149552,
+          "lng": 147.17844154614943,
+          "name": "深海南方部隊 前方遊撃哨戒群",
+          "meta": {}
+        },
+        {
+          "id": "Start_1",
+          "type": "start",
+          "lat": -2.8782074971420997,
+          "lng": 146.85616728738626,
+          "name": "Start_1",
+          "meta": {}
+        },
+        {
+          "id": "A2",
+          "type": "normal",
+          "lat": -3.146398054304342,
+          "lng": 148.01635461893574,
+          "name": "深海南方方面 先遣偵察戦隊 II群",
+          "meta": {}
+        },
+        {
+          "id": "A1",
+          "type": "normal",
+          "lat": -2.4597063578853238,
+          "lng": 147.79076263780127,
+          "name": "深海南方部隊 前方遊撃哨戒群",
+          "meta": {}
+        },
+        {
+          "id": "D",
+          "type": "air-rade",
+          "lat": -6.576317637395093,
+          "lng": 148.42646600654956,
+          "name": "深海南方方面 基地航空隊",
+          "meta": {}
+        },
+        {
+          "id": "G",
+          "type": "boss",
+          "lat": -7.844469102090116,
+          "lng": 148.76807717076696,
+          "name": "深海南方艦隊 ラエ増援阻止集団",
+          "meta": {}
+        },
+        {
+          "id": "F",
+          "type": "relay",
+          "lat": -7.079627666615039,
+          "lng": 149.35212206442804,
+          "name": "敵影を見ず。",
+          "meta": {}
+        },
+        {
+          "id": "H",
+          "type": "normal",
+          "lat": -3.752355571217862,
+          "lng": 150.8142327299978,
+          "name": "深海潜水艦隊 ラバウル哨戒線",
+          "meta": {}
+        },
+        {
+          "id": "R",
+          "type": "port",
+          "lat": -4.074499516888707,
+          "lng": 151.7953436649812,
+          "name": "我が南方遊撃部隊、ラバウル進出に成功せり！",
+          "meta": {}
+        },
+        {
+          "id": "Start_2",
+          "type": "start",
+          "lat": -4.706400149200903,
+          "lng": 152.5824047997719,
+          "name": "Start_2",
+          "meta": {}
+        },
+        {
+          "id": "I",
+          "type": "relay",
+          "lat": -5.539036101659349,
+          "lng": 153.42233421111013,
+          "name": "【能動分岐】",
+          "meta": {}
+        },
+        {
+          "id": "J",
+          "type": "normal",
+          "lat": -6.751740687455907,
+          "lng": 153.14113196086316,
+          "name": "深海南方任務部隊 前方哨戒群",
+          "meta": {}
+        },
+        {
+          "id": "K1",
+          "type": "air-rade",
+          "lat": -6.1846201011873205,
+          "lng": 151.71907870586045,
+          "name": "空襲戦",
+          "meta": {}
+        },
+        {
+          "id": "K",
+          "type": "normal",
+          "lat": -7.385357622976585,
+          "lng": 151.33212543919353,
+          "name": "深海潜水艦隊 東南哨戒線",
+          "meta": {}
+        },
+        {
+          "id": "O",
+          "type": "relay",
+          "lat": -4.356161628017574,
+          "lng": 154.3265813679763,
+          "name": "【能動分岐】",
+          "meta": {}
+        },
+        {
+          "id": "P",
+          "type": "normal",
+          "lat": -3.229662726378052,
+          "lng": 154.1307361502229,
+          "name": "深海南方任務部隊 前衛艦隊 II群",
+          "meta": {}
+        },
+        {
+          "id": "Q1",
+          "type": "air-rade",
+          "lat": -2.792496518967411,
+          "lng": 156.25047262472555,
+          "name": "深海南方任務部隊 艦載機群",
+          "meta": {}
+        },
+        {
+          "id": "Q",
+          "type": "normal",
+          "lat": -4.137876981815253,
+          "lng": 155.61685574376037,
+          "name": "深海南方任務部隊 前衛艦隊 I群",
+          "meta": {}
+        },
+        {
+          "id": "Q2",
+          "type": "normal",
+          "lat": -3.9540115264463367,
+          "lng": 157.01081288188396,
+          "name": "深海潜水艦隊 機動部隊随伴 II群",
+          "meta": {}
+        },
+        {
+          "id": "M",
+          "type": "relay",
+          "lat": -6.386194586567484,
+          "lng": 154.26897983333993,
+          "name": "敵影を見ず。",
+          "meta": {}
+        },
+        {
+          "id": "L",
+          "type": "normal",
+          "lat": -7.6324978500441745,
+          "lng": 153.92337062554077,
+          "name": "深海南方任務部隊 機動部隊 III群",
+          "meta": {}
+        },
+        {
+          "id": "K2",
+          "type": "air-rade",
+          "lat": -8.567727649817314,
+          "lng": 153.52015988310694,
+          "name": "空襲戦",
+          "meta": {}
+        },
+        {
+          "id": "N",
+          "type": "boss",
+          "lat": -8.123194422732027,
+          "lng": 155.0523607043507,
+          "name": "深海南方任務部隊 機動部隊 II群",
+          "meta": {}
+        },
+        {
+          "id": "W",
+          "type": "normal",
+          "lat": -6.197296886996952,
+          "lng": 156.520723661898,
+          "name": "深海潜水艦隊 機動部隊随伴 I群",
+          "meta": {}
+        },
+        {
+          "id": "V",
+          "type": "normal",
+          "lat": -5.022213656084816,
+          "lng": 157.51487324107694,
+          "name": "深海南方任務部隊 機動部隊 I群",
+          "meta": {}
+        },
+        {
+          "id": "X",
+          "type": "air-rade",
+          "lat": -6.550113412685022,
+          "lng": 158.33464267349603,
+          "name": "深海南方任務部隊 艦載機群",
+          "meta": {}
+        },
+        {
+          "id": "Y",
+          "type": "relay",
+          "lat": -7.29179562086847,
+          "lng": 159.22704990372637,
+          "name": "???",
+          "meta": {}
+        },
+        {
+          "id": "U",
+          "type": "normal",
+          "lat": -4.970526665015441,
+          "lng": 156.64321966736418,
+          "name": "深海南方任務部隊 新鋭戦艦戦隊",
+          "meta": {}
+        },
+        {
+          "id": "T",
+          "type": "normal",
+          "lat": -3.677142651861331,
+          "lng": 158.82235360164765,
+          "name": "深海南方任務部隊 随伴補給部隊",
+          "meta": {}
+        },
+        {
+          "id": "S",
+          "type": "relay",
+          "lat": -2.8276211001245883,
+          "lng": 158.36577315827378,
+          "name": "敵影を見ず。",
+          "meta": {}
+        },
+        {
+          "id": "Z",
+          "type": "boss",
+          "lat": -4.453440596831442,
+          "lng": 159.2374267319866,
+          "name": "深海南方任務部隊 機動部隊主力",
+          "meta": {}
+        }
+      ],
+      "edges": [
+        {
+          "from": "Start_1",
+          "to": "A",
+          "arrow": false
+        },
+        {
+          "from": "Start_1",
+          "to": "A2",
+          "arrow": false
+        },
+        {
+          "from": "Start_1",
+          "to": "A1",
+          "arrow": false
+        },
+        {
+          "from": "A",
+          "to": "B",
+          "arrow": false
+        },
+        {
+          "from": "A",
+          "to": "C2",
+          "arrow": false
+        },
+        {
+          "from": "A1",
+          "to": "A2",
+          "arrow": false
+        },
+        {
+          "from": "A2",
+          "to": "B",
+          "arrow": false
+        },
+        {
+          "from": "A2",
+          "to": "C",
+          "arrow": true
+        },
+        {
+          "from": "B",
+          "to": "C",
+          "arrow": true
+        },
+        {
+          "from": "B",
+          "to": "C1",
+          "arrow": false
+        },
+        {
+          "from": "B",
+          "to": "C2",
+          "arrow": false
+        },
+        {
+          "from": "C1",
+          "to": "C",
+          "arrow": true
+        },
+        {
+          "from": "C1",
+          "to": "C2",
+          "arrow": false
+        },
+        {
+          "from": "C2",
+          "to": "D",
+          "arrow": false
+        },
+        {
+          "from": "D",
+          "to": "E",
+          "arrow": false
+        },
+        {
+          "from": "E",
+          "to": "F",
+          "arrow": true
+        },
+        {
+          "from": "E",
+          "to": "G",
+          "arrow": true
+        },
+        {
+          "from": "C",
+          "to": "H",
+          "arrow": false
+        },
+        {
+          "from": "H",
+          "to": "R",
+          "arrow": true
+        },
+        {
+          "from": "Start_2",
+          "to": "I",
+          "arrow": false
+        },
+        {
+          "from": "I",
+          "to": "J",
+          "arrow": false
+        },
+        {
+          "from": "I",
+          "to": "O",
+          "arrow": false
+        },
+        {
+          "from": "J",
+          "to": "K",
+          "arrow": false
+        },
+        {
+          "from": "J",
+          "to": "K1",
+          "arrow": false
+        },
+        {
+          "from": "K1",
+          "to": "K",
+          "arrow": false
+        },
+        {
+          "from": "K",
+          "to": "K2",
+          "arrow": false
+        },
+        {
+          "from": "K",
+          "to": "L",
+          "arrow": false
+        },
+        {
+          "from": "K2",
+          "to": "L",
+          "arrow": false
+        },
+        {
+          "from": "L",
+          "to": "M",
+          "arrow": true
+        },
+        {
+          "from": "L",
+          "to": "N",
+          "arrow": true
+        },
+        {
+          "from": "O",
+          "to": "P",
+          "arrow": false
+        },
+        {
+          "from": "O",
+          "to": "Q",
+          "arrow": false
+        },
+        {
+          "from": "P",
+          "to": "Q1",
+          "arrow": true
+        },
+        {
+          "from": "Q",
+          "to": "Q2",
+          "arrow": true
+        },
+        {
+          "from": "Q",
+          "to": "U",
+          "arrow": false
+        },
+        {
+          "from": "Q",
+          "to": "W",
+          "arrow": false
+        },
+        {
+          "from": "Q1",
+          "to": "Q2",
+          "arrow": true
+        },
+        {
+          "from": "Q1",
+          "to": "S",
+          "arrow": true
+        },
+        {
+          "from": "Q1",
+          "to": "T",
+          "arrow": true
+        },
+        {
+          "from": "Q2",
+          "to": "T",
+          "arrow": true
+        },
+        {
+          "from": "Q2",
+          "to": "V",
+          "arrow": false
+        },
+        {
+          "from": "U",
+          "to": "X",
+          "arrow": false
+        },
+        {
+          "from": "V",
+          "to": "W",
+          "arrow": false
+        },
+        {
+          "from": "V",
+          "to": "X",
+          "arrow": false
+        },
+        {
+          "from": "W",
+          "to": "X",
+          "arrow": false
+        },
+        {
+          "from": "X",
+          "to": "Y",
+          "arrow": true
+        },
+        {
+          "from": "X",
+          "to": "Z",
+          "arrow": true
+        }
+      ]
+    }
+  ]
+}
