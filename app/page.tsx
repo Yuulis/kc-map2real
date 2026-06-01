@@ -11,7 +11,7 @@ import type { Feature, FeatureCollection, LineString, Point } from "geojson";
 import type { ExpressionSpecification, MapLayerMouseEvent } from "maplibre-gl";
 
 import { toast } from "sonner";
-import { Pencil, MapIcon, GitPullRequest } from "lucide-react";
+import { Pencil, MapIcon, GitPullRequest, Layers } from "lucide-react";
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -26,6 +26,16 @@ import type { MapsData, MapNode, MapEdge, MapSea } from "@/app/types/maps";
 import NodeEditDialog from "@/app/components/NodeEditDialog";
 import SeaManagerDialog from "@/app/components/SeaManagerDialog";
 import ContributionPanel from "@/app/components/ContributionPanel";
+
+const MAP_STYLES = [
+  { id: "ocean",         label: "Ocean (航海図)",     maptiler: "ocean" },
+  { id: "streets",       label: "Streets (標準)",      maptiler: "streets" },
+  { id: "openstreetmap", label: "OpenStreetMap",        maptiler: "openstreetmap" },
+  { id: "satellite",     label: "Satellite (衛星)",    maptiler: "satellite" },
+  { id: "topo",          label: "Topo (地形図)",       maptiler: "topo" },
+] as const;
+
+type MapStyleId = (typeof MAP_STYLES)[number]["id"];
 
 // Internal view-layer types derived from MapsData
 type Node = MapNode;
@@ -155,6 +165,14 @@ export default function Home() {
   const [pins, setPins] = useState<
     Array<{ id: string; lat: number; lng: number; num: number }>
   >([]);
+  const [selectedPin, setSelectedPin] = useState<{
+    id: string;
+    lat: number;
+    lng: number;
+    num: number;
+  } | null>(null);
+  const [editPinLat, setEditPinLat] = useState<number>(0);
+  const [editPinLng, setEditPinLng] = useState<number>(0);
   // Edit mode (independent of pin mode)
   const [editMode, setEditMode] = useState(false);
   // Sub-map selection: maps seaCode -> selected submap id (null = default edges)
@@ -178,6 +196,22 @@ export default function Home() {
   // Contribution mode state (client-side only, no API writes)
   const [contributionMode, setContributionMode] = useState(false);
   const [contributionData, setContributionData] = useState<MapSea | null>(null);
+  const [selectedStyleId, setSelectedStyleId] = useState<MapStyleId>("ocean");
+  const [isStyleLoaded, setIsStyleLoaded] = useState(false);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("kc-map-style");
+      if (stored && MAP_STYLES.some((s) => s.id === stored)) {
+        setSelectedStyleId(stored as MapStyleId);
+      }
+    } catch {
+      /* ignore */
+    }
+    setIsStyleLoaded(true);
+  }, []);
+
+  const [layerSwitcherOpen, setLayerSwitcherOpen] = useState(false);
   // Feature 1: Persisted map view state (read once before mount)
   const initialViewState = useMemo(() => {
     if (typeof window === "undefined") {
@@ -240,8 +274,9 @@ export default function Home() {
       }
       return "https://demotiles.maplibre.org/style.json";
     }
-    return `https://api.maptiler.com/maps/streets/style.json?key=${MAPTILER_KEY}`;
-  }, [MAPTILER_KEY, isProd]);
+    const style = MAP_STYLES.find((s) => s.id === selectedStyleId) ?? MAP_STYLES[0];
+    return `https://api.maptiler.com/maps/${style.maptiler}/style.json?key=${MAPTILER_KEY}`;
+  }, [MAPTILER_KEY, isProd, selectedStyleId]);
 
   // Helper to load/reload map data from maps.json
   const loadMapData = useCallback(() => {
@@ -314,6 +349,15 @@ export default function Home() {
       // Ignore storage errors
     }
   }, []);
+
+  useEffect(() => {
+    if (!isStyleLoaded) return;
+    try {
+      localStorage.setItem("kc-map-style", selectedStyleId);
+    } catch {
+      /* ignore */
+    }
+  }, [selectedStyleId, isStyleLoaded]);
 
   // Listen for dev tools toggle events from the header
   useEffect(() => {
@@ -1189,7 +1233,9 @@ export default function Home() {
               title={`#${p.num} lat: ${p.lat.toFixed(6)}, lng: ${p.lng.toFixed(6)}`}
               onClick={(e) => {
                 e.stopPropagation();
-                setPins((prev) => prev.filter((pin) => pin.id !== p.id));
+                setSelectedPin(p);
+                setEditPinLat(p.lat);
+                setEditPinLng(p.lng);
               }}
               style={{
                 width: 24,
@@ -1214,6 +1260,116 @@ export default function Home() {
           </Marker>
         ))}
       </Map>
+
+      {selectedPin !== null && (
+        <Paper
+          elevation={4}
+          sx={{
+            position: "fixed",
+            left: "50%",
+            top: "50%",
+            transform: "translate(-50%, -50%)",
+            zIndex: 1000,
+            backgroundColor: "#1e1e2e",
+            color: "#fff",
+            p: 2,
+            borderRadius: 2,
+            minWidth: 240,
+            border: "1px solid rgba(255,255,255,0.12)",
+          }}
+        >
+          <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700 }}>
+            Pin #{selectedPin.num}
+          </Typography>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mb: 2 }}>
+            <Box>
+              <Typography variant="caption" sx={{ color: "#9ca3af", display: "block", mb: 0.5 }}>
+                Latitude
+              </Typography>
+              <input
+                type="number"
+                step="any"
+                value={editPinLat}
+                onChange={(e) => setEditPinLat(parseFloat(e.target.value) || 0)}
+                style={{
+                  width: "100%",
+                  background: "#2a2a3e",
+                  border: "1px solid #4b5563",
+                  borderRadius: 4,
+                  padding: "6px 10px",
+                  color: "#fff",
+                  fontSize: 13,
+                  fontFamily: "monospace",
+                  outline: "none",
+                  boxSizing: "border-box",
+                }}
+              />
+            </Box>
+            <Box>
+              <Typography variant="caption" sx={{ color: "#9ca3af", display: "block", mb: 0.5 }}>
+                Longitude
+              </Typography>
+              <input
+                type="number"
+                step="any"
+                value={editPinLng}
+                onChange={(e) => setEditPinLng(parseFloat(e.target.value) || 0)}
+                style={{
+                  width: "100%",
+                  background: "#2a2a3e",
+                  border: "1px solid #4b5563",
+                  borderRadius: 4,
+                  padding: "6px 10px",
+                  color: "#fff",
+                  fontSize: 13,
+                  fontFamily: "monospace",
+                  outline: "none",
+                  boxSizing: "border-box",
+                }}
+              />
+            </Box>
+          </Box>
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <Button
+              size="small"
+              variant="contained"
+              sx={{ flex: 1, fontSize: 12 }}
+              onClick={() => {
+                setPins((prev) =>
+                  prev.map((pin) =>
+                    pin.id === selectedPin.id
+                      ? { ...pin, lat: editPinLat, lng: editPinLng }
+                      : pin
+                  )
+                );
+                setSelectedPin(null);
+              }}
+            >
+              Save
+            </Button>
+            <Button
+              size="small"
+              variant="outlined"
+              color="error"
+              sx={{ flex: 1, fontSize: 12 }}
+              onClick={() => {
+                setPins((prev) => prev.filter((pin) => pin.id !== selectedPin.id));
+                setSelectedPin(null);
+              }}
+            >
+              Delete
+            </Button>
+            <Button
+              size="small"
+              variant="text"
+              sx={{ flex: 1, fontSize: 12, color: "#9ca3af" }}
+              onClick={() => setSelectedPin(null)}
+            >
+              Cancel
+            </Button>
+          </Box>
+        </Paper>
+      )}
 
       {/* Cursor coordinate tooltip when pin mode is ON */}
       {pinMode && cursorCoord !== null && (
@@ -1806,6 +1962,70 @@ export default function Home() {
         mapsData={fullMapsData}
         onDataChanged={loadMapData}
       />
+
+      {/* Layer switcher panel (bottom-left) */}
+      <Paper
+        elevation={4}
+        sx={{
+          position: "fixed",
+          left: 12,
+          bottom: 12,
+          zIndex: 60,
+          backgroundColor: "rgba(0,0,0,0.85)",
+          color: "#fff",
+          borderRadius: 2,
+          userSelect: "none",
+          minWidth: 0,
+        }}
+      >
+        <Button
+          size="small"
+          onClick={() => setLayerSwitcherOpen((prev) => !prev)}
+          startIcon={<Layers size={14} />}
+          sx={{
+            color: "#fff",
+            fontSize: 11,
+            fontWeight: 600,
+            textTransform: "none",
+            px: 1.25,
+            py: 0.5,
+            minWidth: 0,
+            "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
+          }}
+        >
+          {MAP_STYLES.find((s) => s.id === selectedStyleId)?.label ?? "Ocean (航海図)"} {layerSwitcherOpen ? "▲" : "▼"}
+        </Button>
+        {layerSwitcherOpen && (
+          <Box sx={{ px: 0.5, pb: 0.5 }}>
+            {MAP_STYLES.map((s) => (
+              <Button
+                key={s.id}
+                size="small"
+                onClick={() => {
+                  setSelectedStyleId(s.id);
+                  setLayerSwitcherOpen(false);
+                }}
+                sx={{
+                  display: "flex",
+                  justifyContent: "flex-start",
+                  width: "100%",
+                  color: "#fff",
+                  fontSize: 11,
+                  fontWeight: selectedStyleId === s.id ? 700 : 400,
+                  textTransform: "none",
+                  px: 1,
+                  py: 0.25,
+                  minWidth: 0,
+                  backgroundColor: selectedStyleId === s.id ? "rgba(59,130,246,0.3)" : "transparent",
+                  "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
+                }}
+              >
+                {selectedStyleId === s.id ? "● " : "○ "}{s.label}
+              </Button>
+            ))}
+          </Box>
+        )}
+      </Paper>
     </main>
   );
 }

@@ -2,6 +2,244 @@
   "code": "2-4",
   "name": "沖ノ島海域",
   "meta": {},
-  "nodes": [],
-  "edges": []
+  "nodes": [
+    {
+      "id": "N",
+      "type": "supply",
+      "lat": 20.429124604065038,
+      "lng": 136.0735025734628,
+      "name": "弾薬 +20~60",
+      "meta": {}
+    },
+    {
+      "id": "O",
+      "type": "relay",
+      "lat": 20.413210455183346,
+      "lng": 136.08756052679962,
+      "name": "気のせいだった。",
+      "meta": {}
+    },
+    {
+      "id": "L",
+      "type": "normal",
+      "lat": 20.44027066215952,
+      "lng": 136.0654804239452,
+      "name": "敵機動部隊 B群",
+      "meta": {}
+    },
+    {
+      "id": "M",
+      "type": "normal",
+      "lat": 20.475022275021487,
+      "lng": 136.07123188715389,
+      "name": "敵機動部隊 A群",
+      "meta": {}
+    },
+    {
+      "id": "K",
+      "type": "relay",
+      "lat": 20.417347112766706,
+      "lng": 136.06290529403856,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "P",
+      "type": "boss",
+      "lat": 20.45278931691992,
+      "lng": 136.09997433182474,
+      "name": "敵侵攻中核水上打撃部隊",
+      "meta": {}
+    },
+    {
+      "id": "H",
+      "type": "relay",
+      "lat": 20.43016876934898,
+      "lng": 136.02770153013068,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "I",
+      "type": "normal",
+      "lat": 20.416926339747334,
+      "lng": 136.04012412773062,
+      "name": "敵精鋭水雷戦隊",
+      "meta": {}
+    },
+    {
+      "id": "J",
+      "type": "relay",
+      "lat": 20.45754146604986,
+      "lng": 136.05191144633028,
+      "name": "敵影を見ず。",
+      "meta": {}
+    },
+    {
+      "id": "G",
+      "type": "supply",
+      "lat": 20.451693328995006,
+      "lng": 136.01071636229267,
+      "name": "開発資材 +1",
+      "meta": {}
+    },
+    {
+      "id": "E",
+      "type": "normal",
+      "lat": 20.410917276607705,
+      "lng": 135.98967298603088,
+      "name": "敵侵攻高速軽快部隊",
+      "meta": {}
+    },
+    {
+      "id": "F",
+      "type": "normal",
+      "lat": 20.473475523624145,
+      "lng": 135.99056465452412,
+      "name": "前衛機動部隊",
+      "meta": {}
+    },
+    {
+      "id": "A",
+      "type": "supply",
+      "lat": 20.481661691585657,
+      "lng": 135.93046619858967,
+      "name": "高速修復材 +1",
+      "meta": {}
+    },
+    {
+      "id": "B",
+      "type": "normal",
+      "lat": 20.436381701691076,
+      "lng": 135.94865623569723,
+      "name": "敵前衛巡洋艦戦隊",
+      "meta": {}
+    },
+    {
+      "id": "D",
+      "type": "supply",
+      "lat": 20.42184249175469,
+      "lng": 135.95899959013144,
+      "name": "燃料 +25~60",
+      "meta": {}
+    },
+    {
+      "id": "C",
+      "type": "whirlpool",
+      "lat": 20.45543099937055,
+      "lng": 135.9597129249193,
+      "name": "司令官！うずしおが発生しました！",
+      "meta": {}
+    },
+    {
+      "id": "Start",
+      "type": "start",
+      "lat": 20.436214592143102,
+      "lng": 135.90371614401954,
+      "name": "Start",
+      "meta": {}
+    }
+  ],
+  "edges": [
+    {
+      "from": "Start",
+      "to": "B",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "C",
+      "arrow": false
+    },
+    {
+      "from": "B",
+      "to": "G",
+      "arrow": false
+    },
+    {
+      "from": "C",
+      "to": "F",
+      "arrow": false
+    },
+    {
+      "from": "C",
+      "to": "G",
+      "arrow": false
+    },
+    {
+      "from": "E",
+      "to": "D",
+      "arrow": true
+    },
+    {
+      "from": "F",
+      "to": "A",
+      "arrow": true
+    },
+    {
+      "from": "F",
+      "to": "J",
+      "arrow": false
+    },
+    {
+      "from": "G",
+      "to": "H",
+      "arrow": false
+    },
+    {
+      "from": "H",
+      "to": "I",
+      "arrow": false
+    },
+    {
+      "from": "I",
+      "to": "E",
+      "arrow": false
+    },
+    {
+      "from": "I",
+      "to": "K",
+      "arrow": false
+    },
+    {
+      "from": "J",
+      "to": "M",
+      "arrow": false
+    },
+    {
+      "from": "J",
+      "to": "L",
+      "arrow": false
+    },
+    {
+      "from": "K",
+      "to": "L",
+      "arrow": false
+    },
+    {
+      "from": "K",
+      "to": "N",
+      "arrow": true
+    },
+    {
+      "from": "K",
+      "to": "O",
+      "arrow": true
+    },
+    {
+      "from": "L",
+      "to": "M",
+      "arrow": false
+    },
+    {
+      "from": "L",
+      "to": "P",
+      "arrow": true
+    },
+    {
+      "from": "M",
+      "to": "P",
+      "arrow": true
+    }
+  ]
 }
