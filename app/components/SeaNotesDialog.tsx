@@ -29,15 +29,11 @@ type Props = {
 };
 
 export default function SeaNotesDialog({ open, onClose, groupData }: Props) {
-  const [selectedCode, setSelectedCode] = useState<string>("");
+  const [selectedOverride, setSelectedCode] = useState<string | null>(null);
   const [noteContent, setNoteContent] = useState<string>("");
 
-  useEffect(() => {
-    if (groupData.length > 0 && !selectedCode) {
-      const firstSea = groupData[0]?.seas[0];
-      if (firstSea) setSelectedCode(firstSea.code);
-    }
-  }, [groupData, selectedCode]);
+  // Default to the first sea until the user picks one
+  const selectedCode = selectedOverride ?? groupData[0]?.seas[0]?.code ?? "";
 
   useEffect(() => {
     if (!selectedCode) return;

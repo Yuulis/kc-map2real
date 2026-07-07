@@ -44,3 +44,8 @@ next-env.d.ts
 .claude/docs/research/
 .codex/
 .gemini/
+# Generated at build time by scripts/merge-maps.mjs
+/public/data/maps.json
+
+# Local hook logs
+.claude/logs/

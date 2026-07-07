@@ -1,22 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import type { MapNode, NodeType } from "@/app/types/maps";
-
-const NODE_TYPES: readonly NodeType[] = [
-  "start",
-  "normal",
-  "boss",
-  "supply",
-  "relay",
-  "whirlpool",
-  "port",
-  "aerial",
-  "air-rade",
-  "night-battle",
-] as const;
+import { NODE_TYPES } from "@/app/lib/constants";
 
 interface SubMapOption {
   id: string;
@@ -52,37 +40,20 @@ export default function NodeEditDialog({
   onDelete,
   onClose,
 }: NodeEditDialogProps) {
-  const [selectedSea, setSelectedSea] = useState(seaCode ?? "");
-  const [selectedSubmaps, setSelectedSubmaps] = useState<Set<string>>(new Set());
-  const [nodeId, setNodeId] = useState("");
-  const [nodeName, setNodeName] = useState("");
-  const [nodeType, setNodeType] = useState<NodeType>("normal");
-  const [nodeLat, setNodeLat] = useState(0);
-  const [nodeLng, setNodeLng] = useState(0);
-
-  // Reset form when dialog opens or props change
-  useEffect(() => {
-    if (!open) return;
-
-    if (mode === "edit" && node) {
-      setNodeId(node.id);
-      setNodeName(node.name);
-      setNodeType(node.type);
-      setNodeLat(node.lat);
-      setNodeLng(node.lng);
-      setSelectedSea(seaCode ?? "");
-      setSelectedSubmaps(new Set(submapIds ?? []));
-    } else {
-      // Add mode
-      setNodeId("");
-      setNodeName("");
-      setNodeType("normal");
-      setNodeLat(lat ?? 0);
-      setNodeLng(lng ?? 0);
-      setSelectedSea(seaCode ?? availableSeas[0]?.code ?? "");
-      setSelectedSubmaps(new Set(submapIds ?? []));
-    }
-  }, [open, mode, node, lat, lng, seaCode, submapIds, availableSeas]);
+  // Initial values come from props; the parent remounts this dialog (via key)
+  // whenever it is opened for a different node/coordinate.
+  const editing = mode === "edit" ? node : undefined;
+  const [selectedSea, setSelectedSea] = useState(
+    seaCode ?? (editing ? "" : (availableSeas[0]?.code ?? "")),
+  );
+  const [selectedSubmaps, setSelectedSubmaps] = useState<Set<string>>(
+    () => new Set(submapIds ?? []),
+  );
+  const [nodeId, setNodeId] = useState(editing?.id ?? "");
+  const [nodeName, setNodeName] = useState(editing?.name ?? "");
+  const [nodeType, setNodeType] = useState<NodeType>(editing?.type ?? "normal");
+  const [nodeLat, setNodeLat] = useState(editing ? editing.lat : (lat ?? 0));
+  const [nodeLng, setNodeLng] = useState(editing ? editing.lng : (lng ?? 0));
 
   const handleSubmapToggle = useCallback((smId: string) => {
     setSelectedSubmaps((prev) => {

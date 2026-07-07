@@ -24,3 +24,17 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Dark theme for the node info popup (MapLibre popup defaults to white) */
+.kc-node-popup .maplibregl-popup-content {
+  background: #1e1e2e;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 10px 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.kc-node-popup.maplibregl-popup-anchor-bottom .maplibregl-popup-tip {
+  border-top-color: #1e1e2e;
+}

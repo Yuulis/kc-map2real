@@ -53,6 +53,44 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
+## Map Data
+
+Sea area data lives in `public/data/`:
+
+- `maps-index.json` — group/sea metadata (no nodes/edges)
+- `seas/{code}.json` — full data (nodes, edges, submaps) per sea area
+- `maps.json` — generated at build time by `scripts/merge-maps.mjs` (git-ignored); served statically in production
+
+### Adding a New Sea Area
+
+1. Create `public/data/seas/{code}.json` with the `MapSea` shape (see `app/types/maps.ts`):
+
+```json
+{
+  "code": "8-1",
+  "name": "新海域名",
+  "meta": {},
+  "nodes": [],
+  "edges": []
+}
+```
+
+2. Add the sea reference to the matching group in `public/data/maps-index.json`:
+
+```json
+{ "code": "8-1", "name": "新海域名", "meta": {} }
+```
+
+3. Validate the data:
+
+```bash
+npm run validate:maps
+```
+
+4. (Optional) Use the in-app dev tools (設定 → デベロッパーツール) on `npm run dev` to place nodes/edges visually — writes go through `/api/maps` to the same files. Steps 1–2 can also be done from the dev tools' sea manager UI instead.
+
+Adding a new node **type** instead: extend `NodeType` in `app/types/maps.ts`, register it in `NODE_TYPES` / `NODE_TYPE_LABELS` in `app/lib/constants.ts` (and the list in `scripts/validate-maps.mjs`), then add an icon at `public/img/nodes/{type}.png`.
+
 ## Names Management (Sea Groups / Seas / Nodes)
 
 - Purpose: Manage display names for sea groups, individual seas, and nodes.
