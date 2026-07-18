@@ -32,6 +32,7 @@ export const NODE_TYPES: readonly NodeType[] = [
   "port",
   "aerial",
   "air-rade",
+  "anti-sub-air-rade",
   "night-battle",
 ];
 
@@ -49,11 +50,19 @@ export const NODE_TYPE_LABELS: Record<NodeType, string> = {
   port: "泊地",
   aerial: "航空戦",
   "air-rade": "空襲戦",
+  "anti-sub-air-rade": "対潜空襲戦",
   "night-battle": "夜戦",
 };
 
 /** Node types rendered with the large icon size */
-const LARGE_NODE_TYPES: ReadonlySet<NodeType> = new Set(["start", "boss", "port"]);
+const LARGE_NODE_TYPES: ReadonlySet<NodeType> = new Set([
+  "start",
+  "boss",
+  "port",
+  "aerial",
+  "air-rade",
+  "anti-sub-air-rade",
+]);
 
 const NODE_ICON_SIZE_LARGE = 50;
 const NODE_ICON_SIZE_DEFAULT = 30;

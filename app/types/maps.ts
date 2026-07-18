@@ -9,6 +9,7 @@ export type NodeType =
   | "port"
   | "aerial"
   | "air-rade"
+  | "anti-sub-air-rade"
   | "night-battle";
 
 /** Extensible metadata object for future fields */

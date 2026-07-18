@@ -33,6 +33,7 @@ const NODE_TYPES = new Set([
   "port",
   "aerial",
   "air-rade",
+  "anti-sub-air-rade",
   "night-battle",
 ]);
 
