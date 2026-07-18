@@ -22,6 +22,26 @@ const labelStyle: React.CSSProperties = {
   userSelect: "none",
 };
 
+const flagStyle: React.CSSProperties = {
+  position: "absolute",
+  left: "calc(50% + 10px)",
+  bottom: "50%",
+  width: 22,
+  height: 30,
+  borderLeft: "3px solid #365314",
+  filter: "drop-shadow(0 0 2px rgba(0,0,0,0.8))",
+  pointerEvents: "none",
+};
+
+const flagPennantStyle: React.CSSProperties = {
+  display: "block",
+  width: 0,
+  height: 0,
+  borderTop: "7px solid transparent",
+  borderBottom: "7px solid transparent",
+  borderLeft: "18px solid #a3e635",
+};
+
 /** Memoized node marker to avoid re-rendering all markers on parent state changes */
 const NodeMarker = React.memo(function NodeMarker({
   node,
@@ -32,23 +52,31 @@ const NodeMarker = React.memo(function NodeMarker({
 }) {
   const safeType = ALLOWED_NODE_TYPES.has(node.type) ? node.type : "normal";
   const sizePx = nodeIconSize(safeType);
+  const iconType = safeType === "landing" ? "supply" : safeType;
   return (
     <React.Fragment>
       {/* Image marker (centered on coordinates) */}
       <Marker longitude={node.lng} latitude={node.lat} anchor="center">
-        <NextImage
-          src={`/img/nodes/${safeType}.png`}
-          alt={node.name ?? node.id}
-          title={node.name ?? node.id}
-          width={sizePx}
-          height={sizePx}
-          unoptimized
-          style={nodeImageStyle}
-          onClick={(ev) => {
-            ev.stopPropagation();
-            onClickNode(node);
-          }}
-        />
+        <div style={{ position: "relative" }}>
+          <NextImage
+            src={`/img/nodes/${iconType}.png`}
+            alt={node.name ?? node.id}
+            title={node.name ?? node.id}
+            width={sizePx}
+            height={sizePx}
+            unoptimized
+            style={nodeImageStyle}
+            onClick={(ev) => {
+              ev.stopPropagation();
+              onClickNode(node);
+            }}
+          />
+          {safeType === "landing" && (
+            <span style={flagStyle} aria-hidden>
+              <span style={flagPennantStyle} />
+            </span>
+          )}
+        </div>
       </Marker>
 
       {/* Label marker (offset below the image) */}

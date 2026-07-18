@@ -28,7 +28,7 @@ export default function SubmapSelector({ sea }: { sea: SectionData }) {
         Sub-map ({sea.key})
       </Typography>
       <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-        {/* Default (base edges) button */}
+        {/* Parent sea edge set shared outside named submaps */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
           <Button
             size="small"
@@ -36,7 +36,7 @@ export default function SubmapSelector({ sea }: { sea: SectionData }) {
             onClick={() => setSelectedSubmap(sea.key, null)}
             sx={submapToggleSx(!selected)}
           >
-            Base
+            Common routes
           </Button>
         </Box>
         {submaps.map((sm) => {

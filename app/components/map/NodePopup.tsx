@@ -24,6 +24,7 @@ export default function NodePopup({
 }) {
   const { node, seaLabel, submapNames } = info;
   const safeType = ALLOWED_NODE_TYPES.has(node.type) ? node.type : "normal";
+  const iconType = safeType === "landing" ? "supply" : safeType;
   return (
     <Popup
       longitude={node.lng}
@@ -38,7 +39,7 @@ export default function NodePopup({
     >
       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
         <NextImage
-          src={`/img/nodes/${safeType}.png`}
+          src={`/img/nodes/${iconType}.png`}
           alt={NODE_TYPE_LABELS[safeType]}
           width={28}
           height={28}
@@ -75,6 +76,13 @@ export default function NodePopup({
             </Box>
           ))}
         </Box>
+      )}
+      {node.bossDialogue && (
+        <Typography
+          sx={{ mt: 1, borderLeft: "3px solid #dc2626", pl: 1, fontSize: 12, fontStyle: "italic" }}
+        >
+          {node.bossDialogue}
+        </Typography>
       )}
     </Popup>
   );

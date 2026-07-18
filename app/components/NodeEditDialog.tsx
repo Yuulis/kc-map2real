@@ -52,6 +52,7 @@ export default function NodeEditDialog({
   const [nodeId, setNodeId] = useState(editing?.id ?? "");
   const [nodeName, setNodeName] = useState(editing?.name ?? "");
   const [nodeType, setNodeType] = useState<NodeType>(editing?.type ?? "normal");
+  const [bossDialogue, setBossDialogue] = useState(editing?.bossDialogue ?? "");
   const [nodeLat, setNodeLat] = useState(editing ? editing.lat : (lat ?? 0));
   const [nodeLng, setNodeLng] = useState(editing ? editing.lng : (lng ?? 0));
 
@@ -78,12 +79,13 @@ export default function NodeEditDialog({
         lat: nodeLat,
         lng: nodeLng,
         name: nodeName.trim() || nodeId.trim(),
+        bossDialogue: nodeType === "boss" ? bossDialogue.trim() : "",
         meta: node?.meta ?? {},
       };
 
       onConfirm(selectedSea, result, [...selectedSubmaps]);
     },
-    [selectedSea, selectedSubmaps, nodeId, nodeType, nodeLat, nodeLng, nodeName, node, onConfirm],
+    [selectedSea, selectedSubmaps, nodeId, nodeType, nodeLat, nodeLng, nodeName, bossDialogue, node, onConfirm],
   );
 
   const handleDelete = useCallback(() => {
@@ -229,6 +231,22 @@ export default function NodeEditDialog({
                 ))}
               </select>
             </div>
+
+            {nodeType === "boss" && (
+              <div className="space-y-1">
+                <label htmlFor="boss-dialogue" className="block text-xs font-medium text-gray-400">
+                  Boss Dialogue
+                </label>
+                <textarea
+                  id="boss-dialogue"
+                  value={bossDialogue}
+                  onChange={(e) => setBossDialogue(e.target.value)}
+                  placeholder="Optional line spoken by the boss"
+                  rows={3}
+                  className="w-full resize-y bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
+                />
+              </div>
+            )}
 
             {/* Coordinates (read-only in add mode, editable in edit mode) */}
             <div className="grid grid-cols-2 gap-3">

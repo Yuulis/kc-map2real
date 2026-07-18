@@ -4,9 +4,11 @@ export type NodeType =
   | "normal"
   | "boss"
   | "supply"
+  | "landing"
   | "relay"
   | "whirlpool"
   | "port"
+  | "air-base"
   | "aerial"
   | "air-rade"
   | "anti-sub-air-rade"
@@ -27,6 +29,8 @@ export interface MapNode {
   lng: number;
   /** Display name */
   name: string;
+  /** Optional line spoken by a boss at this node */
+  bossDialogue?: string;
   /** Extensible metadata */
   meta: Meta;
 }

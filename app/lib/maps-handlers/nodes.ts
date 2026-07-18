@@ -99,6 +99,7 @@ export async function updateNode(body: unknown): Promise<NextResponse> {
   if (updates.name !== undefined) node.name = updates.name;
   if (updates.lat !== undefined) node.lat = updates.lat;
   if (updates.lng !== undefined) node.lng = updates.lng;
+  if (updates.bossDialogue !== undefined) node.bossDialogue = updates.bossDialogue;
   if (updates.meta !== undefined) node.meta = updates.meta;
 
   // If the node id changed, update all edges referencing the old id

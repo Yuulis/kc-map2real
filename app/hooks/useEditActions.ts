@@ -74,6 +74,7 @@ export function useEditActions(
             name: node.name,
             lat: node.lat,
             lng: node.lng,
+            bossDialogue: node.bossDialogue,
             meta: node.meta,
           };
 

@@ -28,9 +28,11 @@ const NODE_TYPES = new Set([
   "normal",
   "boss",
   "supply",
+  "landing",
   "relay",
   "whirlpool",
   "port",
+  "air-base",
   "aerial",
   "air-rade",
   "anti-sub-air-rade",
@@ -56,6 +58,9 @@ function checkNodes(nodes, scope) {
     }
     if (typeof node.lat !== "number" || typeof node.lng !== "number") {
       errors.push(`${scope}: node "${node.id}" has invalid coordinates`);
+    }
+    if (node.bossDialogue !== undefined && typeof node.bossDialogue !== "string") {
+      errors.push(`${scope}: node "${node.id}" has invalid bossDialogue`);
     }
   }
   return ids;
